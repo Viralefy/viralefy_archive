@@ -1,0 +1,8 @@
+---
+description: Diretrizes normativas Viralefy
+alwaysApply: true
+---
+
+Este repositório contém o documento normativo: **[diretrizes.md](./diretrizes.md)** (v4.0).
+
+Desvios exigem ADR em `docs/adr/` do serviço afetado.
