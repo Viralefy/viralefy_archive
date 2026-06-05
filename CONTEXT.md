@@ -7,7 +7,7 @@ Dossiê operacional pra reconstruir o estado da plataforma sem perda em sessões
 Marketplace global de seguidores / curtidas / comentários / compartilhamentos / views pra Instagram e TikTok, mais 4 verticais (Account Recovery, Facebook BMs, perfis envelhecidos, email packs).
 
 - **Storefront**: https://www.viralefy.com (canônico em www; apex e http redirecionam 301 em 1 hop após fix do Caddy).
-- **Admin**: https://admin.viralefy.com — login `admin@viralefy.local` / `SimTest!Admin2026`.
+- **Admin**: https://admin.viralefy.com — credenciais no banco (`admins`); seed agora exige `ADMIN_BOOTSTRAP_EMAIL`+`ADMIN_BOOTSTRAP_PASSWORD` (sem default).
 - **API**: https://api.viralefy.com — Go, chi, OTel, métricas Prometheus.
 - **Observability**: https://obs.viralefy.com — Grafana 12.
 - Stack em **HML** (Hetzner CX31, Debian 13) até ~2026-06-14. Após esse prazo decisão PRD.
