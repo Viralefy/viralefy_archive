@@ -1,0 +1,7 @@
+# Leaks conhecidos em commits históricos do CONTEXT.md. Identidades estão
+# no escopo `no-secret-rotation-nag` (HML/POC, user acknowledged). Rewrite
+# de history não foi feito pra preservar links/blame.
+b6178a0965a9b58f1f49b82f849a1bd479d4a1fe:CONTEXT.md:generic-api-key:58
+ce7af3f68e418d88fecd9ed0f66c227ced7a9ea1:CONTEXT.md:generic-api-key:96
+ce7af3f68e418d88fecd9ed0f66c227ced7a9ea1:CONTEXT.md:generic-api-key:102
+f9694d258bdf234ba2fed975587603666b76f7c6:CONTEXT.md:generic-api-key:78
