@@ -37,7 +37,7 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] CONTEXT.md + CHECKLIST.md mantidos a cada task (este arquivo)
 - [ ] Sentry DSN integration assistant
 - [ ] Grafana contact points (email/Slack)
-- [ ] Cleanup crons para tabelas append-only (user_events, ab_events, email_events)
+- [x] **Cleanup crons para tabelas append-only** — `EventRetentionCron` (24h tick, 90d MaxAge) drena user_events/ab_events/email_events em batches de 1000 com `FOR UPDATE SKIP LOCKED`. user_journeys agregado intacto.
 
 ## Segurança
 
@@ -55,6 +55,8 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] CSP boundary directives (frame-ancestors none, etc.)
 - [x] CORS sem reflection
 - [x] **Security test suite Go** (12 TestSecurity_*: SQLi/XSS/auth/IDOR/rate/mass/CRLF) `viralefy_api ea13ada`
+- [x] **Tests PIX hard-block** (10 cases × provider × moeda × country) — lockam que PIX/Woovi nunca aparecem pra non-BR
+- [x] **Tests Stripe webhook** (12 cases: ok/multi-v1/invalid-sig/expired-ts/future-ts/missing-secret/missing-header/malformed × 5)
 - [x] **Smoke probes bash** (5/5 PASS contra prod) `viralefy_api/scripts/security-probes.sh`
 - [x] Front security tests (CSP/dangerouslySetInnerHTML/session)
 - [x] /v1/track MaxBytesReader 1MB
