@@ -1,356 +1,310 @@
-# Viralefy — Context (snapshot 2026-06-05)
+# Viralefy — Contexto geral
 
-Dossiê operacional pra reconstruir o estado da plataforma sem perda em sessões futuras. Substitui o snapshot de 2026-06-01. Combina com `COMPLIANCE.md` (auditoria viva vs `diretrizes.md`) e `diretrizes.md` (normativo).
-
-## TL;DR
-
-Marketplace global de seguidores / curtidas / comentários / compartilhamentos / views pra Instagram e TikTok, mais 4 verticais (Account Recovery, Facebook BMs, perfis envelhecidos, email packs).
-
-- **Storefront**: https://www.viralefy.com (canônico em www; apex e http redirecionam 301 em 1 hop após fix do Caddy).
-- **Admin**: https://admin.viralefy.com — credenciais no banco (`admins`); seed agora exige `ADMIN_BOOTSTRAP_EMAIL`+`ADMIN_BOOTSTRAP_PASSWORD` (sem default).
-- **API**: https://api.viralefy.com — Go, chi, OTel, métricas Prometheus.
-- **Observability**: https://obs.viralefy.com — Grafana 12.
-- Stack em **HML** (Hetzner CX31, Debian 13) até ~2026-06-14. Após esse prazo decisão PRD.
-
-15 categorias × 130 países × ~97 planos × 47 idiomas. Sitemap ~18.7k URLs canônicas + IndexNow re-submitting completo.
+Snapshot **2026-06-08** (zero-downtime + manual USDT + RBAC become-customer live).
 
 ---
 
-## 1. Acesso e infraestrutura
+## 1. TL;DR — o que é
 
-- **IP**: `62.238.41.231` · **DNS**: Cloudflare A apex+www.
-- **SSH**: chave OpenSSH em `/media/sonne/Archives/projects/viralefy/credentials`.
-- **Acesso**: `ssh -i /tmp/key root@62.238.41.231` (extrair com `awk '/BEGIN OPENSSH/,/END OPENSSH/'`).
-- **Caddy 2.11** TLS auto · zstd+gzip · HSTS preload · X-Robots-Tag.
-- **Postgres 17** em `127.0.0.1:5432` · senha em `/etc/viralefy/.env` (`POSTGRES_PASSWORD`).
-- **systemd hardened** units: `viralefy-{api,front,backoffice}` + `caddy` + obs stack.
+Marketplace de engajamento Instagram/TikTok com cobertura 130 países × 47 idiomas × 15 categorias. USD/USDT canonical; display multi-moeda (BRL/EUR/BTC/USDT). Stack: Go (API) + Next.js 15 (front + backoffice) + Postgres + Caddy + observability (Grafana/Loki/Tempo/Prometheus/Alloy).
 
-### Caddy site blocks (`viralefy_ops/config/Caddyfile`)
-- `http://viralefy.com` → `https://www.viralefy.com{uri}` (1 hop 301, fix da redirect chain 2026-06-05).
-- `viralefy.com` (https) → mesma coisa.
-- `www.viralefy.com` → `127.0.0.1:3000` (Next storefront) + X-Robots-Tag explícito.
-- `admin.viralefy.com` → `127.0.0.1:3001` (Next backoffice) + CSP frame-ancestors none.
-- `api.viralefy.com` → `127.0.0.1:8080` (Go API).
-- `obs.viralefy.com` → `127.0.0.1:3030` (Grafana).
+**Estágio**: HML/POC funcional, payment via Manual PIX (BRL ativo) + Manual USDT (carteira fixa, ativo). Heleket cadastrado mas inactive (aguardando aprovação). Woovi inactive.
 
-### CLIs locais no servidor
-- `viralefy-update [--yes]` — destrutivo: `rm -rf /viralefy/*` + reclona main de cada repo + rebuild + restart. `/etc/viralefy/.env` e Postgres ficam intocados.
-- `viralefy-status` — `systemctl status` agregado.
-- `viralefy-logs` — `journalctl -u viralefy-*`.
+**Tráfego**: catalógo 126 plans, sitemap 47 idiomas × per-lang, drift 0, status `operational`.
 
 ---
 
-## 2. Repos GitHub (org `Viralefy`)
+## 2. Acesso
 
-| Repo | Branch | Diretório local | Stack |
-|---|---|---|---|
-| `viralefy_api` | main | `/media/sonne/Archives/projects/viralefy/viralefy_api` | Go 1.23, chi, pgx, slog, OTel |
-| `viralefy_front` | main | `viralefy_front` | Next.js 15 App Router, React 19 |
-| `viralefy_backoffice` | main | `viralefy_backoffice` | Next.js 15 |
-| `viralefy_ops` | main | `viralefy_ops` | bash installers, Caddyfile, systemd |
-| `viralefy_archive` | main | `viralefy_archive` | docs, brand, tasks |
+| Recurso | URL | Credencial |
+|---|---|---|
+| Storefront | https://www.viralefy.com | — |
+| Backoffice | https://admin.viralefy.com | `viralefy@gmail.com` / `VfIULsiPGXKZGjGfu2yn!` (superadmin) |
+| API | https://api.viralefy.com | Bearer token (RS256) |
+| Observability | https://obs.viralefy.com | `admin` / `6FU6jXSmzJlrPSCBJ6JNprW5dqMYCO1l` |
+| SSH | `root@62.238.41.231` | `/media/sonne/Archives/projects/viralefy/credentials` (extrair com `awk '/BEGIN OPENSSH/,/END OPENSSH/'`) |
+| Postgres | `psql -U viralefy -h localhost -d viralefy` na VPS | senha em `/etc/viralefy/.env DATABASE_URL` |
+| GitHub | https://github.com/Viralefy | 5 repos públicos (api, front, backoffice, ops, archive) |
+
+VPS escalada 2026-06-08: **8 cores · 16GB RAM**.
 
 ---
 
 ## 3. Arquitetura
 
-### `viralefy_api` (DDD 4-layer)
-- **domain/** — entities + repositories interfaces puras (sem deps)
-- **application/** — services orquestrando domain + infra ports
-- **infrastructure/** — Postgres impls, email (Resend/SMTP), payment providers (Woovi/Heleket), Turnstile, OG scraper, observability
-- **interface/http/** — handlers chi + middleware (AdminAuth, UserAuth, RequirePermission, RateLimit, Idempotency)
+```
+[Caddy] → www  → next.js front (Next 15 App Router)
+       → admin → next.js backoffice (Next 15)
+       → api   → Go (chi router, RS256 JWT dual-sign w/ HS256 legacy)
+       → obs   → Grafana
+       │
+       └── /v2 (X-API-Key) → Go (read-only B2B endpoints)
+       │
+       └── /.well-known/jwks.json (public RSA key)
 
-### `viralefy_front`
-- Server components dominantes. `force-dynamic` na maioria das LPs (SEO precisa de fetch fresh do catálogo).
-- App Router. Metadata API pra SEO. Open Graph + JSON-LD em `@graph`.
-- i18n manual em `src/i18n/{languages,countries,categories,legal}.ts` (47 langs, 130 países, 15 categorias).
-- Componentes principais: `BuyPlanCta`, `CheckoutModal`, `Header`, `Footer`, `TrustSignals`, `RecoveryForm`, `LiveCounter`, `CategoryGroupedGrid`, `QuantitySlider`.
+PostgreSQL 17 (single-tenant)
+Grafana / Loki / Tempo / Prometheus / Alloy / node-exporter
+viralefy-backup.timer (daily 03:00 UTC, 7d+4w+6m retenção)
+```
 
-### `viralefy_backoffice`
-- Mesma stack Next 15. EN-default desde 2026-06-04 (admin tinha PT misturado, traduzido inteiro).
-- Páginas: `/dashboard`, `/orders`, `/orders/[id]`, `/users`, `/users/[id]`, `/invoices`, `/invoices/[id]`, `/plans`, `/plans/[id]/edit`, `/currencies`, `/gateways`, `/tickets`, `/tickets/[id]`, `/reviews`.
-- RBAC enforcement via `can()` helper local + permission check no API.
+**DDD 4-layer** no API: domain ↔ application ↔ infrastructure ↔ interface. Migrations versionadas em `internal/infrastructure/persistence/postgres/migrations/` (015→033).
 
----
-
-## 4. Domínio / Schema do Postgres
-
-### Migrations atuais (`internal/infrastructure/persistence/postgres/migrations/`)
-1. `001_init.up.sql` — users, plans, orders, payment_gateways, admins
-2. `002_features.up.sql` — categories
-3. `003_plan_prices.up.sql` — plan_prices (currency code → price string)
-4. `004_rbac.up.sql` — roles, role_permissions
-5. `005_payment.up.sql` — currencies, invoices (recargas de saldo)
-6. `006_helpdesk.up.sql` — tickets, ticket_messages
-7. `007_profiles_credits.up.sql` — profiles (IG/TT), credit_accounts, credit_transactions
-8. `008_split_engagement.up.sql` — split de "engajamento" em curtidas/comentarios/shares por plataforma
-9. `009_usdt_default.up.sql` — flip USDT como display canônico
-10. `010_marketplace_recovery.up.sql` — categorias recovery + bms_facebook + perfis_redes + emails_validados; orders.custom_data + orders.ticket_id
-11. `011_usd_base_rates.up.sql` — currency rates flip BRL-base → USD-base
-12. `012_idempotency_audit.up.sql` — idempotency_keys + audit_log
-13. `013_tracking.up.sql` — orders.tracking JSONB + users.tracking_data + indexes em fbclid/gclid/client_id/utm_campaign
-14. `014_baseline_metrics.up.sql` — orders.baseline_metrics + delivery_metrics + captured_at + source
-15. `015_reviews.up.sql` — reviews table (UNIQUE order_id, CHECK rating 1-5, visible bool) + orders.review_email_sent_at
-
-### Roles RBAC seeded
-| Role | Permissões |
-|---|---|
-| superadmin | plans:read+write, gateways:read+write, currencies:read+write, orders:read, tickets:read+write, reviews:read+moderate, admins:manage |
-| manager | plans, gateways, currencies, orders, tickets, reviews:read+moderate |
-| support | plans:read, gateways:read, currencies:read, orders:read, tickets:read+write, reviews:read |
-| viewer | tudo `:read`, reviews:read |
-
-### Categorias (15)
-seguidores_instagram, seguidores_tiktok, curtidas_instagram, curtidas_tiktok, comentarios_instagram, comentarios_tiktok, compartilhamentos_instagram (inclui saves), compartilhamentos_tiktok, visualizacoes_instagram, visualizacoes_tiktok, servicos, recuperacao_perfil, bms_facebook, perfis_redes, emails_validados.
-
-### Moedas seeded (`internal/infrastructure/persistence/postgres/seed.go`)
-USDT (`$`, rate 1, canônica), USD (`$`, rate 1), EUR (`€`, rate 0.92), BRL (`R$`, rate 5.41 — mercado BR-only), BTC (`₿`, rate 0.0000103).
+**Front**: Server components por padrão; client components onde tem state (CheckoutModal, CategoryCardGrid). 47 i18n packs (`src/i18n/languages.ts`). 28 países × PPP (`country_ppp`). 28 países EU+GB × VAT (`tax_rates`).
 
 ---
 
-## 5. SEO completo (estado pós-Ahrefs audit 2026-06-05)
+## 4. Schema PostgreSQL (33 migrations consumidas, 015 → 033)
 
-### hreflang
-- `src/lib/hreflang.ts` — 4 helpers (homeAlternates, countryRootAlternates, categoryAlternates, slugAlternates). Cada tipo de página é seu próprio grupo. x-default sempre aponta pra variante en-US **do mesmo grupo**, nunca `/`.
-- 20 invariantes em `tests/unit/hreflang.test.mjs`.
-
-### Robots
-- `src/app/robots.ts` — User-agent: *, Allow /, Disallow /account /tickets /login /register /api/. Sitemap declarado. `Host:` directive removida (legacy Yandex, RFC 9309 não suporta).
-- `<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">` em todas LPs públicas via `src/lib/seo-meta.ts`.
-- `X-Robots-Tag` HTTP idem via Caddy.
-
-### Dates
-- `src/lib/seo-meta.ts`: `SITE_LAUNCH_DATE = "2026-01-01T00:00:00Z"`.
-- `<meta name="article:published_time">` + `article:modified_time` em todas LPs.
-- `WebPage.datePublished` + `dateModified` no JSON-LD.
-
-### JSON-LD
-- `src/lib/jsonld.ts` — `buildHomeJsonLd` + `buildCountryJsonLd` retornam `{ @context, @graph: [...] }` (1 script tag por página).
-- Home: Organization + WebSite + Service com AggregateOffer.offers contendo TODOS os planos (Offer com image, shippingDetails, hasMerchantReturnPolicy, priceValidUntil).
-- Country/Category/Slug: Organization + WebSite + WebPage + BreadcrumbList + Service + AggregateOffer + Offer por plano. WebPage carrega datePublished/dateModified.
-- Marketplace index: CollectionPage + BreadcrumbList + ItemList.
-- Marketplace sub-pages: BreadcrumbList + Service + AggregateOffer + Offer por plano + FAQPage.
-- Slug page: Product com image + aggregateRating (quando há reviews) + Offer (com enhancements).
-- `buildAggregateRating(agg)` retorna null quando review_count=0 (anti-fake policy do Google).
-- `sameAs` da Organization vazio (GitHub removido por feedback do owner em 2026-06-05).
-
-### Merchant Listings enhancements (em todo Offer)
-`buildOfferEnhancements(countryCode)` retorna `shippingDetails` (OfferShippingDetails $0 USD, 0-day handling, 0-1 day transit) + `hasMerchantReturnPolicy` (FiniteReturnWindow 30 dias, FreeReturn, ReturnByMail, applicableCountry).
-
-### Sitemap
-- `src/app/sitemap.ts` — sitemapindex + 47 buckets per-lang (`/sitemap/{lang}.xml`) + bucket `legal`.
-- `export const revalidate = 3600` (1h) + `fetchPlans` com `next.revalidate: 3600` (era no-store, causava slow page Ahrefs).
-- Sitemap completo: ~18.7k URLs canônicas.
-
-### IndexNow
-- `/api/indexnow` POST com `INDEXNOW_SECRET` header → submete todas URLs canônicas em chunks de 10k pra `https://www.bing.com/indexnow`.
-- Re-submit completo feito em todos os deploys recentes.
-
-### Legal pages
-- `src/i18n/legal.ts` — `legalMetaDescription(lang, slug)` extrai primeiro parágrafo do body + sufixo de marca, truncado em 158 chars (era "Privacy Policy — Viralefy" = 25 chars, Ahrefs flagava em massa).
-- Cada variante `?lang=X` self-canonicaliza (antes TODAS canonicalizavam pra ?lang=en).
-
-### Footer links
-- `src/components/Footer.tsx` adicionou seção Marketplace (Overview + 3 sub-paths) — antes `/marketplace` era orphan e sub-paths tinham 1 incoming link.
-
----
-
-## 6. Currency (USD-canonical multi-currency)
-
-- **Canonical**: USD-cents internamente em TUDO (plan.price_cents, invoice.amount_cents, credit_accounts.balance_cents, credit_transactions.amount_cents).
-- **Display**: usuário escolhe currency em `Providers.tsx` (default USDT, persistido em localStorage).
-- **Conversion**: backend `CurrencyService.QuoteForPlan(prices, usdCents, displayCode)` → manual price se houver, senão deriva de USD × rate.
-- **Settlement**: USD exibe → USDT cobra; BRL exibe → BRL cobra (PIX local); USDT/BTC self-settle.
-- **PRESETS top-up**: `[10, 25, 50, 100, 250, 500]` em USD canônico (era `[50,100,200,500,1000,2000]` em "reais"; bug crítico).
-- **Backoffice credit adjust**: form é "Δ em USD ($)" — antes "Δ em R$" e admin entrava 50 achando R$50 mas saía $50 (≈ R$270). Bug silencioso resolvido em 01e90e0.
-
----
-
-## 7. i18n / Idioma
-
-- **Default global**: EN (Open Graph locale `en_US`).
-- **pt-BR**: SÓ quando country=BR ou usuário escolheu PT no seletor.
-- **Backoffice**: EN-default desde 2026-06-04 (toda PT removida; `tests/unit/no-pt-regression.test.mjs` guarda).
-- **Front**: 47 langs em `PACKS` (src/i18n/languages.ts) + 130 países com `htmlLang` BCP47.
-- **Geo detection**: `/api/geo` lê `CF-IPCountry` ou Accept-Language → fallback USDT.
-- **Email templates**: EN-only por enquanto (Build*Email helpers em `viralefy_api/internal/application/email_template*.go`). Localização por `user.locale` é follow-up.
-
----
-
-## 8. Crons rodando
-
-| Cron | Intervalo | Delay | Batch | Função |
-|---|---|---|---|---|
-| `DeliveryCaptureCron` | 15m | 24h | 25 | Snapshot 2ª fonte de verdade (perfil/post público) pra pedidos paid há > 24h |
-| `ReviewRequestCron` | 1h | 168h (7d) | 50 | Email "How was your order?" pós-paid + link `/orders/{id}/review` |
-| `IdempotencyCleanupCron` | 1h | — | 500 | DELETE FROM idempotency_keys WHERE expires_at < NOW() (TTL 24h) |
-
-Padrão comum: `atomic.Bool` guard contra double-start, `Start(ctx)`/`Stop()`, tick imediato no boot, fail-warn-continue em erros individuais.
-
----
-
-## 9. Reviews (feature completa, deploy 2026-06-04)
-
-- Submissão em `/orders/[id]/review` (5-star + headline + body). Idempotency-Key + rate-limit no backend.
-- Trigger: `ReviewRequestCron` 7d pós-paid → email com link.
-- Hidratação author: `"First L."` via SPLIT_PART no Postgres.
-- Visualização: stars badge sob H1 + seção "Customer reviews" no plan slug page.
-- aggregateRating no JSON-LD do Product (null quando count=0).
-- Admin moderation: `/reviews` no backoffice com filtro All/Hidden + Hide/Restore. Permissões `reviews:read` + `reviews:moderate` no RBAC.
-- Endpoints: `POST /v1/me/reviews`, `GET /v1/me/reviews/by-order/{id}`, `GET /v1/plans/{id}/reviews`, `GET /v1/categories/{code}/reviews`, `GET /v1/admin/reviews`, `PATCH /v1/admin/reviews/{id}`.
-
----
-
-## 10. Anti-fraude / Tracking captado (mas não enforced)
-
-- `orders.tracking` JSONB: utm_source/medium/campaign/term/content, fbclid, gclid, ttclid, msclkid, referrer, landing_url, client_id (gerado client-side em `src/lib/tracking.ts`, persistido em localStorage), viewport, user_agent.
-- `users.tracking_data` igual no momento do register.
-- Backend `enrichTracking` adiciona IP, UA, X-Forwarded-For.
-- **AINDA NÃO**: velocity rules, fingerprint, email reputation. Ver `RECOMMENDATIONS.md` Tier 1.
-
----
-
-## 11. Pagamento
-
-- **Providers ativos**: Woovi (BRL/PIX), Heleket (USDT/BTC). Manual PIX como fallback.
-- **Webhooks**: `/v1/webhooks/woovi`, `/v1/webhooks/heleket` — assinatura validada (HMAC) antes de processar.
-- **PaymentReceiver.onOrderPaid**: dispara em paralelo `maybeOpenTicket` (high-touch categories: recovery, bms_facebook, perfis_redes) + `sendConfirmationEmail` + `notifyAdmin` (Slack-compatible webhook em `ADMIN_WEBHOOK_URL`).
-- **Idempotency-Key** obrigatório em /checkout e /recovery-request (24h TTL, SHA256 body hash).
-- **Mínimo recarga**: $5 USD (500 cents).
-
----
-
-## 12. Tests
-
-| Surface | Suite | Tests |
+| # | Migration | Tabela / Mudança |
 |---|---|---|
-| viralefy_api | `go test ./...` | 92 |
-| viralefy_front | `npm test` | 358 |
-| viralefy_backoffice | `npm test` | 4 (regression guard PT) |
-| **Total** | | **454** |
+| 015 | Reviews | `reviews` |
+| 016 | Email reputation | `email_events`, `email_reputation` |
+| 017 | Coupons | `coupons`, `coupon_redemptions` |
+| 018 | Orders abandonment | `orders.abandonment_email_sent_at` |
+| 019 | Users notif_prefs | `users.notif_prefs JSONB` |
+| 020 | User data | `user_deletion_requests`, `users.deleted_at` |
+| 021 | Country PPP | `country_ppp` (28 países) |
+| 022 | Referrals | `users.referral_code`, `users.referred_by_user_id`, `referral_rewards` |
+| 023 | A/B experiments | `ab_experiments`, `ab_assignments`, `ab_events` |
+| 024 | Fraud signals | `fraud_signals`, `fraud_blocks` |
+| 025 | Refunds | `order_refunds`, `orders.refunded_usd_cents` |
+| 026 | Subscriptions | `subscriptions`, `orders.subscription_id` |
+| 027 | Tax rates | `tax_rates` (28 países EU+GB), `orders.tax_*` |
+| 028 | User WhatsApp | `users.whatsapp_*` |
+| 029 | Vendors | `vendors`, `plans.vendor_id` |
+| 030 | API keys | `api_keys` |
+| 031 | Target country | `orders.target_country_code` |
+| 032 | Gateway currencies | `payment_gateways.accepted_currencies TEXT[]` |
+| 033 | User events | `user_events`, `user_journeys` |
 
-### Suites no viralefy_api
-- `application/`: currency, email templates EN, invoice input, review service, review email, idempotency cron, delivery cron
-- `interface/http/`: helpers (clientIP, bearerToken, writeError envelope), ratelimit, middleware (RequirePermission, principal ctx)
-
-### Suites no viralefy_front
-- format (priceFor, formatBalance, formatPresetUsd)
-- jsonld (deep, merchant listing, currency priority, aggregate rating, home)
-- hreflang (20 invariantes: x-default rules, reciprocity, group isolation)
-- robots (Host directive removed guard)
-- categories, geo-currency, languages, plan-slugs, sitemap-xml, site-urls-integrity, theme
-- no-brl-leak (anti-regressão BRL como default)
+Próxima migration livre: **034**.
 
 ---
 
-## 13. Comandos úteis
+## 5. Pagamento — providers
 
-```bash
-# Deploy
-ssh -i /tmp/key root@62.238.41.231 "viralefy-update --yes"
+| Provider | Status | Currencies | Como funciona |
+|---|---|---|---|
+| `manual_pix` | **active** (BRL) | `{BRL}` | Admin põe pix_key. Customer copia, paga, admin marca paid. |
+| `manual_usdt` | available, customizar/ativar | `{USDT, USD}` default | Admin põe wallet_address + network (TRC20/ERC20/BEP20/Polygon/Solana) + memo opcional. Customer copia, paga, admin marca paid. |
+| `heleket` | inactive (aguardando aprovação) | `{USDT, USD, EUR, BTC}` | Integração automática + webhook Svix |
+| `woovi` | inactive | `{BRL}` | PIX automático via Woovi |
 
-# IndexNow (re-submit all 18.7k URLs)
-curl -X POST https://www.viralefy.com/api/indexnow \
-  -H "x-indexnow-secret: $INDEXNOW_SECRET" \
-  -H "Content-Type: application/json" -d '{}'
+Validação no service: provider enum + accepted_currencies dedup/uppercase + bloqueia active sem currencies. Cascade lib (`providerDefaultCurrencies` em `gateway_service.go`).
 
-# Tests
-cd viralefy_api && go test ./...
-cd viralefy_front && npm test
-cd viralefy_backoffice && npm test
+---
 
-# Logs
-ssh -i /tmp/key root@62.238.41.231 "journalctl -u viralefy-api -n 200 --no-pager | grep cron"
+## 6. Crons rodando
 
-# DB
-ssh -i /tmp/key root@62.238.41.231 "sudo -u postgres psql -d viralefy -c '\\d reviews'"
+| Cron | Tick | O que faz |
+|---|---|---|
+| `viralefy-backup.timer` | diário 03:00 UTC | pg_dump + gzip + retenção |
+| IdempotencyCleanupCron | 1h | Remove keys expirados |
+| DeliveryCaptureCron | 15min | Snapshot 2ª fonte de verdade (24h pós-paid) |
+| ReviewRequestCron | 1h | Email "how was your order?" 7d pós-paid |
+| PlanPriceDriftCron | 1h | Métrica `viralefy_plan_price_drift_rows` |
+| FraudVelocityCron | 5min | Agrega signals → fraud_signals |
+| CartAbandonmentCron | 30min | Email "complete payment" 1-24h pós-pending |
+| SubscriptionCron | 1h | Renovação mensal de subs |
+
+---
+
+## 7. Endpoints — superfície pública
+
+```
+GET    /health
+GET    /ready
+GET    /metrics                              # Prometheus
+GET    /.well-known/jwks.json                # RS256
+
+# /v1 público
+GET    /v1/plans
+GET    /v1/categories
+GET    /v1/currencies
+GET    /v1/country-ppp
+GET    /v1/tax-rates
+GET    /v1/status                            # overall + 3 services
+POST   /v1/checkout                          # cupom + tax + target_country
+POST   /v1/recovery-request
+POST   /v1/coupons/validate
+POST   /v1/ab/assign                         # rate-limited
+POST   /v1/ab/track                          # rate-limited
+POST   /v1/track                             # event behavior (MaxBytes 1MB)
+GET    /v1/referrals/{code}/info
+POST   /v1/webhooks/{woovi,heleket,resend}   # Svix sig pro Resend
+
+# /v1/auth
+POST   /v1/auth/login                        # admin (rate-limited 10/15min)
+POST   /v1/auth/user/register                # rate-limited
+POST   /v1/auth/user/login                   # rate-limited
+
+# /v1/me (Bearer user)
+GET    /v1/me/orders
+GET    /v1/me/orders/{id}
+GET    /v1/me/profiles | POST | DELETE
+GET    /v1/me/credits | transactions | invoices
+POST   /v1/me/recharge
+GET    /v1/me/tickets | POST | replies
+POST   /v1/me/reviews
+GET    /v1/me/referral
+GET    /v1/me/subscriptions | POST | DELETE
+GET    /v1/me/notif-prefs | PUT
+GET    /v1/me/whatsapp | PUT
+GET    /v1/me/data/export
+POST   /v1/me/data/deletion | DELETE
+GET    /v1/me/api-keys | POST | DELETE
+GET    /v1/me/journey
+
+# /v1/admin (Bearer admin + RBAC)
+POST   /v1/admin/me/become-customer          # cria shadow user + session
+GET    /v1/admin/{plans,gateways,orders,tickets,users,coupons,fraud/signals,ab/experiments,vendors,...}
+POST   /v1/admin/orders/{id}/refund
+POST   /v1/admin/orders/{id}/mark-paid
+PUT    /v1/admin/currencies/{code}
+
+# /v2 B2B (X-API-Key)
+GET    /v2/plans
+GET    /v2/orders/{id}/status
 ```
 
 ---
 
-## 14. Decisões importantes / Quirks
+## 8. Observabilidade
 
-1. **HML/POC**: rotação de segredos NÃO necessária até ~2026-06-14. Memory file `no-secret-rotation-nag.md` cobre.
-2. **USDT é canonical**, não BRL nem USD. Símbolo `$` porque 1:1 com USD globalmente. BRL é subsidiária — só BR market.
-3. **Admin em EN**, mesmo a equipe sendo BR. Locale-aware via `toLocaleString()` sem args (browser default).
-4. **Email pt-BR removido** — todos templates em EN. Localização por `user.locale` é follow-up.
-5. **GitHub removido do sameAs** em 2026-06-05 (owner pediu — sameAs é pra perfis sociais oficiais, não repos).
-6. **`@graph` wrapper** em todo JSON-LD pra evitar visualizer "duplicação" via @id expansion.
-7. **Force-dynamic** em maioria das LPs porque catálogo precisa ser fresh (mas sitemap cacheado 1h pra Ahrefs slow page fix).
-8. **next/og crash em Arabic countries** (lookupType 5 substFormat 3) — workaround: OG image usa Intl.DisplayNames("en") pra nome do país; localized text só em og:title e document.title.
+- Prometheus em `127.0.0.1:9090` com 11 alert rules em 6 grupos: `viralefy_uptime`, `viralefy_backup`, `viralefy_data_invariants`, `viralefy_payments`, `viralefy_security`, `viralefy_database`
+- Grafana em `obs.viralefy.com` — datasources Prometheus + Loki + Tempo
+- Loki captura logs estruturados JSON do API; alloy faz scrape
+- node-exporter expõe textfile collector com métricas customizadas (`viralefy_backup_*`)
+- Contact points no Grafana ainda vazios — alerta dispara mas não notifica até ser configurado
 
 ---
 
-## 15. Recent commits (top de cada repo)
+## 9. Segurança
 
-### viralefy_api
-- `326496d` feat(reviews): admin moderation + user-visible reviews + idempotency cleanup cron
-- `7fa5476` feat(reviews): post-delivery review collection — aggregateRating in JSON-LD
-- `b9e15a1` feat(cron,http): delivery capture cron (24h post-paid) + 42 new Go tests
-- `8658109` test: Go tests for currency/invoice/email — USD-cents + EN invariants
-- `1d8cc5c` fix(emails,invoice): English-default templates, USD-cents canonical comments
-
-### viralefy_front
-- `2a38fe9` feat(seo): explicit robots meta + article:published/modified dates
-- `0c47bb5` fix(seo): JSON-LD as single @graph + drop GitHub sameAs
-- `6973be4` feat(seo): full Product/Offer schema on home + marketplace pages
-- `ab2343e` perf(sitemap): cache plan fetch in allSiteUrls (revalidate=3600)
-- `b1fec63` fix(seo): close out 10 remaining Ahrefs Site Audit findings
-- `f1f5470` fix(seo): hreflang — separate groups + x-default to en-US
-
-### viralefy_backoffice
-- `6660d33` feat(reviews): moderation page for customer reviews
-- `f6a7354` feat(i18n): translate entire admin UI to English + locale-aware dates
-- `01e90e0` fix(users): credit adjust form labeled USD not R$ (canonical unit)
-
-### viralefy_ops
-- `d5f5013` fix(caddy): drop @private X-Robots-Tag override that wasn't applying
-- `6404977` feat(caddy): X-Robots-Tag explicit header on www.viralefy.com
-- `6dd5bc9` fix(caddy): eliminate redirect chain http://apex → https://www in one hop
+- **JWT RS256 dual-sign** com kill-switch (`LEGACY_HS256_DISABLED`); JWKS público
+- **Login rate-limit** 10/15min por IP em /auth (3 endpoints)
+- **Fraud check pré-checkout**: IsBlocked(email) + IsBlocked(ip)
+- **CSP boundary**: frame-ancestors none, object-src none, base-uri self, form-action self
+- **GDPR cookie banner** + /legal/cookie-preferences + manage-data (export + 30d deletion)
+- **Anti-fraude velocity** cron (5min): email 3/24h warn + 10/h block; ip 10/h block
+- **Security test suite** Go (12 TestSecurity_*): SQLi/XSS/auth bypass/IDOR/rate-limit/mass assignment/CRLF
+- **Smoke probes** bash: 5/5 PASS contra prod
+- **gitleaks** CI em 5 repos + .gitleaksignore para leaks históricos
+- **Sentry** SDK wired em api/front/backoffice (no-op até DSN configurado)
+- **Senha admin viralefy@gmail.com** — não tem nag de rotação (HML)
 
 ---
 
-## 16. Backlog Tier-1 ABERTO (ver RECOMMENDATIONS.md pra plano completo)
+## 10. Deploy
 
-1. **Postgres backup automatizado** (pg_dump cron → B2/Storage Box)
-2. **JWT RS256** (HS256 atual; vaza secret = vaza tudo)
-3. **CI/CD GitHub Actions** (deploy gated por testes)
-4. **Status page público** (Grafana hoje é interno)
-5. **Anti-fraude velocity rules** (tracking já capturado, só falta enforcement)
-6. **Email reputation check** (bloqueio disposable/typos em registers anônimos)
+**Zero-downtime via build-then-swap**:
+```
+viralefy-update --yes        # padrão, ~5s downtime
+viralefy-update --legacy     # destrutivo (~5-10min) — só emergência
+```
+
+1. Clone + build em `/viralefy.next/` em paralelo aos serviços live
+2. Atomic mv `/viralefy → /viralefy.prev` + `/viralefy.next → /viralefy`
+3. Restart services (~3s)
+4. Healthcheck 30s; rollback automático se falhar
+
+**Build inteligente**: API Go + 2 Next.js builds em paralelo. Aproveita 8 cores. Total ~3-5min sem nenhum impacto em prod até o swap.
+
+**Build-fail-safe**: se algum build falha, `/viralefy/` permanece intocado. Reportar erro no log e exit. Já validado em prod (fix do `/auth/handoff` Suspense).
 
 ---
 
-## 17. Estrutura de diretórios (resumo)
+## 11. Tests
+
+- API Go: `go test -count=1 ./...` → application + interface/http verde
+- Front Next: `npm test` → 385/385+ (zod schemas + sitemap integrity + security probes + format)
+- Backoffice Next: `npm test` (4 tests)
+- CI/CD GitHub Actions em 4 repos (api/front/backoffice/ops) + gitleaks em todos os 5
+
+---
+
+## 12. Tracking (Wave 5)
+
+- `user_events` (append-only granular) + `user_journeys` (1:1 first-touch wins via COALESCE)
+- Front `lib/track.ts` + `TrackingHydrator` em layout root
+- Event types whitelist: pageview, click, modal_open, modal_close, checkout_start, checkout_complete, abandon, landing
+- Batch 10 events/10s + flush via sendBeacon on `beforeunload` (com re-queue se sendBeacon false)
+- visitor_id sticky cookie + localStorage 1y
+- Endpoint `/v1/track` MaxBytesReader 1MB, sempre 204
+
+---
+
+## 13. Tabelas que crescem (atenção)
+
+| Tabela | TTL | Cleanup |
+|---|---|---|
+| `idempotency_keys` | 24h | IdempotencyCleanupCron |
+| `user_events` | TODO: append-only | **policy a definir** |
+| `ab_events` | TODO: append-only | **policy a definir** |
+| `email_events` | TODO: append-only | **policy a definir** |
+| `audit_log` | nunca | auditoria |
+
+---
+
+## 14. Diretórios
 
 ```
-viralefy/
-├── viralefy_api/
-│   ├── cmd/api/main.go              # wire DI + start crons
-│   └── internal/
-│       ├── application/              # services + crons
-│       ├── domain/                   # entities + repo interfaces
-│       ├── infrastructure/
-│       │   ├── external/             # email, payment, turnstile, metrics scraper, webhook
-│       │   ├── observability/        # slog, OTel, Prometheus
-│       │   └── persistence/postgres/ # repos + migrations + seed
-│       └── interface/http/           # handlers, middleware, router
-├── viralefy_front/
-│   ├── src/
-│   │   ├── app/                      # App Router (home, [country], legal, marketplace, orders/[id]/review, account, api)
-│   │   ├── components/
-│   │   ├── i18n/                     # countries, languages, categories, legal
-│   │   └── lib/                      # api, auth, jsonld, hreflang, seo-meta, format, tracking, indexnow
-│   └── tests/unit/                   # 358 tests
-├── viralefy_backoffice/              # 4 PT-regression tests
-├── viralefy_ops/
-│   ├── bin/                          # viralefy-update, status, logs
-│   ├── config/Caddyfile              # 4 site blocks
-│   ├── installer/                    # 00-prereqs, 30-secrets, 50-build, 60-systemd
-│   └── systemd/                      # hardened units
-└── viralefy_archive/
-    ├── CONTEXT.md                    # ESTE arquivo
-    ├── RECOMMENDATIONS.md            # roadmap 30 items
-    ├── COMPLIANCE.md                 # auditoria viva
-    └── diretrizes.md                 # normativo
+/media/sonne/Archives/projects/viralefy/
+├── credentials               # SSH key
+├── viralefy_api/             # Go DDD
+├── viralefy_front/           # Next.js storefront
+├── viralefy_backoffice/      # Next.js admin
+├── viralefy_ops/             # Installer + config + bin
+├── viralefy_archive/         # Docs (este arquivo, ROADMAP, RUNBOOK, etc.)
+└── memory/                   # Auto-memory persistente
 ```
+
+Na VPS:
+```
+/viralefy/{api,front,backoffice,ops,archive}   # atual (symlink-equivalent — mv direto)
+/viralefy.next/                                 # staging durante deploy
+/viralefy.prev/                                 # backup do anterior (cleanup async)
+/etc/viralefy/.env                              # secrets, mode 0640 root:viralefy
+/var/backups/viralefy/dump-*.sql.gz             # backups com retenção
+/etc/prometheus/{prometheus.yml,alerts.yml}     # 11 rules em 6 groups
+```
+
+---
+
+## 15. Documentos vivos no archive
+
+| Arquivo | Pra que serve |
+|---|---|
+| [CONTEXT.md](CONTEXT.md) | Este snapshot. Lê primeiro em qualquer próxima sessão. |
+| [CHECKLIST.md](CHECKLIST.md) | Tudo que o user pediu × done/pending |
+| [ROADMAP.md](ROADMAP.md) | Roadmap por fase + status (30/30 RECOMMENDATIONS + Waves 4 + 5) |
+| [RUNBOOK.md](RUNBOOK.md) | Ops playbook (deploy, incident, restore) |
+| [RECOMMENDATIONS.md](RECOMMENDATIONS.md) | Lista original de 30 itens (referência histórica) |
+| [COMPLIANCE.md](COMPLIANCE.md) | Notas legais (GDPR/PT-BR) |
+| [AGENTS.md](AGENTS.md) | Instruções pra agentes |
+| [diretrizes.md](diretrizes.md) | Diretrizes técnicas do projeto |
+
+---
+
+## 16. O que está completo e pronto pra revenue
+
+- Storefront em 47 idiomas, 130 países, 15 categorias × Instagram/TikTok
+- Checkout com cupom + VAT EU + PPP visual + tax cobrado + target_country
+- Pagamento Manual PIX (BRL) + Manual USDT (crypto) ativos
+- Admin tem botão "Open customer side" pra testar sem outro registro
+- Cron de cart abandonment + email já dispara
+- Subscription mensal com cron de renovação
+- Referral com signup + payout hooks integrados
+- Fraud pre-checkout block
+- 11 alert rules vivas em Prometheus
+- Backup diário com restore drill validado (1s, 0 erros)
+- Zero-downtime deploy ativo (5s downtime, build-fail-safe)
+
+**Não pronto** (decisão de produto):
+- Heleket activation (aguardando)
+- Sentry DSN (criar conta + paste no env)
+- Grafana contact points (email/slack)
+- WhatsApp provider real (DryRun stub serve por ora)
+- Multi-vendor settlement split
+- API B2B rate-limit per-key
+- Cleanup crons pra `user_events` / `ab_events` / `email_events`
