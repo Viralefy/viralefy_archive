@@ -127,6 +127,7 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] hreflang via lib/hreflang.ts
 - [x] JSON-LD schema (Product/Offer/Service/AggregateOffer/BreadcrumbList)
 - [x] Robots.txt fix (deprecated Host: removido)
+- [x] **Sitemap paginação** — max 100 URLs por XML (`<lang>` = página 1 back-compat, `<lang>-2`, `<lang>-3`… para shards seguintes). Índice `/sitemap.xml` enumera via `paginatedBuckets()` pra crawler nunca baixar 404. 5 testes novos lock invariantes.
 
 ## Pagamento — providers
 
