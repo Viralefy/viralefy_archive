@@ -159,9 +159,24 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] Migration 034: `order_proofs` table + `orders.proof_url`/`proof_uploaded_at`/`proof_status`/`proof_note`
 - [x] `OrderRepository.SetProof` (idempotente, append em order_proofs + denormaliza order)
 - [x] `OrderRepository.AssignGateway` (reescolha de método em order pending)
+- [x] `OrderRepository.SetProofStatus` + `ListPendingProofs` (fila SLA)
 - [x] Endpoint `POST /v1/me/orders/:id/proof` (JSON com data URL base64 até 800KB)
+- [x] Endpoint `POST /v1/admin/orders/:id/proof/decision` — approve dispara mark-as-paid, reject volta pendente
+- [x] Endpoint `GET /v1/admin/proofs/pending?limit=N`
 - [x] UI ProofUploadSection no step instructions (input file + nota TX hash)
+- [x] Backoffice `/orders/[id]` mostra **ProofCard** com preview (imagem ou link) + botões Approve/Reject + reviewer note
+- [x] Backoffice `/orders` mostra badge "📎 Proofs to review · N" + toggle de filtro proof_status=pending
 - [ ] Object storage real (S3/MinIO) — hoje base64 inline; OK pra MVP
+
+## Crypto automático multi-currency (Heleket)
+
+- [x] Pool ampliado 5 → 17 moedas no seed (ETH/LTC/BNB/SOL/TRX/MATIC/XRP/DOGE/ADA/USDC/DAI/GBP)
+- [x] Cryptos novas com `display_enabled=false` (não poluem picker do storefront, mas servem como cobrança)
+- [x] Providers multi-currency (Heleket/Stripe) expandem em N cards (um por accepted_currency)
+- [x] Conversion note carrega 2 pernas: display→charged ("Price shown €50") + charged→settle ("platform settles in USDT")
+- [x] `CheckoutInput.PayCurrency` + `PaymentChargeInput.Currency` overridable
+- [x] Front envia `pay_currency=charged_currency` quando cliente clica card multi-currency
+- [x] Backoffice Heleket defaults: USDT+BTC+ETH+LTC (em vez de só USDT)
 
 ## Memory persistido em viralefy_archive
 
