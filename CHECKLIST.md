@@ -141,7 +141,7 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] Multi-select accepted_currencies expandido (USDT/USD/EUR/BRL/GBP/BTC/LTC/ETH/BNB/SOL/TRX/MATIC)
 - [x] Defaults provider-aware (Woovi/PIX→BRL; manual_crypto→USDT; Stripe→USD/EUR/BRL/GBP)
 - [~] Heleket activation (cliente)
-- [ ] Stripe webhook signature verify + auto-paid (hoje cai em mark-as-paid manual)
+- [x] **Stripe webhook signature verify + auto-paid** — `POST /v1/webhooks/stripe` valida HMAC SHA256(`t.payload`) com tolerance 5min, escuta `checkout.session.completed` e dispara `MarkOrderPaid` via `client_reference_id`
 
 ## Checkout — UX nova (2026-06-08)
 
@@ -166,6 +166,7 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] UI ProofUploadSection no step instructions (input file + nota TX hash)
 - [x] Backoffice `/orders/[id]` mostra **ProofCard** com preview (imagem ou link) + botões Approve/Reject + reviewer note
 - [x] Backoffice `/orders` mostra badge "📎 Proofs to review · N" + toggle de filtro proof_status=pending
+- [x] Email transacional ao cliente quando proof é rejected (best-effort, não bloqueia decisão)
 - [ ] Object storage real (S3/MinIO) — hoje base64 inline; OK pra MVP
 
 ## Crypto automático multi-currency (Heleket)
