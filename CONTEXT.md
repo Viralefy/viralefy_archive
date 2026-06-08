@@ -1,6 +1,6 @@
 # Viralefy — Contexto geral
 
-Snapshot **2026-06-08** (zero-downtime + manual USDT + RBAC become-customer live).
+Snapshot **2026-06-08** (checkout 2-step + Stripe + manual_crypto multi-network + proof upload + memory em archive).
 
 ---
 
@@ -8,7 +8,11 @@ Snapshot **2026-06-08** (zero-downtime + manual USDT + RBAC become-customer live
 
 Marketplace de engajamento Instagram/TikTok com cobertura 130 países × 47 idiomas × 15 categorias. USD/USDT canonical; display multi-moeda (BRL/EUR/BTC/USDT). Stack: Go (API) + Next.js 15 (front + backoffice) + Postgres + Caddy + observability (Grafana/Loki/Tempo/Prometheus/Alloy).
 
-**Estágio**: HML/POC funcional, payment via Manual PIX (BRL ativo) + Manual USDT (carteira fixa, ativo). Heleket cadastrado mas inactive (aguardando aprovação). Woovi inactive.
+**Estágio**: HML/POC funcional, payment via Manual PIX (BRL ativo) + Manual Crypto (1 gateway = 1 network × asset; admin cadastra USDT TRC20/BSC/POL, BTC, LTC, etc.). Stripe Checkout Session disponível (cartão internacional, REST direta sem stripe-go). Heleket inactive (aguarda aprovação). Woovi inactive.
+
+**Checkout (rev. 2026-06-08)**: 4 steps — (1) details (perfil/cupom), (2) método de pagamento com transparência charged≠settlement, (3) instruções (QR/wallet/Stripe URL) + upload de comprovante, (4) success. Avisos críticos de rede crypto destacados em vermelho.
+
+**Memory**: persistido em `viralefy_archive/memory/` (symlink reverso de `~/.claude/.../memory/`). Auto-memory funciona transparente.
 
 **Tráfego**: catalógo 126 plans, sitemap 47 idiomas × per-lang, drift 0, status `operational`.
 

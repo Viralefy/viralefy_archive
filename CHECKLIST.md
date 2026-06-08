@@ -1,6 +1,7 @@
 # Viralefy — Checklist extensivo do que foi pedido
 
-Snapshot **2026-06-08**. Tudo que o user pediu em conversa, linha por linha.
+Snapshot **2026-06-08** (rev. checkout 2-step + Stripe + manual_crypto + proof).
+Tudo que o user pediu em conversa, linha por linha.
 `[x]` = entregue em prod (com commit link); `[ ]` = pendente; `[~]` = parcial / aguarda decisão externa.
 
 ---
@@ -130,13 +131,42 @@ Snapshot **2026-06-08**. Tudo que o user pediu em conversa, linha por linha.
 ## Pagamento — providers
 
 - [x] Manual PIX (BRL, ativo)
-- [x] **Manual USDT** (carteira fixa + network warning) `viralefy_api fd34f95` `viralefy_front 397fa25`
+- [x] **Manual USDT** (carteira fixa + network warning) `viralefy_api fd34f95` `viralefy_front 397fa25` _deprecated em favor de manual_crypto_
+- [x] **Manual Crypto** genérico (1 gateway = 1 network × asset; cada um seu wallet/memo) — USDT TRC20/BSC/POL/ERC20, BTC, LTC, ETH, SOL...
+- [x] **Stripe** Checkout Session — cartão internacional (REST direta, sem stripe-go dep)
 - [x] Heleket integration (inactive, aguarda aprovação)
 - [x] Woovi integration (inactive)
 - [x] Gateway editor por provider com formulário cirúrgico (não JSON raw) `viralefy_backoffice b724099`
-- [x] Multi-select accepted_currencies (USDT/USD/EUR/BRL/BTC)
-- [x] Defaults provider-aware (Woovi/PIX→BRL; Heleket→crypto)
+- [x] Schemas stripe + manual_crypto no backoffice (network_label override, warning override)
+- [x] Multi-select accepted_currencies expandido (USDT/USD/EUR/BRL/GBP/BTC/LTC/ETH/BNB/SOL/TRX/MATIC)
+- [x] Defaults provider-aware (Woovi/PIX→BRL; manual_crypto→USDT; Stripe→USD/EUR/BRL/GBP)
 - [~] Heleket activation (cliente)
+- [ ] Stripe webhook signature verify + auto-paid (hoje cai em mark-as-paid manual)
+
+## Checkout — UX nova (2026-06-08)
+
+- [x] Endpoint `GET /v1/plans/:id/payment-methods?display_currency=X&country=Y` — catálogo de métodos elegíveis com preview
+- [x] `CheckoutInput.GatewayID` opcional — front escolhe o método ANTES de submeter
+- [x] CheckoutModal refatorado em 4 steps: form → method → instructions → success
+- [x] MethodCard mostra ícone (💳/🇧🇷 PIX/🪙/⚡), valor cobrado, network label
+- [x] **Transparência cripto-conversão**: `conversion_note` quando charged ≠ settlement ("você paga R$50 em BRL, plataforma recebe 10 USDT após conversão")
+- [x] **Aviso crítico de rede crypto** em UI vermelha proeminente: "Send ONLY on TRC20. Wrong network = lost funds forever."
+- [x] Aviso de memo/tag obrigatório quando configurado
+- [x] PIX block mostra disclaimer de conversão se settlement ≠ display
+
+## Comprovante de pagamento
+
+- [x] Migration 034: `order_proofs` table + `orders.proof_url`/`proof_uploaded_at`/`proof_status`/`proof_note`
+- [x] `OrderRepository.SetProof` (idempotente, append em order_proofs + denormaliza order)
+- [x] `OrderRepository.AssignGateway` (reescolha de método em order pending)
+- [x] Endpoint `POST /v1/me/orders/:id/proof` (JSON com data URL base64 até 800KB)
+- [x] UI ProofUploadSection no step instructions (input file + nota TX hash)
+- [ ] Object storage real (S3/MinIO) — hoje base64 inline; OK pra MVP
+
+## Memory persistido em viralefy_archive
+
+- [x] Mover `~/.claude/.../memory/` → `viralefy_archive/memory/` + symlink reverso
+- [x] Auto-memory continua funcionando via symlink transparente
 
 ## RBAC / usuários
 
