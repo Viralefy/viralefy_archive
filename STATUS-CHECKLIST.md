@@ -275,6 +275,14 @@ Snapshot **2026-06-09**. Tudo agrupado por área. Convenção:
 - [x] paymentsclient chargeResponse json tag (extra vs payment_extra) → QR vazio
 - [x] Turnstile race (closure stale → 422 "missing token" 1ª tentativa) → useRef + 3s poll
 - [x] Sender exigia template → aceita raw subject+html_body também
+- [x] **`/internal/v1/*` exposto via Caddy (defesa em profundidade vazava 401+trace_id)** — bloqueado na borda (ops 98b08ce)
+
+## Hardening + pendências fechadas (2026-06-09 sessão tardia)
+
+- [x] **E2E sweep público:** 62 PASS / 1 fix crítico (`/internal/*` block)
+- [x] **ABAC/RBAC autenticado:** 56/56 PASS — 0 IDOR, 0 RBAC bypass, 0 JWT forgery (testou tokens user A vs user B, admin viewer vs superadmin perms, alg=none, claim tamper)
+- [x] **Contract tests inter-microservice** (api/paymentsclient + payments/contract_test, senderclient + sender/contract_test) — drift de tag/envelope falha CI nos 2 lados juntos
+- [x] **Stripe reconcile cron** — polling 5min de orders pending > 10min, GET /v1/checkout/sessions/{id}, ConfirmByExternalRef se paid. Cobre webhook delivery loss (rede, retry esgotado, 72h window). 5 testes unit (paid/unpaid/404/429/empty)
 
 ## Pendências priorizadas (próxima sessão)
 
@@ -285,8 +293,6 @@ Snapshot **2026-06-09**. Tudo agrupado por área. Convenção:
 
 ### Médio impacto
 - [ ] Grafana contact points + 4 dashboards
-- [ ] Stripe webhook reconciliation polling
-- [ ] Contract test entre microservices
 - [ ] Object storage migration proofs base64 antigos
 
 ### Decisão de produto pendente

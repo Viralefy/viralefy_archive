@@ -157,7 +157,6 @@ Variáveis opt-in pendentes (vazias):
 **Engineering pendente:**
 - Object storage proof URL refactor (base64 → MinIO key) parcial — multipart upload existe; migração de proofs antigos não
 - Grafana contact points + 4 custom dashboards (PHASE-7 §7.4)
-- Stripe webhook idempotency table — implementada mas sem polling de reconciliação
 - Sentry source maps no CI
 - Multi-vendor settlement model (decisão de produto)
 - WhatsApp provider real (decisão Meta vs Twilio)
@@ -166,7 +165,8 @@ Variáveis opt-in pendentes (vazias):
 
 ## 10. Recent session log (2026-06-09)
 
-7 bugs encontrados e corrigidos hoje:
+### Manhã
+8 bugs encontrados e corrigidos:
 1. Stripe checkout 422 (pay_currency ignored em multi-currency)
 2. event_retention_cron 42703 (column name errado)
 3. Caddy webhooks 404 (handle_path strip)
@@ -174,9 +174,23 @@ Variáveis opt-in pendentes (vazias):
 5. paymentsclient ↔ payments envelope mismatch (500 em payment-methods)
 6. Turnstile race (422 missing token na 1ª tentativa)
 7. Email "checkout_paid" never sent (sender template required vs raw)
+8. **`/internal/v1/*` exposto via Caddy** — bloqueado na borda (`ops 98b08ce`)
 
-E2E validado: register → login → /me/* (14/14) → checkout (4 providers) → order detail → webhook routes. Todos PASS.
+### Tarde — hardening + pendências fechadas
+- E2E sweep externo: 62 PASS (rotas públicas + auth gates + webhooks + IDOR sem auth + RBAC sem auth + CORS + idempotência + rate-limit)
+- ABAC/RBAC autenticado: **56/56 PASS** — 2 users seeded direto no DB + admin viewer + tokens RS256 mintados via `pyjwt`. Validou:
+  - User A não acessa `/me/orders/{ORDER_B}` (404, sem leak)
+  - User A não vê orders de B na lista
+  - User A não pode revogar API key/profile de B
+  - Token de user é rejeitado em `/admin/*` (401)
+  - Token admin é rejeitado em `/me/*` (401)
+  - Admin `viewer` tem `*:read`, é negado em `*:write`, `coupons:read`, `admins:manage` (403)
+  - JWT forjado com `role=superadmin` (sig inválida) → 401
+  - JWT `alg=none` attack → 401
+  - JWT expirado → 401
+- Contract tests inter-microservice (api↔payments↔sender): 6 testes novos no api + 4 no payments + 4 no sender — drift de tag/envelope falha CI nos 2 lados juntos. Cobre os 2 bugs históricos que vazaram QR/email
+- Stripe reconcile cron (5min tick, 50 orders/batch) — polling de Stripe Sessions API pra orders pending > 10min cujo webhook caiu. `api 14fe8d7` em prod, log `stripe reconcile cron started` confirmado
 
-Phase 8 entregue: 3 binários, loopback HTTP, internal token, callback `/payment-confirmed`, outbox + retry, Telegram bot integration, AbacatePay PIX dinâmico.
+Phase 8 entregue: 3 binários, loopback HTTP, internal token, callback `/payment-confirmed`, outbox + retry, Telegram bot integration, AbacatePay PIX dinâmico, contract tests, reconcile cron, defesa em profundidade na borda.
 
-Próxima sessão: começar lendo `STATUS-CHECKLIST.md` pra ver pendências priorizadas.
+Próxima sessão: começar lendo `STATUS-CHECKLIST.md` pra ver pendências priorizadas. Pendências top: AbacatePay gateway row em prod (cliente fornece API key), Telegram bot ativar, Sentry DSN.
