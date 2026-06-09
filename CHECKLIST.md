@@ -170,7 +170,9 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] Backoffice `/orders/[id]` mostra **ProofCard** com preview (imagem ou link) + botões Approve/Reject + reviewer note
 - [x] Backoffice `/orders` mostra badge "📎 Proofs to review · N" + toggle de filtro proof_status=pending
 - [x] Email transacional ao cliente quando proof é rejected (best-effort, não bloqueia decisão)
-- [ ] Object storage real (S3/MinIO) — hoje base64 inline; OK pra MVP
+- [x] Object storage local via MinIO Docker (ops setup) — `viralefy_ops/config/docker-compose.storage.yml` + `installer/85-storage.sh`
+- [ ] API S3 client + proof upload refactor (base64 → MinIO) — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.1
+- [ ] Cloudflare R2 migration (futuro, só trocar endpoint) — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.1
 
 ## Crypto automático multi-currency (Heleket)
 
@@ -216,6 +218,16 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] `maintain-context-md` (este processo) `2026-06-08`
 
 ---
+
+## 2FA (planejado — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.2)
+
+- [ ] **Admin: obrigatório.** Login bloqueado até enroll TOTP. Setup wizard em primeira entrada após deploy.
+- [ ] **User: opcional + nag pós-pedido completo.** Não atormenta antes do 1º paid+delivered (sem dado sensível, encher saco = drop conversão).
+- [ ] Algoritmo: TOTP RFC 6238 (Google Authenticator, Authy, 1Password). SMS NÃO (SIM-swap).
+- [ ] 8 backup codes one-time (download .txt no enroll).
+- [ ] Secret cifrado AES-256-GCM em rest, key via env `TWOFA_ENCRYPTION_KEY`.
+- [ ] Cooldown progressivo do nag user (dismiss > 5 vezes OU > 7d = espera maior).
+- [ ] Recovery admin via superadmin (audit log obrigatório).
 
 ## Próximas tasks possíveis (não pedidas explicitamente)
 

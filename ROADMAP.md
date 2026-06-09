@@ -173,3 +173,24 @@ GET   /v1/admin/vendors
 - **150+h** estimadas entregues em ~6h wall-clock graças à orquestração multi-agente (3 waves × 5-9 agentes paralelos + reviews adversariais)
 - **0 vazamentos de credencial**
 - **385/385 tests** no front, **ok ./...** no API
+
+---
+
+## Fase 7 — Próxima rodada (2026-06-08)
+
+Plano extensivo em [PHASE-7-PLAN.md](PHASE-7-PLAN.md). Resumo:
+
+- **7.1** Object storage (MinIO local agora → R2 quando volume justificar)
+- **7.2** 2FA (admin obrigatório, user opcional pós-1-pedido-completo)
+- **7.3** Pagamento robustness (Stripe idempotency, bulk approve, refund expansion)
+- **7.4** Observabilidade (Sentry DSN, Grafana contact points, 4 dashboards customizados)
+- **7.5** Product depth (WhatsApp real, multi-vendor settlement, API B2B billing)
+- **7.6** Security hardening pós-2FA (Redis distribuído, CSP stricter, pentest)
+- **7.7** SEO Tier 5 (50 backlinks, blog engine, AMP)
+- **7.8** Testing (Playwright E2E, OpenAPI sync, Lighthouse CI)
+- **7.9** DX (Makefile, pre-commit, docker compose dev, seed demo)
+- **7.10** Documentação (atualizar CONTEXT, playbooks de incidente, arquitetura)
+- **7.11** Compliance expansion (LGPD, CCPA, PCI-DSS SAQ-A, sub-processor list)
+- **7.12** Infrastructure scaling (multi-region replicas, CDN, offsite backup)
+
+Definição de "100% done" com 12 métricas objetivas no final do plan.
