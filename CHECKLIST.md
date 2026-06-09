@@ -237,15 +237,21 @@ Tudo que o user pediu em conversa, linha por linha.
 
 ---
 
-## 2FA (planejado — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.2)
+## 2FA — admin (vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.2)
 
-- [ ] **Admin: obrigatório.** Login bloqueado até enroll TOTP. Setup wizard em primeira entrada após deploy.
-- [ ] **User: opcional + nag pós-pedido completo.** Não atormenta antes do 1º paid+delivered (sem dado sensível, encher saco = drop conversão).
-- [ ] Algoritmo: TOTP RFC 6238 (Google Authenticator, Authy, 1Password). SMS NÃO (SIM-swap).
-- [ ] 8 backup codes one-time (download .txt no enroll).
-- [ ] Secret cifrado AES-256-GCM em rest, key via env `TWOFA_ENCRYPTION_KEY`.
-- [ ] Cooldown progressivo do nag user (dismiss > 5 vezes OU > 7d = espera maior).
-- [ ] Recovery admin via superadmin (audit log obrigatório).
+- [x] **Migration 036**: `admin_2fa` + `user_2fa` tables, `admins.requires_2fa DEFAULT TRUE`, `users.twofa_prompt_*` counters
+- [x] **TOTP RFC 6238** via `github.com/pquerna/otp` — Google Authenticator/Authy/1Password compatível
+- [x] **AES-256-GCM** at-rest crypto pra secrets (key 32 bytes via `TWOFA_ENCRYPTION_KEY` env)
+- [x] **8 backup codes** one-time, hashed bcrypt cost 10, consumo em transação `FOR UPDATE` (anti TOCTOU)
+- [x] **Login flow**: `POST /v1/auth/login` retorna `twofa_required` + `partial_token` (5min) quando admin precisa 2FA
+- [x] **Enroll flow**: `POST /v1/auth/login/2fa/enroll` (com partial_token) → secret + QR + backup codes
+- [x] **Complete flow**: `POST /v1/auth/login/2fa` (partial_token + code) → JWT final
+- [x] **Backoffice login wizard** 3 steps (credentials → enroll → code), QR via api.qrserver.com, download .txt dos backup codes, checkbox "I've saved these"
+- [x] **Disable** `POST /v1/admin/me/2fa/disable` — só superadmin (PermAdminsManage)
+- [x] **Installer**: 30-secrets.sh gera `TWOFA_ENCRYPTION_KEY` aleatória (hex 64) na 1ª install + persiste
+- [x] **Tests TOTP**: 9 cases (enroll uniqueness, verify accept/reject, AES roundtrip, key trocada, backup codes alphabet)
+- [ ] **User 2FA** (opcional + nag pós-pedido completo) — schema pronto, endpoints pendentes
+- [ ] Cooldown progressivo do nag user (dismiss > 5 vezes OU > 7d = espera maior)
 
 ## Próximas tasks possíveis (não pedidas explicitamente)
 
