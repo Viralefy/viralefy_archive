@@ -171,8 +171,26 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] Backoffice `/orders` mostra badge "📎 Proofs to review · N" + toggle de filtro proof_status=pending
 - [x] Email transacional ao cliente quando proof é rejected (best-effort, não bloqueia decisão)
 - [x] Object storage local via MinIO Docker (ops setup) — `viralefy_ops/config/docker-compose.storage.yml` + `installer/85-storage.sh`
-- [ ] API S3 client + proof upload refactor (base64 → MinIO) — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.1
-- [ ] Cloudflare R2 migration (futuro, só trocar endpoint) — vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.1
+- [x] **API S3 client** (`internal/infrastructure/external/storage/s3.go`) com minio-go — funciona em MinIO + R2 sem code change
+- [x] **Proof upload multipart** (`POST /v1/me/orders/:id/proof` content-type multipart/form-data) — 5MB max, MIME whitelist (png/jpg/webp/gif/pdf), key `proofs/{order}/{ts}-{rand}.{ext}`
+- [x] **Presigned URL endpoints** — `GET /v1/me/orders/:id/proof-url` + `GET /v1/admin/orders/:id/proof-url` (5min expiry)
+- [x] **Front fallback automático**: multipart preferido, cai em base64 quando server retorna 503 (storage disabled)
+- [x] **Backoffice ProofCard**: chama `getProofURL()` on mount, mostra spinner enquanto resolve, infere MIME pela extensão da key
+- [x] Retro-compat: proofs com `data:`/`http:` URLs antigos passam direto (legacy support)
+- [ ] Cloudflare R2 migration (só trocar `STORAGE_ENDPOINT` + `STORAGE_USE_SSL=true` quando volume justificar)
+
+## Stripe idempotency
+
+- [x] Migration 035 `stripe_events_processed` (event_id PK, event_type, order_id, received_at)
+- [x] Handler insere com `ON CONFLICT DO NOTHING` antes de chamar `MarkOrderPaid` — segundo fire vira no-op
+- [x] Métrica `gateway_callbacks_total{provider=stripe,status=duplicate}` pra observabilidade
+- [x] `EventRetentionCron` inclui `stripe_events_processed` (90d retention)
+
+## Sentry DSN check
+
+- [x] `viralefy-status` ganhou seção "Sentry" que avisa quando `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` vazios
+- [x] Aviso de `SENTRY_AUTH_TOKEN` ausente (stack traces ofuscados sem source map)
+- [x] `viralefy-status` ganhou seção "Object storage (MinIO)" — checa container healthy + endpoint ready
 
 ## Crypto automático multi-currency (Heleket)
 
