@@ -250,8 +250,22 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] **Disable** `POST /v1/admin/me/2fa/disable` — só superadmin (PermAdminsManage)
 - [x] **Installer**: 30-secrets.sh gera `TWOFA_ENCRYPTION_KEY` aleatória (hex 64) na 1ª install + persiste
 - [x] **Tests TOTP**: 9 cases (enroll uniqueness, verify accept/reject, AES roundtrip, key trocada, backup codes alphabet)
-- [ ] **User 2FA** (opcional + nag pós-pedido completo) — schema pronto, endpoints pendentes
-- [ ] Cooldown progressivo do nag user (dismiss > 5 vezes OU > 7d = espera maior)
+- [x] **User 2FA opcional** — UserAuthService gate em partial_token quando enrolled (login não bloqueia se NÃO enrolled)
+- [x] **Endpoints user**: `GET /v1/me/2fa/status` + `POST /v1/me/2fa/{enroll,verify,disable,dismiss-prompt}` + `POST /v1/auth/user/login/2fa`
+- [x] **should_prompt logic** — true sse: NÃO enrolled + ≥1 order paid+delivery_captured + (dismiss<5 OU last>7d). Pré-1º-pedido nunca atormenta.
+- [x] **Cooldown progressivo**: dismiss <5 → mostra sempre; ≥5 → espera 7d entre prompts
+- [x] **Setup2FAPrompt modal** em `/account` (sessionStorage skip durante sessão)
+- [x] **Página `/account/security/2fa`** — enroll wizard (QR + 8 backup codes + download + verify) + disable
+- [x] **Login front user**: aceita twofa_required → step de código + backup
+- [x] **Audit log** explícito em `admin.2fa.disable` (actor + target + reason)
+
+## Bulk approve (mark-as-paid em lote)
+
+- [x] Endpoint `POST /v1/admin/proofs/bulk-decision` (limite 50/call, audit por linha)
+- [x] Loop atômico por order: skipped (sem proof), error (DB), applied. Approved dispara `MarkOrderPaid` + audit.
+- [x] Reject dispara email transacional ao cliente
+- [x] Backoffice `/orders` ganha checkbox por row + select-all no header quando filtro proof_status=pending ativo
+- [x] Bulk actions panel: "Approve N" / "Reject N" com confirm + resultado agregado (applied/skipped/errors)
 
 ## Próximas tasks possíveis (não pedidas explicitamente)
 
