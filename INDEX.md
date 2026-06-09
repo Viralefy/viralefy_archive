@@ -66,17 +66,20 @@ Object storage: MinIO Docker `/var/lib/viralefy-storage/`, S3-compat (proofs buc
 
 ---
 
-## 4. Repositórios (7)
+## 4. Repositórios (10 — 3 novos da PHASE-9)
 
 | Repo | Função | Status atual |
 |---|---|---|
-| viralefy_api | Monolith orchestrator | `ff293ab + d0285b1` |
-| viralefy_payments | Providers + webhooks | `0e9bebd` |
-| viralefy_sender | Email + telegram + outbox | `d0285b1` |
-| viralefy_front | Next.js storefront | `1e0fcb0` |
-| viralefy_backoffice | Next.js admin panel | `30b81f5` |
-| viralefy_ops | systemd + installer + Caddy + CLIs | `a35fa07` |
-| viralefy_archive | docs + memory (este repo) | atualizado nesta sessão |
+| viralefy_api | Monolito orchestrator legacy (Go) — **será aposentado em cutover** | Em prod |
+| viralefy_payments | Providers + webhooks | Em prod |
+| viralefy_sender | Email + telegram + outbox | Em prod |
+| viralefy_front | Next.js storefront | Em prod |
+| viralefy_backoffice | Next.js admin panel | Em prod |
+| viralefy_ops | systemd + installer + Caddy + CLIs | Em prod |
+| viralefy_archive | docs + memory (este repo) | Em prod |
+| **viralefy_core** | **Motor de domínio Go (sucessor do api)** — clone 1:1, paridade total | 🆕 Scaffold pushed |
+| **viralefy_auth** | **Identidade Go (JWT, login, 2FA, hot-set revogação)** | 🆕 Scaffold pushed |
+| **viralefy_dispatcher** | **Borda Rust (sanitização, JWT verify, rate-limit, reverse proxy)** — será renomeado `viralefy_api` no cutover | 🆕 Scaffold pushed (2/2 tests) |
 
 ---
 
@@ -194,3 +197,33 @@ Variáveis opt-in pendentes (vazias):
 Phase 8 entregue: 3 binários, loopback HTTP, internal token, callback `/payment-confirmed`, outbox + retry, Telegram bot integration, AbacatePay PIX dinâmico, contract tests, reconcile cron, defesa em profundidade na borda.
 
 Próxima sessão: começar lendo `STATUS-CHECKLIST.md` pra ver pendências priorizadas. Pendências top: AbacatePay gateway row em prod (cliente fornece API key), Telegram bot ativar, Sentry DSN.
+
+---
+
+## 11. PHASE-9 iniciada (2026-06-09)
+
+Plano completo: [PHASE-9-ARCHITECTURE.md](PHASE-9-ARCHITECTURE.md) (1056 linhas, revisado adversarialmente).
+
+**Escopo aprovado pelo cliente: A + B** (Rust dispatcher + Caddy WAF + Go core + Go auth).
+
+**Entregue nesta sessão (scaffold):**
+
+1. **viralefy_core** ([github](https://github.com/Viralefy/viralefy_core)) — fork 1:1 do api Go atual. Module renomeado, imports atualizados, cmd/api→cmd/core, README novo. Build OK, suite 100% PASS. Paridade total preservada.
+
+2. **viralefy_auth** ([github](https://github.com/Viralefy/viralefy_auth)) — scaffold Go. cmd/auth/main.go com health, config loader (`VAUTH_*` + envs compartilhadas), README com plano dos 14 endpoints.
+
+3. **viralefy_dispatcher** ([github](https://github.com/Viralefy/viralefy_dispatcher)) — scaffold Rust com axum 0.7 + tokio + sqlx + reqwest+rustls + ammonia + tower_governor. Build OK, binary 35MB debug funcional. 2/2 unit tests passando (path traversal denylist + HTML sanitize). Será renomeado `viralefy_api` no cutover.
+
+**Migration tracker** (entregue pré-Phase-9 nesta mesma sessão):
+- Tabela `schema_migrations` com checksum SHA256.
+- Auto-backfill em prod legado já rodou — 38 migrations marcadas applied às 21:53 UTC.
+- `Seed()` removido do boot automático (era a fonte de "marketplace items voltam").
+- `ON CONFLICT DO UPDATE` → `DO NOTHING` em roles/categories/plan_prices.
+- CLI: `viralefy-api migrate {status,up,backfill,version}` + `viralefy-api seed`.
+
+**Próxima sessão (planejada):**
+- Portar handlers reais do auth (login, register, refresh, 2FA, JWKS).
+- Portar middleware completo do dispatcher (JWT verify, rate limit, hot-set polling, reverse proxy).
+- Integrar Coraza WAF no Caddy via xcaddy build.
+- Deploy paralelo do core no port 8084 (smoke contra prod).
+- NENHUMA mudança em prod desta sessão — só fundação no GitHub.
