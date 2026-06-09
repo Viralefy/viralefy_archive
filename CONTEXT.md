@@ -1,6 +1,6 @@
 # Viralefy — Contexto geral
 
-Snapshot **2026-06-08** (checkout 2-step + Stripe + manual_crypto multi-network + proof upload + memory em archive).
+Snapshot **2026-06-09** (Phase 8 Wave 3 — 3 binários: api+payments+sender via loopback HTTP).
 
 ---
 
@@ -36,22 +36,53 @@ VPS escalada 2026-06-08: **8 cores · 16GB RAM**.
 
 ## 3. Arquitetura
 
-```
-[Caddy] → www  → next.js front (Next 15 App Router)
-       → admin → next.js backoffice (Next 15)
-       → api   → Go (chi router, RS256 JWT dual-sign w/ HS256 legacy)
-       → obs   → Grafana
-       │
-       └── /v2 (X-API-Key) → Go (read-only B2B endpoints)
-       │
-       └── /.well-known/jwks.json (public RSA key)
+**Fase 8 (DONE Wave 1-3)**: monólito quebrado em 3 binários Go que falam HTTP/JSON em loopback.
 
-PostgreSQL 17 (single-tenant)
+```
+INTERNET
+   │
+[Caddy] → www                                       → next.js front     (Next 15 App Router, :3000)
+       → admin                                      → next.js backoffice (Next 15,            :3001)
+       → api.viralefy.com/*                         → viralefy-api      (Go orchestrator,    :8080)
+       │   ├── /v1/webhooks/{stripe,heleket,woovi} ─┐
+       │                                            │
+       │                                            ▼  (reverse_proxy)
+       │                            viralefy-payments (Go, 127.0.0.1:8081)  — providers + charges
+       │                                            ▲   POST /internal/v1/payment-confirmed
+       │                            ┌───────────────┘   (X-Internal-Token)
+       │                            ▼
+       │                     viralefy-api  ────► viralefy-sender (Go, 127.0.0.1:8082) — email + Telegram
+       │
+       └── obs.viralefy.com                          → Grafana
+
+PostgreSQL 17 single-tenant (compartilhado pelos 3 services — split de DB fica pra Fase 9)
 Grafana / Loki / Tempo / Prometheus / Alloy / node-exporter
 viralefy-backup.timer (daily 03:00 UTC, 7d+4w+6m retenção)
 ```
 
-**DDD 4-layer** no API: domain ↔ application ↔ infrastructure ↔ interface. Migrations versionadas em `internal/infrastructure/persistence/postgres/migrations/` (015→033).
+**Portas**:
+| Porta | Service | Bind |
+|---|---|---|
+| 3000 | viralefy-front | 127.0.0.1 |
+| 3001 | viralefy-backoffice | 127.0.0.1 |
+| 8080 | viralefy-api (orchestrator) | 127.0.0.1 |
+| 8081 | viralefy-payments | 127.0.0.1 (loopback-only) |
+| 8082 | viralefy-sender | 127.0.0.1 (loopback-only) |
+
+**Fluxo loopback**:
+1. Cliente → Caddy → `viralefy-api`.
+2. Para checkout: api faz `POST 127.0.0.1:8081/internal/v1/charge` (token shared).
+3. Para email/telegram: api faz `POST 127.0.0.1:8082/internal/v1/send`.
+4. Webhook Stripe/Heleket/Woovi: Caddy `reverse_proxy` direto pra `127.0.0.1:8081`. Após validar assinatura, payments chama de volta `POST 127.0.0.1:8080/internal/v1/payment-confirmed` com `X-Internal-Token: $INTERNAL_SHARED_SECRET`; api executa `MarkOrderPaid` (domínio do pedido permanece no monólito).
+
+**Auth interna**: `INTERNAL_SHARED_SECRET` (32 bytes hex) em `/etc/viralefy/.env`, gerado pelo `installer/30-secrets.sh`. Middleware em payments e sender rejeita 401 sem o header. Defesa-em-profundidade — loopback é a primeira barreira.
+
+**Migrations**:
+- monólito: 015→035 (donas das tabelas core, incluindo `payment_gateways`, `orders.proof_*`, `stripe_events_processed`).
+- payments: `001_payments_init` é **idempotente** — `CREATE TABLE IF NOT EXISTS payment_gateways` (standalone install), `ALTER TABLE ... ADD COLUMN IF NOT EXISTS accepted_currencies`, `CREATE TABLE IF NOT EXISTS stripe_events_processed`. Em prod (DB compartilhado) tudo vira no-op.
+- sender: `001_sender_outbox` + `002_telegram_chats` — tabelas novas, exclusivas do sender.
+
+**DDD 4-layer** em cada binário: domain ↔ application ↔ infrastructure ↔ interface.
 
 **Front**: Server components por padrão; client components onde tem state (CheckoutModal, CategoryCardGrid). 47 i18n packs (`src/i18n/languages.ts`). 28 países × PPP (`country_ppp`). 28 países EU+GB × VAT (`tax_rates`).
 
@@ -201,16 +232,20 @@ GET    /v2/orders/{id}/status
 
 ## 10. Deploy
 
-**Zero-downtime via build-then-swap**:
+**Zero-downtime via build-then-swap** (atualizado Fase 8 — 3 binários):
 ```
 viralefy-update --yes        # padrão, ~5s downtime
 viralefy-update --legacy     # destrutivo (~5-10min) — só emergência
+viralefy-smoke               # smoke test pós-deploy (auto-rodado pelo update)
 ```
 
-1. Clone + build em `/viralefy.next/` em paralelo aos serviços live
-2. Atomic mv `/viralefy → /viralefy.prev` + `/viralefy.next → /viralefy`
-3. Restart services (~3s)
-4. Healthcheck 30s; rollback automático se falhar
+1. Clone **7 repos** (api, payments, sender, front, backoffice, ops, archive) em `/viralefy.next/` em paralelo aos serviços live
+2. Build paralelo: 3 Go (api/payments/sender) + 2 Node (front/backoffice)
+3. Atomic mv `/viralefy → /viralefy.prev` + `/viralefy.next → /viralefy`
+4. Copy binários microservices pra `/usr/local/sbin/viralefy-{payments,sender}` (ExecStart dos units aponta lá)
+5. Restart na ordem certa: `viralefy-{payments,sender}` PRIMEIRO, depois `viralefy-{api,front,backoffice}`
+6. Healthcheck loopback 30s nos 3 services + front (rollback automático)
+7. `viralefy-smoke` verifica contrato HTTP: 3 healths + `GET /v1/plans` + `POST /v1/me/2fa/status` (sem token → 401)
 
 **Build inteligente**: API Go + 2 Next.js builds em paralelo. Aproveita 8 cores. Total ~3-5min sem nenhum impacto em prod até o swap.
 
@@ -255,20 +290,26 @@ viralefy-update --legacy     # destrutivo (~5-10min) — só emergência
 ```
 /media/sonne/Archives/projects/viralefy/
 ├── credentials               # SSH key
-├── viralefy_api/             # Go DDD
-├── viralefy_front/           # Next.js storefront
-├── viralefy_backoffice/      # Next.js admin
+├── viralefy_api/             # Go DDD (orchestrator, :8080)
+├── viralefy_payments/        # Go DDD (providers + charges + webhooks, :8081)
+├── viralefy_sender/          # Go DDD (email + telegram outbox, :8082)
+├── viralefy_front/           # Next.js storefront (:3000)
+├── viralefy_backoffice/      # Next.js admin (:3001)
 ├── viralefy_ops/             # Installer + config + bin
-├── viralefy_archive/         # Docs (este arquivo, ROADMAP, RUNBOOK, etc.)
+├── viralefy_archive/         # Docs (este arquivo, ROADMAP, RUNBOOK, MICROSERVICES-OPS, etc.)
 └── memory/                   # Auto-memory persistente
 ```
 
 Na VPS:
 ```
-/viralefy/{api,front,backoffice,ops,archive}   # atual (symlink-equivalent — mv direto)
+/viralefy/{api,payments,sender,front,backoffice,ops,archive}   # atual — 7 repos
 /viralefy.next/                                 # staging durante deploy
 /viralefy.prev/                                 # backup do anterior (cleanup async)
+/usr/local/sbin/viralefy-payments              # binário microservice (ExecStart)
+/usr/local/sbin/viralefy-sender                # binário microservice (ExecStart)
+/usr/local/sbin/viralefy-{update,status,logs,backup,smoke}  # CLIs persistentes
 /etc/viralefy/.env                              # secrets, mode 0640 root:viralefy
+                                                # inclui INTERNAL_SHARED_SECRET
 /var/backups/viralefy/dump-*.sql.gz             # backups com retenção
 /etc/prometheus/{prometheus.yml,alerts.yml}     # 11 rules em 6 groups
 ```
@@ -283,6 +324,9 @@ Na VPS:
 | [CHECKLIST.md](CHECKLIST.md) | Tudo que o user pediu × done/pending |
 | [ROADMAP.md](ROADMAP.md) | Roadmap por fase + status (30/30 RECOMMENDATIONS + Waves 4 + 5) |
 | [RUNBOOK.md](RUNBOOK.md) | Ops playbook (deploy, incident, restore) |
+| [PHASE-7-PLAN.md](PHASE-7-PLAN.md) | Plano Fase 7 (2FA + sec hardening) |
+| [PHASE-8-MICROSERVICES.md](PHASE-8-MICROSERVICES.md) | Plano Fase 8 (carve-out payments + sender) |
+| [MICROSERVICES-OPS.md](MICROSERVICES-OPS.md) | Runbook curto: migrations, debug, secret rotation, Telegram bot local |
 | [RECOMMENDATIONS.md](RECOMMENDATIONS.md) | Lista original de 30 itens (referência histórica) |
 | [COMPLIANCE.md](COMPLIANCE.md) | Notas legais (GDPR/PT-BR) |
 | [AGENTS.md](AGENTS.md) | Instruções pra agentes |

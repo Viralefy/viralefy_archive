@@ -267,6 +267,46 @@ Tudo que o user pediu em conversa, linha por linha.
 - [x] Backoffice `/orders` ganha checkbox por row + select-all no header quando filtro proof_status=pending ativo
 - [x] Bulk actions panel: "Approve N" / "Reject N" com confirm + resultado agregado (applied/skipped/errors)
 
+---
+
+## PHASE 8 — microsserviços (payments + sender)
+
+Refatoração do monólito em 3 binários conversando via loopback HTTP.
+Plano completo em [PHASE-8-MICROSERVICES.md](PHASE-8-MICROSERVICES.md).
+
+### Wave 1 — scaffolding (DONE)
+- [x] Estrutura `viralefy_payments` (cmd/payments, internal/{config,domain,application,infrastructure,interface}, go.mod, README)
+- [x] Estrutura `viralefy_sender` (mesma forma; com `sender_outbox` + `telegram_*`)
+- [x] systemd units `viralefy-payments.service` + `viralefy-sender.service` (hardened, mesmas flags do api)
+- [x] Caddyfile reverse-proxy `/v1/webhooks/{stripe,heleket,woovi}` → `127.0.0.1:8081`
+- [x] Stubs de cliente HTTP em `viralefy_api/internal/infrastructure/external/{payments,sender}/client.go`
+- [x] `installer/50-build.sh` builda os 3 Go services em paralelo + copia binários pra `/usr/local/sbin/`
+- [x] `INTERNAL_SHARED_SECRET` gerado pelo `30-secrets.sh`
+
+### Wave 2 — extração (DONE)
+- [x] Providers movidos pro `viralefy_payments` (stripe, heleket, woovi, manual_*)
+- [x] Email + templates movidos pro `viralefy_sender` (Resend + SMTP)
+- [x] Migrations `viralefy_sender/001_sender_outbox` + `002_telegram_chats` idempotentes
+- [x] Migrations `viralefy_payments/001_payments_init` idempotentes (CREATE/ALTER IF NOT EXISTS) — no-op em prod (tabelas já criadas pelo monólito 032/035), cria do zero em standalone
+- [x] Templates `checkout_paid` (email + telegram) + integração Telegram Bot API
+- [x] `sender_outbox` retry com backoff exponencial (30s → 5min → 1h → 6h → 24h, max 5)
+
+### Wave 3 — integração (DONE — esta task)
+- [x] Substituição das chamadas in-memory por HTTP client no monolito (PaymentRegistry/EmailSender → clients HTTP)
+- [x] Callback `POST /internal/v1/payment-confirmed` no monolito (X-Internal-Token validado)
+- [x] Resolução de conflito de schemas: monólito é dono de `payment_gateways` + `stripe_events_processed`; payments só ALTER/CREATE IF NOT EXISTS (idempotente — no-op em prod, cria standalone)
+- [x] `viralefy-update` clona **7 repos** (api, payments, sender, front, backoffice, ops, archive) + zero-downtime: payments+sender sobem ANTES do api; binários terminam em `/usr/local/sbin/viralefy-{payments,sender}`
+- [x] `viralefy-smoke` (novo CLI): health dos 3 services + `GET /v1/plans` (público) + `POST /v1/me/2fa/status` (sem auth → 401). Roda automaticamente após `viralefy-update`. Exit 1 em falha.
+- [x] Docs atualizados: CONTEXT.md (nova arquitetura 3-binários), CHECKLIST.md (esta seção), MICROSERVICES-OPS.md (runbook de operação)
+
+### Wave 4 — observabilidade (PENDING)
+- [ ] Dashboard Grafana "Payments throughput" (charges/min, p50/p95 latência por provider, error rate por gateway)
+- [ ] Dashboard Grafana "Sender outbox depth" (rows enqueued, in_flight, failed_final, age do top da fila)
+- [ ] Alerts: outbox depth > 100, in_flight > 5min, payments p95 > 2s, stripe webhook 4xx > 10/min
+- [ ] Métricas `service` tag em todos os logs Loki (já preparado via systemd Unit)
+
+---
+
 ## Próximas tasks possíveis (não pedidas explicitamente)
 
 - [ ] Contact points no Grafana → alerts viram email/slack
