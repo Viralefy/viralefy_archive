@@ -175,3 +175,42 @@ Isso é uma migration nova (`041_proof_url_cleanup`), não parte dessa.
 - Backoffice abre proofs migrados sem erro (`/v1/admin/orders/{id}/proof-url`
   devolve URL `http://127.0.0.1:9000/...?X-Amz-...`)
 - `journalctl` do migrador: `failed=0` no log final
+
+---
+
+## Execução em prod 2026-06-10
+
+- **Host**: `root@62.238.41.231` (Debian 13 cloud).
+- **Backup**: `/var/backups/viralefy/pre-proof-migration-20260610T073741Z.dump`
+  (175 KB, pg_dump custom format — pequeno porque DB está em estágio
+  HML/POC com volume mínimo).
+- **Migration 040 status pré-execução**: não aplicada. O binário deployado
+  em `/usr/local/sbin/viralefy-core` (build de 2026-06-10 00:39) é
+  anterior ao commit que adicionou 040, e `viralefy-core migrate status`
+  parava em 039. Aplicada manualmente via `psql -f 040_proof_storage_key.up.sql`
+  e registrada em `schema_migrations` com checksum
+  `3925ed94886aebf5c714622d1479109ed1326dd9385266ed5a38d4fa24bfb92e`
+  pra não conflitar com o tracker no próximo deploy do core.
+- **Binário do migrador**: buildado local (`go build ./cmd/migrate-proofs`),
+  scp pra `/tmp/migrate-proofs`. STORAGE_ENDPOINT=127.0.0.1:9000,
+  bucket `viralefy-proofs` (já existente, vazio).
+- **Rows pendentes pré-migração**: 0 (`proof_url LIKE 'data:%' AND
+  proof_storage_key IS NULL`). Distribuição:
+  `null_url=23, data_url=0, http_url=0, total=23`. Não havia
+  comprovantes legacy base64 — produção é HML/POC sem orders pagos com
+  proof anexado ainda.
+- **Dry-run**: `migrated=0 skipped=0 failed=0 duration=4ms`.
+- **Execute** (--limit=10 sanity): `migrated=0 skipped=0 failed=0` —
+  confirmou conexão MinIO + scan DB OK, no-op por ausência de dados.
+- **Rows migradas**: 0.
+- **MinIO bucket size pós-execução**: 0 objetos, 0 B.
+- **Remaining count**: 0 (objetivo cumprido).
+- **Tempo total** (backup → validação final): ~2 min.
+- **API check**: skipped (sem rows migradas pra testar
+  `/v1/me/orders/{id}/proof-url`). Schema + migrator validados;
+  primeira proof real que entrar em produção via novo handler já
+  grava `proof_storage_key` direto sem precisar do migrador.
+
+Estado pós-execução: migration 040 ativa, coluna `proof_storage_key`
+disponível pra handlers novos, migrador no `/tmp/migrate-proofs` da VPS
+pronto pra rerun futuro caso surjam rows base64 (idempotente).
