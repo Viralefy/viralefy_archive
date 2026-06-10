@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-**Última atualização:** 2026-06-10 (Bucket 1 cutover ATIVO em prod)
+**Última atualização:** 2026-06-10 (Bucket 1 + Bucket 2 ATIVOS em prod)
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
@@ -36,6 +36,15 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] Split: 2a (18 GETs) + 2b (20 mutations) + 2c (4 auth flows)
 - [x] Doc: [PHASE-9-BUCKET-2-PLAN.md](PHASE-9-BUCKET-2-PLAN.md) (159 linhas)
 - [x] Pushed: [Viralefy/viralefy_archive@c37f7c1](https://github.com/Viralefy/viralefy_archive/commit/c37f7c1)
+
+### PHASE-9 Bucket 2 (2a+2b consolidados) cutover (2026-06-10 04:06 UTC)
+- [x] Caddyfile com `handle /v1/me*` routing pra `:8090` (38 rotas)
+- [x] Parity pré-swap: 401 sem Bearer em legacy+dispatcher (body shape idêntico)
+- [x] `caddy validate` + `systemctl reload` (zero-downtime)
+- [x] Smoke E2E HTTPS: 13 GETs + 5 POSTs → 401 (auth gate intacto)
+- [x] Não-regressão: Bucket 1 200, admin/checkout/login ainda monolito
+- [x] Rollback validado em ambas direções (0 downtime via reload)
+- [x] Pushed: [Viralefy/viralefy_ops@0389cc0](https://github.com/Viralefy/viralefy_ops/commit/0389cc0)
 
 
 ### PHASE-9 Fase 9b — viralefy_auth completo
@@ -118,13 +127,13 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ### Bucket 2 — User auth (semana 2-3) — VER [PHASE-9-BUCKET-2-PLAN.md](PHASE-9-BUCKET-2-PLAN.md)
 Split em sub-buckets baseado em audit (legacy já dual-signs → canary desnecessário):
-- [ ] **Bucket 2a** — `/v1/me/*` GET (18 rotas read-only, full cutover)
-- [ ] **Bucket 2b** — `/v1/me/*` mutating (20 rotas POST/PUT/DELETE)
+- [x] **Bucket 2a+2b** — `/v1/me/*` (38 rotas GET+POST+PUT+DELETE) ✅ cutover 06-10
 - [ ] **Bucket 2c** — `/v1/auth/user/{register,login,login/2fa}` (4 rotas)
 - [ ] Smoke E2E autenticado: register → login → 2FA enroll → orders → API key
 - [ ] Validar 2FA persistido via auth-core compartilhando DB
 - [ ] Hot-set revogação testado end-to-end (revogar JTI no auth, dispatcher rejeita em ≤5s)
 - [ ] Reconciliação diária: nenhum order criado em path diferente
+- [ ] Monitorar 24-48h Bucket 2 estável antes de 2c
 
 ### Bucket 3 — Admin (semana 4)
 - [ ] Rotas: `/v1/admin/*` (52 rotas, RBAC com role permissions)
