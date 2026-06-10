@@ -25,7 +25,17 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] E2E externo HTTPS: 7/7 rotas 200 OK
 - [x] Rotas não-Bucket-1 (auth-user, admin, checkout, webhooks, /internal/*) preservadas
 - [x] Rollback path validado: swap back funciona com 0 downtime via reload
+- [x] **Soak test 210 reqs sustained**: 0/210 falhas; p95 49-88ms; dispatcher 45MB RSS estável
+- [x] Rate-limit confirmado: 429 throttling em burst >30 reqs/s/IP (comportamento correto)
 - [x] Pushed: [Viralefy/viralefy_ops@6e0f8c5](https://github.com/Viralefy/viralefy_ops/commit/6e0f8c5)
+
+### PHASE-9 Bucket 2 planejamento (2026-06-10)
+- [x] Audit: legacy api JÁ tem dual-sign RS256+HS256 (`parseDualSign`)
+- [x] Audit: RSA key compartilhada → tokens interchangeable entre legacy/core/auth
+- [x] Audit: legacy NÃO tem /v1/refresh ou /v1/logout (só viralefy_auth)
+- [x] Split: 2a (18 GETs) + 2b (20 mutations) + 2c (4 auth flows)
+- [x] Doc: [PHASE-9-BUCKET-2-PLAN.md](PHASE-9-BUCKET-2-PLAN.md) (159 linhas)
+- [x] Pushed: [Viralefy/viralefy_archive@c37f7c1](https://github.com/Viralefy/viralefy_archive/commit/c37f7c1)
 
 
 ### PHASE-9 Fase 9b — viralefy_auth completo
@@ -106,9 +116,11 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] **Monitorar 24h erro rate + latência p95** (dispatcher vs legacy)
 - [ ] Se estável 48h → Bucket 2
 
-### Bucket 2 — User auth (semana 2-3, canary)
-- [ ] Caddyfile: canary 1% → 10% → 50% → 100% via Caddy upstream weight
-- [ ] Rotas: `/v1/auth/user/*`, `/v1/me/*` (32 rotas)
+### Bucket 2 — User auth (semana 2-3) — VER [PHASE-9-BUCKET-2-PLAN.md](PHASE-9-BUCKET-2-PLAN.md)
+Split em sub-buckets baseado em audit (legacy já dual-signs → canary desnecessário):
+- [ ] **Bucket 2a** — `/v1/me/*` GET (18 rotas read-only, full cutover)
+- [ ] **Bucket 2b** — `/v1/me/*` mutating (20 rotas POST/PUT/DELETE)
+- [ ] **Bucket 2c** — `/v1/auth/user/{register,login,login/2fa}` (4 rotas)
 - [ ] Smoke E2E autenticado: register → login → 2FA enroll → orders → API key
 - [ ] Validar 2FA persistido via auth-core compartilhando DB
 - [ ] Hot-set revogação testado end-to-end (revogar JTI no auth, dispatcher rejeita em ≤5s)
