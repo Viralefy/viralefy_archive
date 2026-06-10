@@ -18,6 +18,18 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## DONE — sessões 2026-06-09 + 06-10
 
+### Reconcile cron diário (drift monitoring) — 2026-06-10
+- [x] `viralefy_core/cmd/reconcile-cron` — binary Go que checa 15 invariantes do negócio em ~40ms
+- [x] Invariantes: orders paid sem external_ref, invoices paid sem paid_at, refresh_tokens órfãos (user/admin), revoked_jtis expirados no hot-set, credits negativos, ledger ≠ cache, plans active sem price/gateway, orders pending >7d, gateways duplicados active, refund > amount, refund sum mismatch, subscriptions sem next_billing, coupons used_count > max_uses
+- [x] Read-only: nenhuma query muta state; idempotente; timeout 5min total + 30s/query; falha numa não derruba as demais
+- [x] Output: JSON (Loki via journal) + linhas human-readable em stderr; exit 1 quando há drift, exit 0 quando limpo
+- [x] Notificação opt-in via `ADMIN_WEBHOOK_URL` (POST JSON, Slack/Discord-compatível) — silencioso se vazia
+- [x] systemd: `viralefy-reconcile.service` (oneshot, hardened) + `.timer` (03:30 UTC daily, 15min jitter)
+- [x] Deploy prod 2026-06-10 16:18 UTC — primeira run em prod detectou 2 drifts reais:
+  - 1× `orders_paid_no_external_ref` (high) — order paid sem external_ref do gateway (investigar manualmente)
+  - 4× `orders_pending_over_7d` (low) — zumbis esperados (abandono)
+- [x] Próxima execução automática: Thu 2026-06-11 03:35 UTC
+
 ### PHASE-9 Bucket 1 cutover (2026-06-10 03:21 UTC)
 - [x] Caddyfile com 7 `handle` blocks routing público read-only pra `:8090`
 - [x] Parity test pré-swap (status+body identical legacy vs dispatcher)
