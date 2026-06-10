@@ -60,6 +60,9 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] Deploy prod 2026-06-10 16:18 UTC — primeira run em prod detectou 2 drifts reais:
   - 1× `orders_paid_no_external_ref` (high) — order paid sem external_ref do gateway (investigar manualmente)
   - 4× `orders_pending_over_7d` (low) — zumbis esperados (abandono)
+- [x] Investigação 2026-06-10 17:55 UTC: drift HIGH era FALSE POSITIVE — order `450f0e6f` é PIX Manual (`provider=manual_pix`), que por design não emite `external_ref` (manual proof flow). Fix: invariante agora JOIN com `payment_gateways` e exclui `provider LIKE 'manual_%'`. Build + scp em `/usr/local/sbin/viralefy-reconcile`. Re-run pós-fix: `orders_paid_no_external_ref` count=0; sobrou só LOW `orders_pending_over_7d` (4 abandonos QA). Detalhes em `INCIDENT-ORDER-450F0E6F.md`.
+- [ ] Adicionar build do `reconcile-cron` no pipeline `viralefy_ops/bin/viralefy-update` (deploy hoje foi scp manual)
+- [ ] Adicionar `audit_log` entry no `InvoiceService.AdminMarkPaid` (hoje silent — dificultou investigação)
 - [x] Próxima execução automática: Thu 2026-06-11 03:35 UTC
 
 ### PHASE-9 Bucket 1 cutover (2026-06-10 03:21 UTC)
