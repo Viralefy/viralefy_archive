@@ -1,20 +1,25 @@
-# Viralefy — Contexto geral
+# Viralefy — CONTEXT.md (snapshot pra compactação de contexto)
 
-Snapshot **2026-06-09** (Phase 8 Wave 3 — 3 binários: api+payments+sender via loopback HTTP).
+**Última atualização:** 2026-06-10 (PHASE-9 stack completa em prod)
+
+Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
 ---
 
-## 1. TL;DR — o que é
+## 1. Plataforma em 60s
 
-Marketplace de engajamento Instagram/TikTok com cobertura 130 países × 47 idiomas × 15 categorias. USD/USDT canonical; display multi-moeda (BRL/EUR/BTC/USDT). Stack: Go (API) + Next.js 15 (front + backoffice) + Postgres + Caddy + observability (Grafana/Loki/Tempo/Prometheus/Alloy).
+Marketplace de engajamento Instagram/TikTok, **prod live em https://www.viralefy.com**, faturando. 130 países × 47 idiomas × 12 categorias ativas. USD/USDT canonical, multi-moeda display.
 
-**Estágio**: HML/POC funcional, payment via Manual PIX (BRL ativo) + Manual Crypto (1 gateway = 1 network × asset; admin cadastra USDT TRC20/BSC/POL, BTC, LTC, etc.). Stripe Checkout Session disponível (cartão internacional, REST direta sem stripe-go). Heleket inactive (aguarda aprovação). Woovi inactive.
+**VPS única:** Debian 13 trixie · 8c/16GB · 134GB livres · `root@62.238.41.231`.
 
-**Checkout (rev. 2026-06-08)**: 4 steps — (1) details (perfil/cupom), (2) método de pagamento com transparência charged≠settlement, (3) instruções (QR/wallet/Stripe URL) + upload de comprovante, (4) success. Avisos críticos de rede crypto destacados em vermelho.
+**Faturamento ativo (gateways):**
+- **Stripe** rk_live_ — webhooks corretos em `api.viralefy.com/v1/webhooks/stripe`
+- **Heleket** crypto auto, USDT settlement
+- **AbacatePay** PIX dinâmico (cliente cadastrou)
+- ~~manual_pix~~ desativado (active=false)
+- ~~woovi~~ inactive
 
-**Memory**: persistido em `viralefy_archive/memory/` (symlink reverso de `~/.claude/.../memory/`). Auto-memory funciona transparente.
-
-**Tráfego**: catalógo 126 plans, sitemap 47 idiomas × per-lang, drift 0, status `operational`.
+**Autenticação:** JWT RS256 (HS256 legado em dual-sign), 2FA admin obrigatório, 2FA user opt-in, `kid=vfCOltLYjII` compartilhado entre legacy + core + auth.
 
 ---
 
@@ -23,336 +28,238 @@ Marketplace de engajamento Instagram/TikTok com cobertura 130 países × 47 idio
 | Recurso | URL | Credencial |
 |---|---|---|
 | Storefront | https://www.viralefy.com | — |
-| Backoffice | https://admin.viralefy.com | `viralefy@gmail.com` / `VfIULsiPGXKZGjGfu2yn!` (superadmin) |
-| API | https://api.viralefy.com | Bearer token (RS256) |
+| Backoffice | https://admin.viralefy.com | `viralefy@gmail.com` / `VfIULsiPGXKZGjGfu2yn!` (superadmin 2FA enrolled) |
+| API | https://api.viralefy.com | Bearer RS256 |
 | Observability | https://obs.viralefy.com | `admin` / `6FU6jXSmzJlrPSCBJ6JNprW5dqMYCO1l` |
-| SSH | `root@62.238.41.231` | `/media/sonne/Archives/projects/viralefy/credentials` (extrair com `awk '/BEGIN OPENSSH/,/END OPENSSH/'`) |
-| Postgres | `psql -U viralefy -h localhost -d viralefy` na VPS | senha em `/etc/viralefy/.env DATABASE_URL` |
-| GitHub | https://github.com/Viralefy | 5 repos públicos (api, front, backoffice, ops, archive) |
-
-VPS escalada 2026-06-08: **8 cores · 16GB RAM**.
+| SSH | `root@62.238.41.231` | `awk '/BEGIN OPENSSH/,/END OPENSSH/' /media/sonne/Archives/projects/viralefy/credentials > /tmp/vf-ssh.key && chmod 600 /tmp/vf-ssh.key` |
+| Postgres | local na VPS | senha em `/etc/viralefy/.env` |
+| GitHub | https://github.com/Viralefy | 10 repos públicos |
 
 ---
 
-## 3. Arquitetura
-
-**Fase 8 (DONE Wave 1-3)**: monólito quebrado em 3 binários Go que falam HTTP/JSON em loopback.
+## 3. Arquitetura PHASE-9 (deployada em prod, cutover pendente)
 
 ```
 INTERNET
-   │
-[Caddy] → www                                       → next.js front     (Next 15 App Router, :3000)
-       → admin                                      → next.js backoffice (Next 15,            :3001)
-       → api.viralefy.com/*                         → viralefy-api      (Go orchestrator,    :8080)
-       │   ├── /v1/webhooks/{stripe,heleket,woovi} ─┐
-       │                                            │
-       │                                            ▼  (reverse_proxy)
-       │                            viralefy-payments (Go, 127.0.0.1:8081)  — providers + charges
-       │                                            ▲   POST /internal/v1/payment-confirmed
-       │                            ┌───────────────┘   (X-Internal-Token)
-       │                            ▼
-       │                     viralefy-api  ────► viralefy-sender (Go, 127.0.0.1:8082) — email + Telegram
-       │
-       └── obs.viralefy.com                          → Grafana
+   ↓
+Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (DetectionOnly)
+   ├── www → viralefy-front (Next 15, :3000)
+   ├── admin → viralefy-backoffice (:3001)
+   └── api → viralefy-api LEGACY (:8080) ← reverse_proxy ATUAL
+              │
+              ├── HTTP loopback → viralefy-payments (:8081)
+              └── HTTP loopback → viralefy-sender (:8082)
 
-PostgreSQL 17 single-tenant (compartilhado pelos 3 services — split de DB fica pra Fase 9)
-Grafana / Loki / Tempo / Prometheus / Alloy / node-exporter
-viralefy-backup.timer (daily 03:00 UTC, 7d+4w+6m retenção)
+      ┌── PHASE-9 STACK (deployada paralelo, NÃO recebe tráfego ainda) ──┐
+      │                                                                  │
+      │   viralefy-dispatcher Rust (:8090) [borda futura]                │
+      │      ├── /v1/auth/* + JWKS  → viralefy-auth (:8083)              │
+      │      ├── /v1/me/*, /admin/* → viralefy-core (:8084)              │
+      │      ├── /v1/checkout, /v1/plans → viralefy-core                 │
+      │      ├── /v1/webhooks/{stripe,...} → viralefy-payments           │
+      │      └── notifs → viralefy-sender                                │
+      │                                                                  │
+      │   Cutover futuro: Caddyfile reverse_proxy api → :8090            │
+      │   Rollback: trocar de volta pra :8080. Zero downtime.            │
+      └──────────────────────────────────────────────────────────────────┘
 ```
 
-**Portas**:
-| Porta | Service | Bind |
+**Auth interno entre services:** `INTERNAL_SHARED_SECRET` em `X-Internal-Token`. Loopback-only.
+
+**Object storage:** MinIO Docker `/var/lib/viralefy-storage/`, S3-compat (proofs bucket privado + public). R2-ready.
+
+---
+
+## 4. 10 Repositórios (Viralefy GitHub org)
+
+| Repo | Função | Estado |
 |---|---|---|
-| 3000 | viralefy-front | 127.0.0.1 |
-| 3001 | viralefy-backoffice | 127.0.0.1 |
-| 8080 | viralefy-api (orchestrator) | 127.0.0.1 |
-| 8081 | viralefy-payments | 127.0.0.1 (loopback-only) |
-| 8082 | viralefy-sender | 127.0.0.1 (loopback-only) |
-
-**Fluxo loopback**:
-1. Cliente → Caddy → `viralefy-api`.
-2. Para checkout: api faz `POST 127.0.0.1:8081/internal/v1/charge` (token shared).
-3. Para email/telegram: api faz `POST 127.0.0.1:8082/internal/v1/send`.
-4. Webhook Stripe/Heleket/Woovi: Caddy `reverse_proxy` direto pra `127.0.0.1:8081`. Após validar assinatura, payments chama de volta `POST 127.0.0.1:8080/internal/v1/payment-confirmed` com `X-Internal-Token: $INTERNAL_SHARED_SECRET`; api executa `MarkOrderPaid` (domínio do pedido permanece no monólito).
-
-**Auth interna**: `INTERNAL_SHARED_SECRET` (32 bytes hex) em `/etc/viralefy/.env`, gerado pelo `installer/30-secrets.sh`. Middleware em payments e sender rejeita 401 sem o header. Defesa-em-profundidade — loopback é a primeira barreira.
-
-**Migrations**:
-- monólito: 015→035 (donas das tabelas core, incluindo `payment_gateways`, `orders.proof_*`, `stripe_events_processed`).
-- payments: `001_payments_init` é **idempotente** — `CREATE TABLE IF NOT EXISTS payment_gateways` (standalone install), `ALTER TABLE ... ADD COLUMN IF NOT EXISTS accepted_currencies`, `CREATE TABLE IF NOT EXISTS stripe_events_processed`. Em prod (DB compartilhado) tudo vira no-op.
-- sender: `001_sender_outbox` + `002_telegram_chats` — tabelas novas, exclusivas do sender.
-
-**DDD 4-layer** em cada binário: domain ↔ application ↔ infrastructure ↔ interface.
-
-**Front**: Server components por padrão; client components onde tem state (CheckoutModal, CategoryCardGrid). 47 i18n packs (`src/i18n/languages.ts`). 28 países × PPP (`country_ppp`). 28 países EU+GB × VAT (`tax_rates`).
+| `viralefy_api` | Monolito Go LEGACY (port 8080) | Live, será aposentado em cutover |
+| `viralefy_payments` | Providers + webhooks (8081) | Live |
+| `viralefy_sender` | Email + telegram + outbox (8082) | Live |
+| `viralefy_front` | Next.js storefront | Live |
+| `viralefy_backoffice` | Next.js admin panel | Live |
+| `viralefy_ops` | systemd + installer + Caddy + CLIs | Live |
+| `viralefy_archive` | docs + memory (este repo) | Live |
+| **`viralefy_core`** | **Motor Go (port 8084)** — sucessor do api | **Deployed paralelo, paridade 100%** |
+| **`viralefy_auth`** | **Identidade Go (port 8083)** — JWT + 2FA + hot-set | **Deployed paralelo** |
+| **`viralefy_dispatcher`** | **Borda Rust (port 8090)** — sanitiza + proxy + JWT verify | **Deployed paralelo** |
 
 ---
 
-## 4. Schema PostgreSQL (33 migrations consumidas, 015 → 033)
+## 5. Stack rodando em prod (mem usage real)
 
-| # | Migration | Tabela / Mudança |
-|---|---|---|
-| 015 | Reviews | `reviews` |
-| 016 | Email reputation | `email_events`, `email_reputation` |
-| 017 | Coupons | `coupons`, `coupon_redemptions` |
-| 018 | Orders abandonment | `orders.abandonment_email_sent_at` |
-| 019 | Users notif_prefs | `users.notif_prefs JSONB` |
-| 020 | User data | `user_deletion_requests`, `users.deleted_at` |
-| 021 | Country PPP | `country_ppp` (28 países) |
-| 022 | Referrals | `users.referral_code`, `users.referred_by_user_id`, `referral_rewards` |
-| 023 | A/B experiments | `ab_experiments`, `ab_assignments`, `ab_events` |
-| 024 | Fraud signals | `fraud_signals`, `fraud_blocks` |
-| 025 | Refunds | `order_refunds`, `orders.refunded_usd_cents` |
-| 026 | Subscriptions | `subscriptions`, `orders.subscription_id` |
-| 027 | Tax rates | `tax_rates` (28 países EU+GB), `orders.tax_*` |
-| 028 | User WhatsApp | `users.whatsapp_*` |
-| 029 | Vendors | `vendors`, `plans.vendor_id` |
-| 030 | API keys | `api_keys` |
-| 031 | Target country | `orders.target_country_code` |
-| 032 | Gateway currencies | `payment_gateways.accepted_currencies TEXT[]` |
-| 033 | User events | `user_events`, `user_journeys` |
+| Port | Service | Binary | Mem | Linguagem |
+|---|---|---|---|---|
+| 8080 | viralefy-api LEGACY | 35MB | 29MB | Go |
+| 8081 | viralefy-payments | - | 7MB | Go |
+| 8082 | viralefy-sender | - | 13MB | Go |
+| 8083 | **viralefy-auth** | 11MB | **7MB** | Go |
+| 8084 | **viralefy-core** | 24MB | 14MB | Go |
+| 8090 | **viralefy-dispatcher** | **7.2MB** | **2MB** | **Rust** |
+| — | Caddy + Coraza | 54MB | ~100MB | Go + WAF |
 
-Próxima migration livre: **034**.
+**Total RAM em uso:** ~170MB de 16GB disponíveis.
 
 ---
 
-## 5. Pagamento — providers
+## 6. Schema DB (39 migrations aplicadas)
 
-| Provider | Status | Currencies | Como funciona |
-|---|---|---|---|
-| `manual_pix` | **active** (BRL) | `{BRL}` | Admin põe pix_key. Customer copia, paga, admin marca paid. |
-| `manual_usdt` | available, customizar/ativar | `{USDT, USD}` default | Admin põe wallet_address + network (TRC20/ERC20/BEP20/Polygon/Solana) + memo opcional. Customer copia, paga, admin marca paid. |
-| `heleket` | inactive (aguardando aprovação) | `{USDT, USD, EUR, BTC}` | Integração automática + webhook Svix |
-| `woovi` | inactive | `{BRL}` | PIX automático via Woovi |
+Migration tracker tipo Laravel — tabela `schema_migrations` com checksum SHA256, auto-backfill detecta prod legado, `Seed()` opt-in (não auto em boot). Última: **039_auth_tokens** (refresh_tokens + revoked_jtis + password_resets).
 
-Validação no service: provider enum + accepted_currencies dedup/uppercase + bloqueia active sem currencies. Cascade lib (`providerDefaultCurrencies` em `gateway_service.go`).
+**Núcleo:**
+- users, admins, roles, role_permissions
+- plans, plan_prices, categories
+- orders, order_refunds, order_proofs
+- payment_gateways, stripe_events_processed
+- credit_accounts, credit_transactions, invoices
+- profiles, subscriptions
 
----
+**Tracking:**
+- user_events, user_journeys, ab_experiments, ab_assignments, ab_events
 
-## 6. Crons rodando
+**Segurança & PHASE-9:**
+- admin_2fa, user_2fa
+- **refresh_tokens** (rotação encadeada)
+- **revoked_jtis** (hot-set + LISTEN/NOTIFY no canal `revoked_jtis_inserted`)
+- **password_resets** (single-use TTL 1h)
+- audit_log, idempotency_keys, user_deletion_requests
 
-| Cron | Tick | O que faz |
-|---|---|---|
-| `viralefy-backup.timer` | diário 03:00 UTC | pg_dump + gzip + retenção |
-| IdempotencyCleanupCron | 1h | Remove keys expirados |
-| DeliveryCaptureCron | 15min | Snapshot 2ª fonte de verdade (24h pós-paid) |
-| ReviewRequestCron | 1h | Email "how was your order?" 7d pós-paid |
-| PlanPriceDriftCron | 1h | Métrica `viralefy_plan_price_drift_rows` |
-| FraudVelocityCron | 5min | Agrega signals → fraud_signals |
-| CartAbandonmentCron | 30min | Email "complete payment" 1-24h pós-pending |
-| SubscriptionCron | 1h | Renovação mensal de subs |
-
----
-
-## 7. Endpoints — superfície pública
-
-```
-GET    /health
-GET    /ready
-GET    /metrics                              # Prometheus
-GET    /.well-known/jwks.json                # RS256
-
-# /v1 público
-GET    /v1/plans
-GET    /v1/categories
-GET    /v1/currencies
-GET    /v1/country-ppp
-GET    /v1/tax-rates
-GET    /v1/status                            # overall + 3 services
-POST   /v1/checkout                          # cupom + tax + target_country
-POST   /v1/recovery-request
-POST   /v1/coupons/validate
-POST   /v1/ab/assign                         # rate-limited
-POST   /v1/ab/track                          # rate-limited
-POST   /v1/track                             # event behavior (MaxBytes 1MB)
-GET    /v1/referrals/{code}/info
-POST   /v1/webhooks/{woovi,heleket,resend}   # Svix sig pro Resend
-
-# /v1/auth
-POST   /v1/auth/login                        # admin (rate-limited 10/15min)
-POST   /v1/auth/user/register                # rate-limited
-POST   /v1/auth/user/login                   # rate-limited
-
-# /v1/me (Bearer user)
-GET    /v1/me/orders
-GET    /v1/me/orders/{id}
-GET    /v1/me/profiles | POST | DELETE
-GET    /v1/me/credits | transactions | invoices
-POST   /v1/me/recharge
-GET    /v1/me/tickets | POST | replies
-POST   /v1/me/reviews
-GET    /v1/me/referral
-GET    /v1/me/subscriptions | POST | DELETE
-GET    /v1/me/notif-prefs | PUT
-GET    /v1/me/whatsapp | PUT
-GET    /v1/me/data/export
-POST   /v1/me/data/deletion | DELETE
-GET    /v1/me/api-keys | POST | DELETE
-GET    /v1/me/journey
-
-# /v1/admin (Bearer admin + RBAC)
-POST   /v1/admin/me/become-customer          # cria shadow user + session
-GET    /v1/admin/{plans,gateways,orders,tickets,users,coupons,fraud/signals,ab/experiments,vendors,...}
-POST   /v1/admin/orders/{id}/refund
-POST   /v1/admin/orders/{id}/mark-paid
-PUT    /v1/admin/currencies/{code}
-
-# /v2 B2B (X-API-Key)
-GET    /v2/plans
-GET    /v2/orders/{id}/status
-```
+**Features:**
+- coupons, reviews, tickets, ticket_messages, referral_rewards
+- api_keys, currencies, country_ppp, tax_rates
+- email_events, email_reputation, fraud_signals, fraud_blocks
+- vendors, user_contact
 
 ---
 
-## 8. Observabilidade
+## 7. Auth dual-sign (RS256 + HS256 legado)
 
-- Prometheus em `127.0.0.1:9090` com 11 alert rules em 6 grupos: `viralefy_uptime`, `viralefy_backup`, `viralefy_data_invariants`, `viralefy_payments`, `viralefy_security`, `viralefy_database`
-- Grafana em `obs.viralefy.com` — datasources Prometheus + Loki + Tempo
-- Loki captura logs estruturados JSON do API; alloy faz scrape
-- node-exporter expõe textfile collector com métricas customizadas (`viralefy_backup_*`)
-- Contact points no Grafana ainda vazios — alerta dispara mas não notifica até ser configurado
-
----
-
-## 9. Segurança
-
-- **JWT RS256 dual-sign** com kill-switch (`LEGACY_HS256_DISABLED`); JWKS público
-- **Login rate-limit** 10/15min por IP em /auth (3 endpoints)
-- **Fraud check pré-checkout**: IsBlocked(email) + IsBlocked(ip)
-- **CSP boundary**: frame-ancestors none, object-src none, base-uri self, form-action self
-- **GDPR cookie banner** + /legal/cookie-preferences + manage-data (export + 30d deletion)
-- **Anti-fraude velocity** cron (5min): email 3/24h warn + 10/h block; ip 10/h block
-- **Security test suite** Go (12 TestSecurity_*): SQLi/XSS/auth bypass/IDOR/rate-limit/mass assignment/CRLF
-- **Smoke probes** bash: 5/5 PASS contra prod
-- **gitleaks** CI em 5 repos + .gitleaksignore para leaks históricos
-- **Sentry** SDK wired em api/front/backoffice (no-op até DSN configurado)
-- **Senha admin viralefy@gmail.com** — não tem nag de rotação (HML)
+- **Mint:** todos services emitem RS256 com `kid=vfCOltLYjII`
+- **Verify:** RS256 primário + HS256 fallback (janela de migração 7d)
+- **2FA:** TOTP RFC 6238 + AES-256-GCM secret encryption + bcrypt backup codes
+- **Hot-set revogação:** tabela `revoked_jtis` + `pg_notify('revoked_jtis_inserted', jti)` consumido pelo dispatcher Rust via LISTEN/NOTIFY (5s polling fallback)
+- **Refresh tokens:** rotação encadeada (anti-replay), TTL 30d, replay de revogado → force-logout do subject inteiro
 
 ---
 
-## 10. Deploy
+## 8. Env vars críticas em `/etc/viralefy/.env`
 
-**Zero-downtime via build-then-swap** (atualizado Fase 8 — 3 binários):
-```
-viralefy-update --yes        # padrão, ~5s downtime
-viralefy-update --legacy     # destrutivo (~5-10min) — só emergência
-viralefy-smoke               # smoke test pós-deploy (auto-rodado pelo update)
-```
+**Presentes em prod:**
+- `DATABASE_URL`, `PORT=8080` (legacy), `BIND_HOST=127.0.0.1`
+- `JWT_SECRET`, `JWT_PRIVATE_KEY_PATH=/etc/viralefy/jwt-rs256.pem`
+- `TWOFA_ENCRYPTION_KEY` (32 bytes hex)
+- `INTERNAL_SHARED_SECRET` (32 bytes hex, compartilhado entre todos services)
+- `RESEND_API_KEY`, `RESEND_FROM=contato@viralefy.com`
+- `TURNSTILE_SECRET_KEY` (anti-bot ativo)
+- `STORAGE_ACCESS_KEY` / `STORAGE_SECRET_KEY` (MinIO)
+- `PAYMENTS_INTERNAL_URL=http://127.0.0.1:8081`
+- `SENDER_INTERNAL_URL=http://127.0.0.1:8082`
 
-1. Clone **7 repos** (api, payments, sender, front, backoffice, ops, archive) em `/viralefy.next/` em paralelo aos serviços live
-2. Build paralelo: 3 Go (api/payments/sender) + 2 Node (front/backoffice)
-3. Atomic mv `/viralefy → /viralefy.prev` + `/viralefy.next → /viralefy`
-4. Copy binários microservices pra `/usr/local/sbin/viralefy-{payments,sender}` (ExecStart dos units aponta lá)
-5. Restart na ordem certa: `viralefy-{payments,sender}` PRIMEIRO, depois `viralefy-{api,front,backoffice}`
-6. Healthcheck loopback 30s nos 3 services + front (rollback automático)
-7. `viralefy-smoke` verifica contrato HTTP: 3 healths + `GET /v1/plans` + `POST /v1/me/2fa/status` (sem token → 401)
+**Env do core (deploy paralelo) — sobrescritas no systemd unit:**
+- `CORE_PORT=8084` (precedência sobre `PORT=8080`)
+- `BIND_HOST=127.0.0.1`
 
-**Build inteligente**: API Go + 2 Next.js builds em paralelo. Aproveita 8 cores. Total ~3-5min sem nenhum impacto em prod até o swap.
+**Env do auth — no systemd unit:**
+- `VAUTH_BIND_ADDR=127.0.0.1:8083`
+- `VAUTH_ACCESS_TOKEN_TTL=15m`, `VAUTH_REFRESH_TOKEN_TTL=720h`
 
-**Build-fail-safe**: se algum build falha, `/viralefy/` permanece intocado. Reportar erro no log e exit. Já validado em prod (fix do `/auth/handoff` Suspense).
+**Env do dispatcher Rust — no systemd unit:**
+- `VAPI_BIND_ADDR=127.0.0.1:8090`
+- `VAPI_CORE_URL=http://127.0.0.1:8084`
+- `VAPI_AUTH_URL=http://127.0.0.1:8083`
+- `VAPI_PAYMENTS_URL=http://127.0.0.1:8081`
+- `VAPI_SENDER_URL=http://127.0.0.1:8082`
+- `VAPI_JWKS_CACHE_TTL_SECS=60`, `VAPI_REVOKED_POLL_SECS=5`
 
----
-
-## 11. Tests
-
-- API Go: `go test -count=1 ./...` → application + interface/http verde
-- Front Next: `npm test` → 385/385+ (zod schemas + sitemap integrity + security probes + format)
-- Backoffice Next: `npm test` (4 tests)
-- CI/CD GitHub Actions em 4 repos (api/front/backoffice/ops) + gitleaks em todos os 5
-
----
-
-## 12. Tracking (Wave 5)
-
-- `user_events` (append-only granular) + `user_journeys` (1:1 first-touch wins via COALESCE)
-- Front `lib/track.ts` + `TrackingHydrator` em layout root
-- Event types whitelist: pageview, click, modal_open, modal_close, checkout_start, checkout_complete, abandon, landing
-- Batch 10 events/10s + flush via sendBeacon on `beforeunload` (com re-queue se sendBeacon false)
-- visitor_id sticky cookie + localStorage 1y
-- Endpoint `/v1/track` MaxBytesReader 1MB, sempre 204
+**Opt-in pendentes (vazias):**
+- `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`
+- `TELEGRAM_BOT_TOKEN` / `TELEGRAM_ADMIN_CHAT_ID`
+- `ADMIN_WEBHOOK_URL` (Slack/Discord)
 
 ---
 
-## 13. Tabelas que crescem (atenção)
+## 9. Operação day-a-day
 
-| Tabela | TTL | Cleanup |
-|---|---|---|
-| `idempotency_keys` | 24h | IdempotencyCleanupCron |
-| `user_events` | TODO: append-only | **policy a definir** |
-| `ab_events` | TODO: append-only | **policy a definir** |
-| `email_events` | TODO: append-only | **policy a definir** |
-| `audit_log` | nunca | auditoria |
-
----
-
-## 14. Diretórios
-
-```
-/media/sonne/Archives/projects/viralefy/
-├── credentials               # SSH key
-├── viralefy_api/             # Go DDD (orchestrator, :8080)
-├── viralefy_payments/        # Go DDD (providers + charges + webhooks, :8081)
-├── viralefy_sender/          # Go DDD (email + telegram outbox, :8082)
-├── viralefy_front/           # Next.js storefront (:3000)
-├── viralefy_backoffice/      # Next.js admin (:3001)
-├── viralefy_ops/             # Installer + config + bin
-├── viralefy_archive/         # Docs (este arquivo, ROADMAP, RUNBOOK, MICROSERVICES-OPS, etc.)
-└── memory/                   # Auto-memory persistente
-```
-
-Na VPS:
-```
-/viralefy/{api,payments,sender,front,backoffice,ops,archive}   # atual — 7 repos
-/viralefy.next/                                 # staging durante deploy
-/viralefy.prev/                                 # backup do anterior (cleanup async)
-/usr/local/sbin/viralefy-payments              # binário microservice (ExecStart)
-/usr/local/sbin/viralefy-sender                # binário microservice (ExecStart)
-/usr/local/sbin/viralefy-{update,status,logs,backup,smoke}  # CLIs persistentes
-/etc/viralefy/.env                              # secrets, mode 0640 root:viralefy
-                                                # inclui INTERNAL_SHARED_SECRET
-/var/backups/viralefy/dump-*.sql.gz             # backups com retenção
-/etc/prometheus/{prometheus.yml,alerts.yml}     # 11 rules em 6 groups
-```
-
----
-
-## 15. Documentos vivos no archive
-
-| Arquivo | Pra que serve |
+| Ação | Comando |
 |---|---|
-| [CONTEXT.md](CONTEXT.md) | Este snapshot. Lê primeiro em qualquer próxima sessão. |
-| [CHECKLIST.md](CHECKLIST.md) | Tudo que o user pediu × done/pending |
-| [ROADMAP.md](ROADMAP.md) | Roadmap por fase + status (30/30 RECOMMENDATIONS + Waves 4 + 5) |
-| [RUNBOOK.md](RUNBOOK.md) | Ops playbook (deploy, incident, restore) |
-| [PHASE-7-PLAN.md](PHASE-7-PLAN.md) | Plano Fase 7 (2FA + sec hardening) |
-| [PHASE-8-MICROSERVICES.md](PHASE-8-MICROSERVICES.md) | Plano Fase 8 (carve-out payments + sender) |
-| [MICROSERVICES-OPS.md](MICROSERVICES-OPS.md) | Runbook curto: migrations, debug, secret rotation, Telegram bot local |
-| [RECOMMENDATIONS.md](RECOMMENDATIONS.md) | Lista original de 30 itens (referência histórica) |
-| [COMPLIANCE.md](COMPLIANCE.md) | Notas legais (GDPR/PT-BR) |
-| [AGENTS.md](AGENTS.md) | Instruções pra agentes |
-| [diretrizes.md](diretrizes.md) | Diretrizes técnicas do projeto |
+| Deploy | `ssh root@62.238.41.231 'viralefy-update --yes'` (zero-downtime, 2min, smoke automático) |
+| Smoke | `ssh root@62.238.41.231 'viralefy-smoke'` (3 legacy + 3 PHASE-9 + 2 endpoint tests) |
+| Status | `ssh root@62.238.41.231 'viralefy-status'` |
+| Logs core | `journalctl -u viralefy-core -f` |
+| Logs auth | `journalctl -u viralefy-auth -f` |
+| Logs dispatcher | `journalctl -u viralefy-dispatcher -f` |
+| Logs Coraza WAF | `journalctl -u caddy -f \| grep coraza` |
+| Migrate status | `sudo -u viralefy-core /usr/local/sbin/viralefy-core migrate status` (env file readable required) |
+| Restore DB | vide RUNBOOK.md (drill validated 2026-06-08) |
 
 ---
 
-## 16. O que está completo e pronto pra revenue
+## 10. Coraza WAF — DetectionOnly em prod
 
-- Storefront em 47 idiomas, 130 países, 15 categorias × Instagram/TikTok
-- Checkout com cupom + VAT EU + PPP visual + tax cobrado + target_country
-- Pagamento Manual PIX (BRL) + Manual USDT (crypto) ativos
-- Admin tem botão "Open customer side" pra testar sem outro registro
-- Cron de cart abandonment + email já dispara
-- Subscription mensal com cron de renovação
-- Referral com signup + payout hooks integrados
-- Fraud pre-checkout block
-- 11 alert rules vivas em Prometheus
-- Backup diário com restore drill validado (1s, 0 erros)
-- Zero-downtime deploy ativo (5s downtime, build-fail-safe)
+- Buildado via `xcaddy build v2.11.3 --with github.com/corazawaf/coraza-caddy/v2`
+- Binary 54MB (legacy preservado em `/usr/bin/caddy.legacy-20260610-012110`)
+- OWASP CRS 4.10.0 em `/etc/caddy/coraza/crs/` (46 rule files)
+- `SecRuleEngine DetectionOnly` (logs no journald do Caddy, requests passam 200)
+- `SecAuditEngine On` (logs no journald primary)
 
-**Não pronto** (decisão de produto):
-- Heleket activation (aguardando)
-- Sentry DSN (criar conta + paste no env)
-- Grafana contact points (email/slack)
-- WhatsApp provider real (DryRun stub serve por ora)
-- Multi-vendor settlement split
-- API B2B rate-limit per-key
-- Cleanup crons pra `user_events` / `ab_events` / `email_events`
+**Validado em prod com payloads reais:**
+- SQLi `?q=1 OR 1=1--` → rule `942100` libinjection detectada, Anomaly Score 5
+- XSS `?q=<script>alert(1)</script>` → 4 rules `941xxx` detectadas, Anomaly Score 20
+
+**Plano:** 14 dias monitorando false positives → tuning `CRS_EXCLUSION_*` → `SecRuleEngine On` (Block real).
+
+---
+
+## 11. Documentos no archive (referência)
+
+| Doc | Conteúdo |
+|---|---|
+| **CONTEXT.md** | este arquivo |
+| **CHECKLIST.md** | done + pending + priorizado |
+| INDEX.md | snapshot histórico das fases (compatibilidade) |
+| STATUS-CHECKLIST.md | checklist longo (~250 items, histórico) |
+| PHASE-7-PLAN.md | plano fase 7 (storage, 2FA, dashboards) |
+| PHASE-8-MICROSERVICES.md | plano fase 8 (carve-out micros) |
+| **PHASE-9-ARCHITECTURE.md** | plano fase 9 (1056 linhas, revisado adversarialmente 12 críticas) |
+| MICROSERVICES-OPS.md | runbook ops dos 3 binários legacy |
+| RUNBOOK.md | playbook prod (incidents, restore drill) |
+| COMPLIANCE.md | GDPR, LGPD, EU VAT |
+| ROADMAP.md | histórico de fases 0-7 entregues |
+| RECOMMENDATIONS.md | auditoria técnica original |
+| diretrizes.md | técnicas + convenções |
+| AGENTS.md | instruções pra subagentes |
+| memory/ | auto-memory (symlinkada de `~/.claude/.../memory/`) |
+
+---
+
+## 12. Pendências críticas (vide CHECKLIST.md pra completa)
+
+**Cliente precisa fornecer:**
+- Telegram bot TOKEN + CHAT_ID (opcional)
+- Sentry DSN (opcional)
+- Slack/Discord webhook (opcional)
+
+**Engineering:**
+- Strangler cutover PHASE-9 por bucket (public → user/me → admin → checkout)
+- 14 dias Coraza DetectionOnly → tuning → Block
+- Object storage migration proofs base64 → MinIO keys (parcial)
+- Grafana contact points + 4 dashboards
+- Sentry source maps no CI
+
+**Decisão de produto:**
+- Multi-vendor settlement model
+- WhatsApp provider real (Meta vs Twilio)
+- API B2B billing tier
+
+---
+
+## 13. Como começar uma nova sessão
+
+1. Ler **este arquivo** (CONTEXT.md) — entender estado atual
+2. Ler **CHECKLIST.md** — ver done + pendências priorizadas
+3. Ler memória persistente em `~/.claude/.../memory/MEMORY.md`
+4. Confirmar prod saudável: `ssh root@62.238.41.231 'viralefy-smoke'`
+5. Escolher próxima task da CHECKLIST priorizada
+
+**Convenção:** ao fechar uma task, atualizar CONTEXT.md (se mudou arquitetura) + CHECKLIST.md (sempre) + commit no archive.

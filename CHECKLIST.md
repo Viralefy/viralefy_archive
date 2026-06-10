@@ -1,320 +1,208 @@
-# Viralefy — Checklist extensivo do que foi pedido
+# Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-Snapshot **2026-06-08** (rev. checkout 2-step + Stripe + manual_crypto + proof).
-Tudo que o user pediu em conversa, linha por linha.
-`[x]` = entregue em prod (com commit link); `[ ]` = pendente; `[~]` = parcial / aguarda decisão externa.
+**Última atualização:** 2026-06-10 (PHASE-9 deployada paralelo em prod)
+
+Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
 ---
 
-## Setup inicial / arquitetura
+## ESTADO CRÍTICO PRA NÃO REGREDIR
 
-- [x] Estrutura DDD do API Go (4 layers)
-- [x] Next.js 15 App Router em front + backoffice
-- [x] Postgres 17 single-tenant
-- [x] Caddy reverse proxy + TLS auto
-- [x] Hardened systemd units (NoNewPrivileges, ProtectSystem, etc.)
-- [x] 5 repos públicos em github.com/Viralefy
-- [x] Installer destrutivo (`viralefy-update --legacy`)
-- [x] CLIs em /usr/local/sbin (sobrevivem a rm -rf)
-- [x] 47 idiomas i18n
-- [x] 130 países × 15 categorias
-- [x] Multi-moeda display ≠ cobrança (USD/USDT canonical)
+- [x] Migration tracker estilo Laravel — `schema_migrations` + checksum + auto-backfill prod legado
+- [x] `Seed()` NÃO roda automático em boot (era a fonte de items que ressuscitavam)
+- [x] `ON CONFLICT DO UPDATE` → `DO NOTHING` em seedRoles/seedCategories/seedPlans prices
+- [x] Caddy bloqueia `/internal/*` externamente (404) — defesa em profundidade
+- [x] CORE_PORT precedência sobre PORT (deploy paralelo sem editar .env compartilhado)
 
-## Build / deploy / ops
+---
 
-- [x] CI/CD GitHub Actions em 4 repos (api, front, backoffice, ops)
-- [x] gitleaks scan + workflow CI nos 5 repos
-- [x] Postgres backup automatizado (diário 03:00 UTC, retenção 7d+4w+6m)
-- [x] Backup restore drill validado (1s, 0 erros — 2026-06-08) `viralefy_archive/RUNBOOK.md`
-- [x] Métricas backup textfile collector node_exporter
-- [x] **Zero-downtime deploy** (build-then-swap, ~5s downtime, rollback automático) `viralefy_ops b4373d7`
-- [x] Build-fail-safe: prod intocado se build quebra (validado com /auth/handoff Suspense fix)
-- [x] **11 Prometheus alert rules em 6 grupos** `viralefy_ops d8722e2`
-- [x] Sentry SDK wired em api/front/backoffice (no-op até DSN)
-- [x] Status page público `/status` com `/v1/status` endpoint
-- [x] OpenTelemetry traces + Loki logs + Grafana datasources
-- [x] RUNBOOK.md completo `viralefy_archive 7d4a217`
-- [x] CONTEXT.md + CHECKLIST.md mantidos a cada task (este arquivo)
-- [ ] Sentry DSN integration assistant
+## DONE — sessões 2026-06-09 + 06-10
+
+### PHASE-9 Fase 9b — viralefy_auth completo
+- [x] Domain layer (5 arquivos: user, admin, token, twofa, errors)
+- [x] 5 postgres repos + db.go com AssertSchema falha-fast
+- [x] token_service.go: mint RS256 + verify + hot-set + rotação refresh
+- [x] auth_service.go: 14 endpoints (login/register/refresh/logout/2FA/password reset)
+- [x] HTTP layer: gated por X-Internal-Token + JWKS público aberto
+- [x] Binary 11MB Go, mem 7MB em prod no port `:8083`
+- [x] Migration 039 auto-aplicada (refresh_tokens + revoked_jtis + password_resets)
+- [x] Pushed: [Viralefy/viralefy_auth](https://github.com/Viralefy/viralefy_auth)
+
+### PHASE-9 Fase 9d — viralefy_dispatcher (Rust) completo
+- [x] Cargo + axum 0.7 + tokio + tower_governor + reqwest+rustls + sqlx+rustls + ammonia
+- [x] `src/auth.rs`: JWKSCache TTL 60s + RevocationSet (bootstrap + LISTEN/NOTIFY + polling 5s)
+- [x] `src/middleware.rs`: enforce_path_safety + require_auth + optional_auth
+- [x] `src/proxy.rs`: resolve_upstream + reverse_proxy com headers safe-list + X-Internal-Token auto
+- [x] `src/security.rs`: 9 patterns case-insensitive path traversal
+- [x] `tower_governor`: 30 burst + 1/s per-IP (via ConnectInfo<SocketAddr>)
+- [x] 12 tests unit + smoke E2E PASS contra 3 mocks (core/auth/payments)
+- [x] Binary 7.2MB stripped release, mem 1.4MB em prod no port `:8090`
+- [x] Pushed: [Viralefy/viralefy_dispatcher](https://github.com/Viralefy/viralefy_dispatcher)
+
+### PHASE-9 Fase 9c — viralefy_core (Go) completo
+- [x] Fork 1:1 do viralefy_api Go monolito
+- [x] Module renomeado `github.com/Viralefy/viralefy_core`
+- [x] cmd/api → cmd/core, binary `viralefy-core`
+- [x] Paridade 100% com legacy (109 plans, 12 categorias, mesmo kid JWT)
+- [x] Migration 039 nova (refresh_tokens + revoked_jtis + password_resets)
+- [x] Build OK, suite tests 100% PASS
+- [x] Deploy paralelo em prod no `:8084`, mem 14MB
+- [x] Pushed: [Viralefy/viralefy_core](https://github.com/Viralefy/viralefy_core)
+
+### PHASE-9 Fase 9a — Caddy + Coraza WAF
+- [x] xcaddy v0.4.5 instalado na VPS
+- [x] Caddy 2.11.3 + coraza-caddy/v2 buildado (binary 54MB)
+- [x] OWASP CRS 4.10.0 instalado em `/etc/caddy/coraza/crs/` (46 rule files)
+- [x] Caddyfile: `order coraza_waf first` + bloco coraza_waf no API
+- [x] `SecRuleEngine DetectionOnly` + `SecAuditEngine On`
+- [x] Validado em prod: SQLi `942100` + XSS `941xxx` detectados, requests passam 200
+- [x] Pushed: [Viralefy/viralefy_ops](https://github.com/Viralefy/viralefy_ops)
+
+### viralefy_ops integração PHASE-9
+- [x] 3 systemd units hardened (core, auth, dispatcher)
+- [x] viralefy-update suporta 10 repos com clone_optional + build_rust_svc
+- [x] viralefy-smoke testa healths PHASE-9 com skip silencioso
+- [x] installer/lib.sh PACKAGES expandido pra 8 packages
+- [x] installer/60-systemd.sh instala (mas não enable) os 3 units novos
+
+### Outras correções desta sessão
+- [x] Stripe webhook reconfigurado (era pra `ganharfama.com`, agora `api.viralefy.com/v1/webhooks/stripe`)
+- [x] Heleket `url_callback` configurado
+- [x] Manual PIX desativado (active=false), histórico preservado
+- [x] Gateway DELETE com FK violation → 409 CONFLICT (era 500)
+- [x] Multi-currency providers consolidados: 1 card por gateway (não N)
+- [x] Backoffice UI de admins management (`/admins`) — list/create/edit role/reset 2FA/delete
+- [x] Invoice list hidratada (user_name + user_email via JOIN)
+- [x] Marketplace items (bms_facebook/perfis_redes/emails_validados) removidos via migration 038
+- [x] Bugs achados via sweep E2E (62 PASS) + ABAC autenticado (56/56 PASS, 0 IDOR, 0 RBAC bypass)
+- [x] Contract tests inter-microservice (api+payments+sender) — drift detector
+- [x] Stripe reconcile cron (5min tick, polling Sessions API pra webhooks perdidos)
+- [x] PHASE-9-ARCHITECTURE.md (1056 linhas, 12 críticas adversariais aplicadas)
+
+---
+
+## PRÓXIMA SESSÃO — Cutover PHASE-9 (strangler por bucket)
+
+### Bucket 1 — Public read-only (semana 1)
+- [ ] Caddyfile: trocar reverse_proxy `:8080` → `:8090` para:
+  - [ ] `/v1/plans` (e variantes `/v1/plans/{id}/reviews`, `/v1/plans/{id}/payment-methods`)
+  - [ ] `/v1/categories`, `/v1/currencies`
+  - [ ] `/v1/status`, `/v1/country-ppp`, `/v1/tax-rates`
+  - [ ] `/.well-known/jwks.json` → `:8083` (auth)
+- [ ] Smoke E2E pós-swap: front + backoffice consumindo `:8090` via Caddy
+- [ ] Monitorar erro rate 24h
+- [ ] Rollback test: trocar de volta pra `:8080`, validar 2s downtime
+
+### Bucket 2 — User auth (semana 2-3, canary)
+- [ ] Caddyfile: canary 1% → 10% → 50% → 100% via Caddy upstream weight
+- [ ] Rotas: `/v1/auth/user/*`, `/v1/me/*` (32 rotas)
+- [ ] Smoke E2E autenticado: register → login → 2FA enroll → orders → API key
+- [ ] Validar 2FA persistido via auth-core compartilhando DB
+- [ ] Hot-set revogação testado end-to-end (revogar JTI no auth, dispatcher rejeita em ≤5s)
+- [ ] Reconciliação diária: nenhum order criado em path diferente
+
+### Bucket 3 — Admin (semana 4)
+- [ ] Rotas: `/v1/admin/*` (52 rotas, RBAC com role permissions)
+- [ ] Smoke RBAC: superadmin vs manager vs viewer
+- [ ] Validar audit_log gravado pelo core
+- [ ] Bulk approve proofs + edit gateways funcionais
+
+### Bucket 4 — Checkout + webhooks (semana 5, shadow traffic)
+- [ ] Shadow traffic: api duplica request pra dispatcher, log diff de response
+- [ ] 72h shadow → canary 1% → 10% → 50% → 100%
+- [ ] Reconciliação diária de orders criadas em cada path
+- [ ] Stripe/Heleket/Abacate webhooks roteados pra `:8081` via dispatcher
+- [ ] Run full E2E (register → checkout → webhook → order confirmed)
+- [ ] Stripe reconcile cron continua rodando (defense in depth)
+
+### Coraza WAF — DetectionOnly → Block (paralelo aos buckets)
+- [ ] 14 dias monitorando false positives via journald
+- [ ] Tuning `CRS_EXCLUSION_*` em `crs-setup.conf` por falsos positivos observados
+- [ ] Mudar `SecRuleEngine On` (Block real)
+- [ ] Validar com payloads benignos (search com payload nicho, upload PNG, markdown review)
+- [ ] Dashboard Grafana de Coraza hits + falsos positivos
+
+---
+
+## PENDÊNCIAS GERAIS (não-PHASE-9)
+
+### Cliente precisa fornecer
+- [ ] Telegram bot TOKEN + CHAT_ID (notifs admin + checkout_paid)
+- [ ] Sentry DSN + NEXT_PUBLIC_SENTRY_DSN
+- [ ] Slack/Discord webhook URL (admin alerts)
+
+### Engineering — médio impacto
+- [ ] Object storage migration: proofs base64 antigos → MinIO keys
 - [ ] Grafana contact points (email/Slack)
-- [x] **Cleanup crons para tabelas append-only** — `EventRetentionCron` (24h tick, 90d MaxAge) drena user_events/ab_events/email_events em batches de 1000 com `FOR UPDATE SKIP LOCKED`. user_journeys agregado intacto.
+- [ ] 4 custom Grafana dashboards (revenue, payments, behavior, reliability)
+- [ ] Sentry source maps no CI
+- [ ] LGPD compliance review formal
 
-## Segurança
+### Engineering — baixo impacto
+- [ ] Pentest externa (Tier 3 audit per PHASE-9 §13)
+- [ ] WAF Cloudflare nativo (depois de Coraza estabilizar)
+- [ ] DR drill provisão nova + restore < 30min (target)
+- [ ] Playwright CheckoutModal E2E
+- [ ] Lighthouse CI gate
 
-- [x] JWT HS256 → RS256 dual-sign (Fase 4.1)
-- [x] JWKS público `/.well-known/jwks.json`
-- [x] HS256 kill-switch via `LEGACY_HS256_DISABLED`
-- [x] Login rate-limit 10/15min/IP em 3 endpoints
-- [x] Anti-fraude velocity cron (5min) + IsBlocked pré-checkout
-- [x] Email reputation watcher (Resend webhook + auto-disable hard bounce/complaint)
-- [x] Resend Svix signature check
-- [x] gitleaks scan inicial + CI guard
-- [x] Cred leak removido da login page + 5 READMEs + CONTEXT.md
-- [x] Seed env-driven (ADMIN_BOOTSTRAP_*) — zero default password no código
-- [x] Admin password reset + email mudado pra viralefy@gmail.com
-- [x] CSP boundary directives (frame-ancestors none, etc.)
-- [x] CORS sem reflection
-- [x] **Security test suite Go** (12 TestSecurity_*: SQLi/XSS/auth/IDOR/rate/mass/CRLF) `viralefy_api ea13ada`
-- [x] **Tests PIX hard-block** (10 cases × provider × moeda × country) — lockam que PIX/Woovi nunca aparecem pra non-BR
-- [x] **Tests Stripe webhook** (12 cases: ok/multi-v1/invalid-sig/expired-ts/future-ts/missing-secret/missing-header/malformed × 5)
-- [x] **Smoke probes bash** (5/5 PASS contra prod) `viralefy_api/scripts/security-probes.sh`
-- [x] Front security tests (CSP/dangerouslySetInnerHTML/session)
-- [x] /v1/track MaxBytesReader 1MB
-- [x] RBAC fix: admin "Open customer side" — endpoint + UI espelha admin em users shadow `viralefy_api fd34f95`
-- [~] Rotação de chaves: por política HML não-nag até 2026-06-14
-
-## Compliance
-
-- [x] GDPR cookie banner + /legal/cookie-preferences
-- [x] Manage my data (export JSON + delete request 30d soft)
-- [x] Refund/dispute admin UI no backoffice (`/orders/[id]/refund`)
-- [x] Tax handling EU VAT (28 países + GB, /v1/tax-rates)
-- [x] Tax cobrado no settlement_amount (Wave 4 — loop fechado)
-
-## Receita / pricing
-
-- [x] Cupom system (percent + fixed_usd_cents + first_order + min_order)
-- [x] Cart abandonment cron (1-24h após pending + payment_url)
-- [x] Referral signup + payout hooks integrados (5% credit on first paid)
-- [x] PPP pricing infra (28 países)
-- [x] PPP visual activation nos cards (Wave 4 — selo "Local pricing applied")
-- [x] A/B testing harness (sticky assignment + tracking)
-- [x] Subscription system (recurring mensal + cron + auto-cancel 3 falhas)
-- [x] Copy delivery 30min → 1h em 10 idiomas `viralefy_front 4e6a0fa`
-- [x] target_country no Order (mercado da entrega ≠ tax country) `viralefy_api 1e932e5`
-
-## Product depth
-
-- [x] Order tracking detail (/account/orders/[id] com timeline + CTA)
-- [x] Notification preferences (notif_prefs JSONB + 4 toggles)
-- [x] WhatsApp opt-in (DryRunSender stub)
-- [x] Multi-vendor scaffold (vendors table + admin CRUD)
-- [x] API B2B scaffold (api_keys + /v2 endpoints + apiKeyAuth middleware)
-- [x] /account/orders redirect fix (era 404)
-- [~] WhatsApp provider real (Meta/Twilio) — aguarda decisão
-- [~] Multi-vendor settlement split — aguarda decisão
-- [~] API B2B rate-limit per-key + billing — aguarda decisão
-
-## Tracking / behavior
-
-- [x] User events table + journeys + endpoint /v1/track
-- [x] Event types whitelist (pageview, click, modal_*, checkout_*, abandon, landing)
-- [x] Front lib/track.ts batch 10/10s + sendBeacon
-- [x] flushBeacon re-queue em sendBeacon false
-- [x] First-touch wins via COALESCE em UpsertJourney
-- [x] visitor_id sticky cookie + localStorage 1y
-- [x] TrackingHydrator wrapper no layout root
-- [x] Landing page + referrer + utm capturados
-
-## Code quality
-
-- [x] Playwright E2E infra + 5 smoke specs
-- [x] Storybook + 8 stories (fix @storybook/nextjs vs nextjs-vite)
-- [x] Zod schemas em boundaries de API
-
-## SEO / Growth (Tier 4 original)
-
-- [x] Programmatic SEO cities (/cities + 50 cidades) `Wave 1 multi-agent`
-- [x] vs-competitors (/vs + 10 comparações) `Wave 1`
-- [x] Help center (/help + 12 tópicos) `Wave 1`
-- [x] Pricing table (/pricing) `Wave 1`
-- [x] Case studies (/case-studies + 6 estudos) `Wave 1`
-
-## SEO / hotfixes
-
-- [x] Sitemap per-lang vazio (19 buckets) — `COUNTRY_LANG` mapping fix
-- [x] Sitemap dedup categoria de serviço (qty=1 colidia 7×)
-- [x] Currency rate cascade (drift cron + PlanService.RecomputePricesForPlan)
-- [x] `priceFor()` aplica rate quando não há override
-- [x] hreflang via lib/hreflang.ts
-- [x] JSON-LD schema (Product/Offer/Service/AggregateOffer/BreadcrumbList)
-- [x] Robots.txt fix (deprecated Host: removido)
-- [x] **Sitemap paginação** — max 100 URLs por XML (`<lang>` = página 1 back-compat, `<lang>-2`, `<lang>-3`… para shards seguintes). Índice `/sitemap.xml` enumera via `paginatedBuckets()` pra crawler nunca baixar 404. 5 testes novos lock invariantes.
-
-## Pagamento — providers
-
-- [x] Manual PIX (BRL, ativo)
-- [x] **Manual USDT** (carteira fixa + network warning) `viralefy_api fd34f95` `viralefy_front 397fa25` _deprecated em favor de manual_crypto_
-- [x] **Manual Crypto** genérico (1 gateway = 1 network × asset; cada um seu wallet/memo) — USDT TRC20/BSC/POL/ERC20, BTC, LTC, ETH, SOL...
-- [x] **Stripe** Checkout Session — cartão internacional (REST direta, sem stripe-go dep)
-- [x] Heleket integration (inactive, aguarda aprovação)
-- [x] Woovi integration (inactive)
-- [x] Gateway editor por provider com formulário cirúrgico (não JSON raw) `viralefy_backoffice b724099`
-- [x] Schemas stripe + manual_crypto no backoffice (network_label override, warning override)
-- [x] Multi-select accepted_currencies expandido (USDT/USD/EUR/BRL/GBP/BTC/LTC/ETH/BNB/SOL/TRX/MATIC)
-- [x] Defaults provider-aware (Woovi/PIX→BRL; manual_crypto→USDT; Stripe→USD/EUR/BRL/GBP)
-- [~] Heleket activation (cliente)
-- [x] **Stripe webhook signature verify + auto-paid** — `POST /v1/webhooks/stripe` valida HMAC SHA256(`t.payload`) com tolerance 5min, escuta `checkout.session.completed` e dispara `MarkOrderPaid` via `client_reference_id`
-
-## Checkout — UX nova (2026-06-08)
-
-- [x] Endpoint `GET /v1/plans/:id/payment-methods?display_currency=X&country=Y` — catálogo de métodos elegíveis com preview
-- [x] `CheckoutInput.GatewayID` opcional — front escolhe o método ANTES de submeter
-- [x] CheckoutModal refatorado em 4 steps: form → method → instructions → success
-- [x] MethodCard mostra ícone (💳/🇧🇷 PIX/🪙/⚡), valor cobrado, network label
-- [x] **Transparência cripto-conversão**: `conversion_note` quando charged ≠ settlement ("você paga R$50 em BRL, plataforma recebe 10 USDT após conversão")
-- [x] **Aviso crítico de rede crypto** em UI vermelha proeminente: "Send ONLY on TRC20. Wrong network = lost funds forever."
-- [x] Aviso de memo/tag obrigatório quando configurado
-- [x] PIX block mostra disclaimer de conversão se settlement ≠ display
-
-## Comprovante de pagamento
-
-- [x] Migration 034: `order_proofs` table + `orders.proof_url`/`proof_uploaded_at`/`proof_status`/`proof_note`
-- [x] `OrderRepository.SetProof` (idempotente, append em order_proofs + denormaliza order)
-- [x] `OrderRepository.AssignGateway` (reescolha de método em order pending)
-- [x] `OrderRepository.SetProofStatus` + `ListPendingProofs` (fila SLA)
-- [x] Endpoint `POST /v1/me/orders/:id/proof` (JSON com data URL base64 até 800KB)
-- [x] Endpoint `POST /v1/admin/orders/:id/proof/decision` — approve dispara mark-as-paid, reject volta pendente
-- [x] Endpoint `GET /v1/admin/proofs/pending?limit=N`
-- [x] UI ProofUploadSection no step instructions (input file + nota TX hash)
-- [x] Backoffice `/orders/[id]` mostra **ProofCard** com preview (imagem ou link) + botões Approve/Reject + reviewer note
-- [x] Backoffice `/orders` mostra badge "📎 Proofs to review · N" + toggle de filtro proof_status=pending
-- [x] Email transacional ao cliente quando proof é rejected (best-effort, não bloqueia decisão)
-- [x] Object storage local via MinIO Docker (ops setup) — `viralefy_ops/config/docker-compose.storage.yml` + `installer/85-storage.sh`
-- [x] **API S3 client** (`internal/infrastructure/external/storage/s3.go`) com minio-go — funciona em MinIO + R2 sem code change
-- [x] **Proof upload multipart** (`POST /v1/me/orders/:id/proof` content-type multipart/form-data) — 5MB max, MIME whitelist (png/jpg/webp/gif/pdf), key `proofs/{order}/{ts}-{rand}.{ext}`
-- [x] **Presigned URL endpoints** — `GET /v1/me/orders/:id/proof-url` + `GET /v1/admin/orders/:id/proof-url` (5min expiry)
-- [x] **Front fallback automático**: multipart preferido, cai em base64 quando server retorna 503 (storage disabled)
-- [x] **Backoffice ProofCard**: chama `getProofURL()` on mount, mostra spinner enquanto resolve, infere MIME pela extensão da key
-- [x] Retro-compat: proofs com `data:`/`http:` URLs antigos passam direto (legacy support)
-- [ ] Cloudflare R2 migration (só trocar `STORAGE_ENDPOINT` + `STORAGE_USE_SSL=true` quando volume justificar)
-
-## Stripe idempotency
-
-- [x] Migration 035 `stripe_events_processed` (event_id PK, event_type, order_id, received_at)
-- [x] Handler insere com `ON CONFLICT DO NOTHING` antes de chamar `MarkOrderPaid` — segundo fire vira no-op
-- [x] Métrica `gateway_callbacks_total{provider=stripe,status=duplicate}` pra observabilidade
-- [x] `EventRetentionCron` inclui `stripe_events_processed` (90d retention)
-
-## Sentry DSN check
-
-- [x] `viralefy-status` ganhou seção "Sentry" que avisa quando `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` vazios
-- [x] Aviso de `SENTRY_AUTH_TOKEN` ausente (stack traces ofuscados sem source map)
-- [x] `viralefy-status` ganhou seção "Object storage (MinIO)" — checa container healthy + endpoint ready
-
-## Crypto automático multi-currency (Heleket)
-
-- [x] Pool ampliado 5 → 17 moedas no seed (ETH/LTC/BNB/SOL/TRX/MATIC/XRP/DOGE/ADA/USDC/DAI/GBP)
-- [x] Cryptos novas com `display_enabled=false` (não poluem picker do storefront, mas servem como cobrança)
-- [x] Providers multi-currency (Heleket/Stripe) expandem em N cards (um por accepted_currency)
-- [x] Conversion note carrega 2 pernas: display→charged ("Price shown €50") + charged→settle ("platform settles in USDT")
-- [x] `CheckoutInput.PayCurrency` + `PaymentChargeInput.Currency` overridable
-- [x] Front envia `pay_currency=charged_currency` quando cliente clica card multi-currency
-- [x] Backoffice Heleket defaults: USDT+BTC+ETH+LTC (em vez de só USDT)
-
-## Memory persistido em viralefy_archive
-
-- [x] Mover `~/.claude/.../memory/` → `viralefy_archive/memory/` + symlink reverso
-- [x] Auto-memory continua funcionando via symlink transparente
-
-## RBAC / usuários
-
-- [x] Admin separate from User (different tables, different JWT typ)
-- [x] **Admin "Open customer side"** — shadow user account via /v1/admin/me/become-customer
-- [x] /auth/handoff page (cross-origin token bridge)
-- [x] Superadmin bypass em Can()
-- [x] PermCouponsRead/Write/Reviews*/Admins* etc.
-
-## Documentação
-
-- [x] CONTEXT.md (geral, este snapshot)
-- [x] CHECKLIST.md (este arquivo)
-- [x] ROADMAP.md (30/30 RECOMMENDATIONS shipped)
-- [x] RUNBOOK.md (deploy/incident/restore)
-- [x] RECOMMENDATIONS.md (referência histórica)
-- [x] COMPLIANCE.md (notas legais)
-- [x] AGENTS.md (instruções pra agentes)
-- [x] diretrizes.md (técnicas)
-
-## Memórias persistidas
-
-- [x] `run-viralefy-stack-local` (portas dev + container postgres)
-- [x] `viralefy-stack-initial-build-fixes` (débitos MVP)
-- [x] `viralefy-features-v2` (categorias, auth user, autocadastro)
-- [x] `viralefy-ops-and-github` (installer destrutivo + 5 repos)
-- [x] `no-secret-rotation-nag` (HML/POC, sem alerta de rotação)
-- [x] `maintain-context-md` (este processo) `2026-06-08`
+### Decisão de produto pendente
+- [~] Multi-vendor settlement model
+- [~] WhatsApp provider real (decisão Meta vs Twilio)
+- [~] API B2B billing tier
+- [~] Subscription pause/resume
+- [~] Blog content engine
+- [~] Backlinks outreach
 
 ---
 
-## 2FA — admin (vide [PHASE-7-PLAN.md](PHASE-7-PLAN.md) §7.2)
+## CRITÉRIO DE "Fase 9 100% pronta"
 
-- [x] **Migration 036**: `admin_2fa` + `user_2fa` tables, `admins.requires_2fa DEFAULT TRUE`, `users.twofa_prompt_*` counters
-- [x] **TOTP RFC 6238** via `github.com/pquerna/otp` — Google Authenticator/Authy/1Password compatível
-- [x] **AES-256-GCM** at-rest crypto pra secrets (key 32 bytes via `TWOFA_ENCRYPTION_KEY` env)
-- [x] **8 backup codes** one-time, hashed bcrypt cost 10, consumo em transação `FOR UPDATE` (anti TOCTOU)
-- [x] **Login flow**: `POST /v1/auth/login` retorna `twofa_required` + `partial_token` (5min) quando admin precisa 2FA
-- [x] **Enroll flow**: `POST /v1/auth/login/2fa/enroll` (com partial_token) → secret + QR + backup codes
-- [x] **Complete flow**: `POST /v1/auth/login/2fa` (partial_token + code) → JWT final
-- [x] **Backoffice login wizard** 3 steps (credentials → enroll → code), QR via api.qrserver.com, download .txt dos backup codes, checkbox "I've saved these"
-- [x] **Disable** `POST /v1/admin/me/2fa/disable` — só superadmin (PermAdminsManage)
-- [x] **Installer**: 30-secrets.sh gera `TWOFA_ENCRYPTION_KEY` aleatória (hex 64) na 1ª install + persiste
-- [x] **Tests TOTP**: 9 cases (enroll uniqueness, verify accept/reject, AES roundtrip, key trocada, backup codes alphabet)
-- [x] **User 2FA opcional** — UserAuthService gate em partial_token quando enrolled (login não bloqueia se NÃO enrolled)
-- [x] **Endpoints user**: `GET /v1/me/2fa/status` + `POST /v1/me/2fa/{enroll,verify,disable,dismiss-prompt}` + `POST /v1/auth/user/login/2fa`
-- [x] **should_prompt logic** — true sse: NÃO enrolled + ≥1 order paid+delivery_captured + (dismiss<5 OU last>7d). Pré-1º-pedido nunca atormenta.
-- [x] **Cooldown progressivo**: dismiss <5 → mostra sempre; ≥5 → espera 7d entre prompts
-- [x] **Setup2FAPrompt modal** em `/account` (sessionStorage skip durante sessão)
-- [x] **Página `/account/security/2fa`** — enroll wizard (QR + 8 backup codes + download + verify) + disable
-- [x] **Login front user**: aceita twofa_required → step de código + backup
-- [x] **Audit log** explícito em `admin.2fa.disable` (actor + target + reason)
-
-## Bulk approve (mark-as-paid em lote)
-
-- [x] Endpoint `POST /v1/admin/proofs/bulk-decision` (limite 50/call, audit por linha)
-- [x] Loop atômico por order: skipped (sem proof), error (DB), applied. Approved dispara `MarkOrderPaid` + audit.
-- [x] Reject dispara email transacional ao cliente
-- [x] Backoffice `/orders` ganha checkbox por row + select-all no header quando filtro proof_status=pending ativo
-- [x] Bulk actions panel: "Approve N" / "Reject N" com confirm + resultado agregado (applied/skipped/errors)
+- [ ] Bucket 1-4 cutover completo, tráfego 100% no dispatcher
+- [ ] api legacy parado (systemctl stop viralefy-api) por 14 dias sem regressão
+- [ ] api legacy removido do viralefy-update + repo arquivado
+- [ ] Coraza em `SecRuleEngine On` por 30 dias sem falso positivo crítico
+- [ ] 5 dashboards Grafana ativos
+- [ ] Smoke E2E dual-mode (rollback path validado mensal)
+- [ ] Pentest externo da nova arquitetura
+- [ ] Runbook restore < 30min testado em DR drill
 
 ---
 
-## PHASE 8 — microsserviços (payments + sender)
+## COMANDOS RÁPIDOS
 
-Refatoração do monólito em 3 binários conversando via loopback HTTP.
-Plano completo em [PHASE-8-MICROSERVICES.md](PHASE-8-MICROSERVICES.md).
+```bash
+# Status full
+ssh root@62.238.41.231 'viralefy-smoke && systemctl is-active viralefy-{api,payments,sender,auth,core,dispatcher,caddy}'
 
-### Wave 1 — scaffolding (DONE)
-- [x] Estrutura `viralefy_payments` (cmd/payments, internal/{config,domain,application,infrastructure,interface}, go.mod, README)
-- [x] Estrutura `viralefy_sender` (mesma forma; com `sender_outbox` + `telegram_*`)
-- [x] systemd units `viralefy-payments.service` + `viralefy-sender.service` (hardened, mesmas flags do api)
-- [x] Caddyfile reverse-proxy `/v1/webhooks/{stripe,heleket,woovi}` → `127.0.0.1:8081`
-- [x] Stubs de cliente HTTP em `viralefy_api/internal/infrastructure/external/{payments,sender}/client.go`
-- [x] `installer/50-build.sh` builda os 3 Go services em paralelo + copia binários pra `/usr/local/sbin/`
-- [x] `INTERNAL_SHARED_SECRET` gerado pelo `30-secrets.sh`
+# Logs Coraza WAF (detecções)
+ssh root@62.238.41.231 'journalctl -u caddy -f --since "5 min ago" | grep -E "coraza|waf"'
 
-### Wave 2 — extração (DONE)
-- [x] Providers movidos pro `viralefy_payments` (stripe, heleket, woovi, manual_*)
-- [x] Email + templates movidos pro `viralefy_sender` (Resend + SMTP)
-- [x] Migrations `viralefy_sender/001_sender_outbox` + `002_telegram_chats` idempotentes
-- [x] Migrations `viralefy_payments/001_payments_init` idempotentes (CREATE/ALTER IF NOT EXISTS) — no-op em prod (tabelas já criadas pelo monólito 032/035), cria do zero em standalone
-- [x] Templates `checkout_paid` (email + telegram) + integração Telegram Bot API
-- [x] `sender_outbox` retry com backoff exponencial (30s → 5min → 1h → 6h → 24h, max 5)
+# Logs hot-set (revogações)
+ssh root@62.238.41.231 'journalctl -u viralefy-dispatcher -f | grep -E "hot-set|revoked"'
 
-### Wave 3 — integração (DONE — esta task)
-- [x] Substituição das chamadas in-memory por HTTP client no monolito (PaymentRegistry/EmailSender → clients HTTP)
-- [x] Callback `POST /internal/v1/payment-confirmed` no monolito (X-Internal-Token validado)
-- [x] Resolução de conflito de schemas: monólito é dono de `payment_gateways` + `stripe_events_processed`; payments só ALTER/CREATE IF NOT EXISTS (idempotente — no-op em prod, cria standalone)
-- [x] `viralefy-update` clona **7 repos** (api, payments, sender, front, backoffice, ops, archive) + zero-downtime: payments+sender sobem ANTES do api; binários terminam em `/usr/local/sbin/viralefy-{payments,sender}`
-- [x] `viralefy-smoke` (novo CLI): health dos 3 services + `GET /v1/plans` (público) + `POST /v1/me/2fa/status` (sem auth → 401). Roda automaticamente após `viralefy-update`. Exit 1 em falha.
-- [x] Docs atualizados: CONTEXT.md (nova arquitetura 3-binários), CHECKLIST.md (esta seção), MICROSERVICES-OPS.md (runbook de operação)
+# Forçar revogação de JTI (teste)
+psql "$DATABASE_URL" -c "INSERT INTO revoked_jtis (jti, expires_at) VALUES ('test-jti', NOW() + INTERVAL '1 hour')"
 
-### Wave 4 — observabilidade (PENDING)
-- [ ] Dashboard Grafana "Payments throughput" (charges/min, p50/p95 latência por provider, error rate por gateway)
-- [ ] Dashboard Grafana "Sender outbox depth" (rows enqueued, in_flight, failed_final, age do top da fila)
-- [ ] Alerts: outbox depth > 100, in_flight > 5min, payments p95 > 2s, stripe webhook 4xx > 10/min
-- [ ] Métricas `service` tag em todos os logs Loki (já preparado via systemd Unit)
+# Migrate status
+ssh root@62.238.41.231 'sudo -u viralefy-core bash -c "source /etc/viralefy/.env; /usr/local/sbin/viralefy-core migrate status"'
+
+# Deploy zero-downtime
+ssh root@62.238.41.231 'viralefy-update --yes'
+```
 
 ---
 
-## Próximas tasks possíveis (não pedidas explicitamente)
+## REPOS NO GITHUB
 
-- [ ] Contact points no Grafana → alerts viram email/slack
-- [ ] Mark-as-paid bulk no backoffice (vários USDT confirmados ao mesmo tempo)
-- [ ] Sentry DSN onboarding assistant
-- [ ] Heleket activation guide quando aprovar
-- [ ] WhatsApp provider real (Meta Cloud API vs Twilio)
-- [ ] Multi-vendor settlement model (decisão de produto)
-- [ ] Cleanup cron pra user_events / ab_events / email_events
-- [ ] OpenAPI yaml atualização
-- [ ] Custom dashboards no Grafana (revenue, conversion, drift, uptime)
+| Repo | URL |
+|---|---|
+| viralefy_api (legacy) | https://github.com/Viralefy/viralefy_api |
+| viralefy_payments | https://github.com/Viralefy/viralefy_payments |
+| viralefy_sender | https://github.com/Viralefy/viralefy_sender |
+| viralefy_front | https://github.com/Viralefy/viralefy_front |
+| viralefy_backoffice | https://github.com/Viralefy/viralefy_backoffice |
+| viralefy_ops | https://github.com/Viralefy/viralefy_ops |
+| viralefy_archive | https://github.com/Viralefy/viralefy_archive |
+| **viralefy_core** | https://github.com/Viralefy/viralefy_core |
+| **viralefy_auth** | https://github.com/Viralefy/viralefy_auth |
+| **viralefy_dispatcher** | https://github.com/Viralefy/viralefy_dispatcher |
