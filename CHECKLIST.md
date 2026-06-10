@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-**Última atualização:** 2026-06-10 (PHASE-9 deployada paralelo em prod)
+**Última atualização:** 2026-06-10 (Bucket 1 cutover ATIVO em prod)
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
@@ -17,6 +17,16 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 ---
 
 ## DONE — sessões 2026-06-09 + 06-10
+
+### PHASE-9 Bucket 1 cutover (2026-06-10 03:21 UTC)
+- [x] Caddyfile com 7 `handle` blocks routing público read-only pra `:8090`
+- [x] Parity test pré-swap (status+body identical legacy vs dispatcher)
+- [x] `caddy validate` + `systemctl reload` (zero-downtime)
+- [x] E2E externo HTTPS: 7/7 rotas 200 OK
+- [x] Rotas não-Bucket-1 (auth-user, admin, checkout, webhooks, /internal/*) preservadas
+- [x] Rollback path validado: swap back funciona com 0 downtime via reload
+- [x] Pushed: [Viralefy/viralefy_ops@6e0f8c5](https://github.com/Viralefy/viralefy_ops/commit/6e0f8c5)
+
 
 ### PHASE-9 Fase 9b — viralefy_auth completo
 - [x] Domain layer (5 arquivos: user, admin, token, twofa, errors)
@@ -83,15 +93,18 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## PRÓXIMA SESSÃO — Cutover PHASE-9 (strangler por bucket)
 
-### Bucket 1 — Public read-only (semana 1)
-- [ ] Caddyfile: trocar reverse_proxy `:8080` → `:8090` para:
-  - [ ] `/v1/plans` (e variantes `/v1/plans/{id}/reviews`, `/v1/plans/{id}/payment-methods`)
-  - [ ] `/v1/categories`, `/v1/currencies`
-  - [ ] `/v1/status`, `/v1/country-ppp`, `/v1/tax-rates`
-  - [ ] `/.well-known/jwks.json` → `:8083` (auth)
-- [ ] Smoke E2E pós-swap: front + backoffice consumindo `:8090` via Caddy
-- [ ] Monitorar erro rate 24h
-- [ ] Rollback test: trocar de volta pra `:8080`, validar 2s downtime
+### Bucket 1 — Public read-only ✅ (cutover 2026-06-10)
+- [x] Caddyfile: trocar reverse_proxy `:8080` → `:8090` para:
+  - [x] `/v1/plans*` (cobre listing + `/v1/plans/{id}/reviews` + `/v1/plans/{id}/payment-methods`)
+  - [x] `/v1/categories*`, `/v1/currencies*`
+  - [x] `/v1/status*`, `/v1/country-ppp*`, `/v1/tax-rates*`
+  - [x] `/.well-known/jwks.json` → dispatcher → `:8083` (auth)
+- [x] Parity test pré-swap: status+body bit-exact pra 7/7 paths
+- [x] Smoke E2E pós-swap: HTTPS pública `api.viralefy.com` 200 pra 7/7 rotas
+- [x] Rollback test: `caddy reload` é zero-downtime real (validado swap legacy↔dispatcher)
+- [x] Commit: [Viralefy/viralefy_ops@6e0f8c5](https://github.com/Viralefy/viralefy_ops/commit/6e0f8c5)
+- [ ] **Monitorar 24h erro rate + latência p95** (dispatcher vs legacy)
+- [ ] Se estável 48h → Bucket 2
 
 ### Bucket 2 — User auth (semana 2-3, canary)
 - [ ] Caddyfile: canary 1% → 10% → 50% → 100% via Caddy upstream weight
