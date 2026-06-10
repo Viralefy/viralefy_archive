@@ -264,6 +264,7 @@ Migration tracker tipo Laravel — tabela `schema_migrations` com checksum SHA25
 - Object storage migration proofs base64 → MinIO keys (parcial)
 - Grafana contact points + 4 dashboards
 - Sentry source maps no CI
+- Renovate GitHub App: instalar em https://github.com/apps/renovate (configs já em todos os 10 repos via preset `viralefy_ops/renovate-config.json` — vide `RUNBOOK-RENOVATE.md`)
 
 **Decisão de produto:**
 - Multi-vendor settlement model

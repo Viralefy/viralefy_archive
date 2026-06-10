@@ -1,0 +1,7 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>Viralefy/viralefy_ops//renovate-config"
+  ],
+  "enabledManagers": ["github-actions"]
+}

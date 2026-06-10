@@ -18,6 +18,17 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## DONE — sessões 2026-06-09 + 06-10
 
+### Renovate (dep automation) + vuln scans no CI — 2026-06-10
+- [x] Preset central `viralefy_ops/renovate-config.json` (schedule Mondays before 12:00 BRT, group por manager, automerge patch/minor para deps >=1.0, dependency dashboard, vulnerabilityAlerts com label urgent)
+- [x] `renovate.json` em cada um dos 10 repos (`viralefy_api`, `viralefy_api_rust`, `viralefy_archive`, `viralefy_auth`, `viralefy_backoffice`, `viralefy_core`, `viralefy_front`, `viralefy_ops`, `viralefy_payments`, `viralefy_sender`)
+- [x] Validação JSON+schema via `renovate-config-validator`: 10/10 OK
+- [x] `govulncheck` job adicionado em `viralefy_api` + `viralefy_core` CI (continue-on-error, non-blocking)
+- [x] `npm audit --audit-level=high` job em `viralefy_front` + `viralefy_backoffice` CI (non-blocking)
+- [x] Workflow novo `.github/workflows/security.yml` em `viralefy_auth`/`_payments`/`_sender` (govulncheck + gitleaks; antes não tinham CI)
+- [x] Workflow novo `security.yml` em `viralefy_api_rust` (cargo audit + gitleaks)
+- [x] `RUNBOOK-RENOVATE.md` em archive — preset/uso/triagem vuln/troubleshooting/SLA proposto
+- [ ] **Pendente cliente (1x): instalar Renovate GitHub App em https://github.com/apps/renovate na org Viralefy** (sem isso o preset não roda)
+
 ### Pentest baseline follow-up (MEDIUM/LOW fixes) — 2026-06-10
 - [x] Caddyfile: catch-all `:80, :443` block — Host header desconhecido → 421 Misdirected Request (fix #4)
 - [x] Caddyfile: `Cross-Origin-Resource-Policy` em todos vhosts (www=same-site, backoffice=same-origin, obs=same-origin, api=same-site) (fix #7 parcial)
