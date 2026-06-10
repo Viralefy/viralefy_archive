@@ -183,8 +183,9 @@ Política de Privacidade pública. Retenção é definida ad-hoc em código.
 | **Confirmação de existência + Acesso (Art. 18 I, II)** | `GET /v1/me/data/export` | ✅ Implementado | `router.go:144`, `user_data_service.go:42-154` (dump JSON de user, orders, tickets, profiles, reviews, notif_prefs, deletion_request) |
 | **Portabilidade (Art. 18 V)** | Mesmo endpoint acima | ✅ Parcial — formato JSON | Não há ainda CSV / formato "interoperável" exigível pelo Art. 18 §5. Aceitável tecnicamente. |
 | **Correção (Art. 18 III)** | `PUT /v1/me/whatsapp`, `/v1/me/notif-prefs`, `POST /v1/me/profiles`, `DELETE /v1/me/profiles/{id}` | ✅ Parcial | `router.go:134-150`. **Não há endpoint pra editar `email`, `name`, `phone`, `telegram` do próprio usuário.** GAP. |
-| **Anonimização / bloqueio / eliminação (Art. 18 IV)** | `POST /v1/me/data/deletion` | ⚠️ Parcial — grava intenção, sem execução | `user_data_service.go:214-232` UPSERT em `user_deletion_requests`. **Cron de execução físico não existe** (`user_data_service.go:20-21`) |
+| **Anonimização / bloqueio / eliminação (Art. 18 IV)** | `POST /v1/me/data/deletion` | ✅ | UPSERT em `user_deletion_requests` (status='pending', executes_at=NOW()+30d). Execução física via `cmd/user-deletion-cron` + systemd timer diário. Orders anonimizados (5y fiscal), audit_log com PII redacted, demais rows hard-deleted. Runbook: `RUNBOOK-USER-DELETION.md` |
 | Cancelamento de pedido de exclusão | `DELETE /v1/me/data/deletion` | ✅ | `router.go:146`, `user_data_service.go:236-249` |
+| Consulta de status de exclusão | `GET /v1/me/data/deletion` | ✅ | Retorna `{status, executes_at, seconds_remaining, deleted_categories[], retained_categories[]}` — transparência Art. 9 sobre o que é apagado vs retido |
 | **Informação sobre compartilhamento (Art. 18 VII)** | — | ❌ Ausente | Política de Privacidade lista subprocessadores (Woovi, Heleket, Resend, Hetzner, Cloudflare) mas sem detalhe por finalidade |
 | **Revogação de consentimento (Art. 18 IX)** | `PUT /v1/me/notif-prefs`, `PUT /v1/me/whatsapp` | ✅ | Granular por canal |
 | **Oposição a tratamento (Art. 18 §2)** | — | ❌ Ausente | Sem fluxo dedicado; cobre-se via deletion |
@@ -353,7 +354,7 @@ Verificado `viralefy_archive/`:
 |---|---|---|---|
 | C1 | DPO/encarregado não designado nem contato público | Art. 41 — controlador inadimplente | 0.5d (designar + publicar) |
 | C2 | Política de Privacidade não atende Art. 9 LGPD | Multas + ação ANPD | 3d (advogado + impl) |
-| C3 | Cron de hard-delete físico inexistente — pedidos ficam "pending" para sempre | Não atende Art. 18 IV | 2d (cron + testes) |
+| ~~C3~~ | ~~Cron de hard-delete físico inexistente~~ **RESOLVIDO 2026-06-10**: `cmd/user-deletion-cron` + timer + métricas. Ver `RUNBOOK-USER-DELETION.md` | Art. 18 IV cumprido | — |
 | C4 | Plano de resposta a incidente + 72h ANPD inexistente | Art. 48 inadimplência em incidente real | 1d (runbook) |
 | ~~C5~~ | ~~Cookie banner default ON pra analytics + tracking backend não gateado por consent~~ | ~~Art. 8 §3~~ | **✅ RESOLVED 2026-06-10** — banner default OFF (commit em viralefy_front), backend NULLifica IP/UA via header `X-Analytics-Consent` (migration 041 em viralefy_core), audit log em `user_consent_log`. Runbook: `RUNBOOK-COOKIE-CONSENT.md`. |
 
@@ -410,7 +411,7 @@ Verificado `viralefy_archive/`:
 
 ### Sprint 3 — Implementação técnica residual (5d)
 
-10. **C3** Implementar `UserDeletionExecutionCron` (hard-delete + cascade) — 2d
+10. ~~**C3** Implementar `UserDeletionExecutionCron`~~ ✅ **Concluído 2026-06-10** (`cmd/user-deletion-cron`)
 11. **A6** Cifragem em repouso (LUKS no volume Postgres ou pgcrypto seletivo) — 1d
 12. **A7** Middleware de redact de PII nos logs estruturados — 2d
 
@@ -458,7 +459,7 @@ O bloqueio crítico real pra PRD é:
    admite escritório terceirizado).
 2. **Refazer Política de Privacidade com advogado** — o texto atual
    passa em "GDPR genérico" mas não em LGPD.
-3. **Implementar o cron de hard-delete** que está como TODO no código.
+3. ~~**Implementar o cron de hard-delete**~~ ✅ Concluído 2026-06-10.
 4. **Escrever o runbook de incidente** com gatilho de notificação ANPD.
 
 Sem esses 4 itens a Viralefy está exposta a multa Art. 52 LGPD
