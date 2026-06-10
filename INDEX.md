@@ -301,3 +301,46 @@ Plano completo: [PHASE-9-ARCHITECTURE.md](PHASE-9-ARCHITECTURE.md) (1056 linhas,
 - Deploy paralelo de `viralefy-dispatcher` (Rust) em prod no `:8090` — requer instalar cargo na VPS primeiro
 - Caddy Coraza WAF via `xcaddy` (Fase 9a)
 - Strangler cutover por bucket: public → user/me → admin → checkout
+
+### Atualização: STACK PHASE-9 COMPLETA EM PROD (sessão seguinte, mesmo dia)
+
+**Tudo deployado paralelo (zero impacto no tráfego live):**
+
+| Port | Service | Binary | Memory | Status |
+|---|---|---|---|---|
+| 8080 | viralefy-api (legacy Go) | 24MB | ~85MB | Serving tráfego live |
+| 8081 | viralefy-payments | - | - | Live |
+| 8082 | viralefy-sender | - | - | Live |
+| 8083 | **viralefy-auth (Go)** | 11MB | **5.2MB** | 🆕 ATIVO |
+| 8084 | **viralefy-core (Go)** | 24MB | 11MB | 🆕 ATIVO |
+| 8090 | **viralefy-dispatcher (Rust)** | **7.2MB** | **1.4MB** | 🆕 ATIVO |
+
+**Migration 039 aplicada em prod** (auto-tracker do core, durante primeiro boot às 00:34). 3 tabelas novas: `refresh_tokens`, `revoked_jtis`, `password_resets`.
+
+**Dispatcher Rust em prod (release build):**
+- Binary 7.2MB stripped (vs 24MB Go core)
+- Memory baseline 1.4MB
+- LISTEN/NOTIFY ativo no canal `revoked_jtis_inserted`
+- Hot-set bootstrap: 0 revogações ativas
+- Proxy + path block + rate limit OK
+
+**Caddy + Coraza WAF (Fase 9a) ATIVO:**
+- Buildado via `xcaddy build v2.11.3 --with github.com/corazawaf/coraza-caddy/v2`
+- Binary 54MB (vs 48MB Caddy plain)
+- OWASP CRS 4.10.0 (46 rule files)
+- Modo `SecRuleEngine DetectionOnly` (audit em journald, não bloqueia)
+- **Validado em prod com payloads reais:**
+  - SQLi (`?q=1 OR 1=1--`) → detectado rule `942100` libinjection, Anomaly Score 5
+  - XSS (`?q=<script>alert(1)</script>`) → detectado rules `941100/110/160/390`, Anomaly Score 20
+  - Requests passam (200) → zero impacto em tráfego durante janela de tuning
+
+**Bug pequeno corrigido durante deploy do Caddy WAF:**
+- `systemctl reload caddy` mantém binário em memória → não carrega módulo Coraza novo
+- `systemctl restart` necessário pra binary swap (2-3s downtime)
+
+**Próximo (Fase 9c — strangler cutover):**
+- Bucket 1 (read-only público): `Caddyfile` reverse_proxy `:8080` → `:8090` pra rotas `/v1/plans`, `/v1/categories`, `/v1/currencies`
+- Bucket 2 (`/v1/me/*`): canary 1% → 10% → 50% → 100%
+- Bucket 3 (`/v1/admin/*`): após bucket 2 estável 48h
+- Bucket 4 (`/v1/checkout`, `/v1/webhooks/*`): com shadow traffic + reconciliação
+- 14 dias DetectionOnly → tuning OWASP CRS exceptions → `SecRuleEngine On`
