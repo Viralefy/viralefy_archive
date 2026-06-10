@@ -262,3 +262,42 @@ Plano completo: [PHASE-9-ARCHITECTURE.md](PHASE-9-ARCHITECTURE.md) (1056 linhas,
 - Integração Coraza WAF no Caddy via xcaddy build (Fase 9a)
 - Deploy paralelo do core em prod no port :8084 (cutover)
 - viralefy_ops: systemd units pros 3 novos + viralefy-update integração
+
+### Atualização: Fase 9 — deploy paralelo do core em prod (mesmo dia)
+
+**JWT verify offline + middleware no dispatcher ([Viralefy/viralefy_dispatcher@430a2d7](https://github.com/Viralefy/viralefy_dispatcher/commit/430a2d7)):**
+- `src/auth.rs`: JWKSCache (HTTP GET `/.well-known/jwks.json` + TTL 60s) + RevocationSet (bootstrap completo + LISTEN/NOTIFY no canal `revoked_jtis_inserted` + polling 5s fallback)
+- `src/middleware.rs`: `enforce_path_safety` global + `require_auth` + `optional_auth` (axum middlewares)
+- Graceful fallback se DATABASE_URL/AUTH_URL vazios em dev
+
+**viralefy_ops integrado ([Viralefy/viralefy_ops@9ed3bdd](https://github.com/Viralefy/viralefy_ops/commit/9ed3bdd)):**
+- 3 systemd units hardened (`viralefy-core.service` port 8084, `viralefy-auth.service` port 8083 loopback only, `viralefy-dispatcher.service` port 8090)
+- `viralefy-update` agora suporta 10 repos (era 7) com `clone_optional` p/ PHASE-9 (falha silenciosa se não disponível)
+- `build_rust_svc` helper p/ dispatcher cargo
+- `viralefy-smoke` testa healths PHASE-9 com skip silencioso se port inativo
+
+**Deploy paralelo do CORE em prod:**
+- Binary 24MB compilado em prod (Go 1.26.3)
+- Service ativo: `viralefy-core.service` → port `:8084`
+- API legacy intacta em `:8080`
+- **Paridade total validada:**
+  - 109 plans idênticos em ambos
+  - 12 categorias idênticas
+  - Mesmo `kid=vfCOltLYjII` (chaves RS256 compartilhadas → tokens interoperáveis)
+  - JWKS pública idêntica
+- 0 erros nos logs do core nos últimos 30s pós-startup
+- `viralefy-smoke` PASS em ambos (legacy + core)
+
+**Bug pequeno corrigido durante deploy:**
+- `/etc/viralefy/.env` tem `PORT=8080` (legacy) que sobrescrevia `Environment=PORT=8084` do systemd unit (ordem de precedência). Solução: var dedicada `CORE_PORT` com fallback p/ `PORT`. Commit [Viralefy/viralefy_core@197af34](https://github.com/Viralefy/viralefy_core/commit/197af34).
+
+**Cutover stub disponível:**
+- Caddy continua roteando `api.viralefy.com` → `:8080` (api legacy)
+- Quando pronto: trocar Caddy upstream pra `:8084` (core) ou `:8090` (dispatcher, quando deployar)
+- Rollback: trocar Caddy de volta — zero downtime
+
+**Próximo:**
+- Deploy paralelo de `viralefy-auth` em prod no `:8083`
+- Deploy paralelo de `viralefy-dispatcher` (Rust) em prod no `:8090` — requer instalar cargo na VPS primeiro
+- Caddy Coraza WAF via `xcaddy` (Fase 9a)
+- Strangler cutover por bucket: public → user/me → admin → checkout
