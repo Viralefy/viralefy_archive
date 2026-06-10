@@ -210,7 +210,13 @@ Migration tracker tipo Laravel — tabela `schema_migrations` com checksum SHA25
 - SQLi `?q=1 OR 1=1--` → rule `942100` libinjection detectada
 - XSS `?q=<script>alert(1)</script>` → 4 rules `941xxx` detectadas + audit log popula 6278 bytes
 
-**Plano:** 14 dias monitorando false positives orgânicos → tuning exclusions → `SecRuleEngine On`.
+**Re-audit 2026-06-10 07:40 UTC (24h, 16.474 req / 2.274 IPs / 4.234 URIs):**
+- 27 warnings, **todos do IP do próprio host** (smoke tests do operador). Nenhum hit externo.
+- 1 FP estrutural real identificado: rule `942100` libinjection em `ARGS:json.password` no `/v1/auth/user/register` (password tipo gerador `HotSetTest123!@#` bate fingerprint `novc`, score 5 = limiar). Risco alto pra qualquer senha de password manager.
+- Tentativa de exclusão `900600` (phase 1, `ctl:ruleRemoveTargetById=942100;ARGS:json.password`) NÃO funcionou — provável que o JSON body só esteja parseado em phase 2. Rolledback.
+- **Decisão: NO FLIP.** Soak continua até fix da exclusão password + 24-48h de validação. Detalhes em `CORAZA-SOAK-STATUS.md`.
+
+**Plano revisado:** fix exclusion (phase 2 ou `ctl:ruleEngine=Off` escopado por URI) → re-test → soak 24-48h → flip alvo 2026-06-13.
 
 ---
 

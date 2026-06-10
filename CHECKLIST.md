@@ -189,8 +189,11 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] ~~`/var/log/caddy-waf/audit.log` 0 bytes~~ — FIX 06-10 (SecAuditLog estava comentado + JSON format + RelevantStatus `.*`)
 - [x] ~~Aplicar exclusões em prod~~ — `Include` adicionado no Caddyfile, ordem correta entre crs-setup e rules
 - [x] ~~Dashboard Grafana Coraza~~ — behavior.json importado em prod (UID viralefy-behavior)
-- [ ] **Continuar soak**: 14 dias com tráfego organic real antes de flipar (audit log agora populando)
-- [ ] Mudar `SecRuleEngine On` (Block real) — após 14 dias clean
+- [x] **Re-audit 06-10 07:40 UTC** — 16.474 req / 2.274 IPs / 4.234 URIs em 24h. 27 warnings, 100% do host próprio (smoke tests). 1 FP estrutural achado: `942100` libinjection em `ARGS:json.password` no `/v1/auth/user/register` (score 5 == limiar). `CORAZA-SOAK-STATUS.md`
+- [x] **Decisão NO FLIP** — bloqueador concreto identificado, rollback round-trip validado
+- [ ] **Fix exclusão password no register/login** — tentativa `900600` phase 1 falhou (JSON body parsed só em phase 2). Opções: phase 2 ctl, ou `ctl:ruleEngine=Off` por URI (igual stripe 900201). BLOQUEADOR DO FLIP.
+- [ ] Soak 24-48h pós-fix com tráfego organic
+- [ ] Mudar `SecRuleEngine On` (Block real) — alvo 2026-06-13
 - [ ] Validar com payloads benignos pós-flip
 
 ---
