@@ -18,6 +18,17 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## DONE — sessões 2026-06-09 + 06-10
 
+### Pentest baseline follow-up (MEDIUM/LOW fixes) — 2026-06-10
+- [x] Caddyfile: catch-all `:80, :443` block — Host header desconhecido → 421 Misdirected Request (fix #4)
+- [x] Caddyfile: `Cross-Origin-Resource-Policy` em todos vhosts (www=same-site, backoffice=same-origin, obs=same-origin, api=same-site) (fix #7 parcial)
+- [x] Caddyfile: `Cross-Origin-Embedder-Policy: require-corp` em backoffice (sistema fechado, sem 3rd-party JS); DEFERRED em www (quebraria GTM/Turnstile)
+- [x] coraza-crs-exclusions: `tx.blocking_paranoia_level=2` + `tx.enforce_bodyproc_urlencoded=1` (fix #5)
+- [x] PENTEST-BASELINE-2026-06-10.md atualizado com tabela "Resolved Findings" + status por finding
+- [x] caddy validate: PASS (Caddyfile syntax OK em docker test)
+- [~] CSP nonce-based pra www (fix #6) — DEFERRED próxima sprint (refactor SSR de 2 semanas)
+- [~] SRI hashes pra cdn.jsdelivr.net + googletagmanager (fix #7 SRI) — DEFERRED (precisa build pipeline gen)
+- [~] OCSP must-staple (fix #9) — DEFERRED (LE não emite por default; reissue custoso)
+
 ### Reconcile cron diário (drift monitoring) — 2026-06-10
 - [x] `viralefy_core/cmd/reconcile-cron` — binary Go que checa 15 invariantes do negócio em ~40ms
 - [x] Invariantes: orders paid sem external_ref, invoices paid sem paid_at, refresh_tokens órfãos (user/admin), revoked_jtis expirados no hot-set, credits negativos, ledger ≠ cache, plans active sem price/gateway, orders pending >7d, gateways duplicados active, refund > amount, refund sum mismatch, subscriptions sem next_billing, coupons used_count > max_uses
