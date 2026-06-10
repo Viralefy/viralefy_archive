@@ -18,6 +18,24 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## DONE — sessões 2026-06-09 + 06-10
 
+### Dispatcher p95 investigation — 2026-06-10
+- [x] **Root cause identificado**: o "p95 61ms > 50ms" no SLO `dispatcher_overhead_p95` era falso-positivo de instrumentação. O dispatcher Rust não expunha `/metrics` próprio, então o scrape do Prometheus em `127.0.0.1:8090/metrics` caía no `Router::fallback(proxy_handler)` e era proxiado pro `viralefy-core` (Go) em `127.0.0.1:8084/metrics`. Resultado: todas as séries com `service="viralefy-dispatcher"` eram, na verdade, do core, e o SLO media a latência do upstream Go.
+- [x] **Microbench loopback** (200 reqs, ssh prod): `/v1/plans` via dispatcher p95=43.7ms / via core p95=49.4ms — diff zero significa dispatcher não adiciona latência mensurável. `/_health` (handler local, sem proxy) p95=1.10ms confirmou que dispatcher puro é sub-millisegundo.
+- [x] **Fix #1 — `/metrics` endpoint local** (`src/metrics.rs`): registra recorder Prometheus com `metrics-exporter-prometheus`, expõe `http_request_duration_seconds`+`http_requests_total` com label `service="viralefy-dispatcher"` (mesmos buckets do Go core, dashboards funcionam só trocando o filtro). Middleware `track` agrega path por template (`/v1/*`, `/_health`) pra cardinalidade baixa. Rota registrada ANTES do `fallback` pra não cair no proxy.
+- [x] **Fix #2 — métrica dedicada `dispatcher_overhead_seconds`** (`src/proxy.rs`): mede tempo gasto DENTRO de `forward()` excluindo o RTT pro upstream (header filter + body buffer + copy de bytes + response build). Label `upstream` separa core/auth/payments/sender. Buckets finos (100µs → 250ms) pra capturar overhead sub-ms esperado. Mais `dispatcher_upstream_seconds` espelhando o tempo do upstream pra atribuição correta.
+- [x] **Fix #3 — hot-set lock-free** (`src/auth.rs`): trocou `Arc<RwLock<HashSet>>` por `Arc<ArcSwap<HashSet>>`. Leitor faz `load()` atômico zero-cost; bootstrap/poll constrói novo set fora do caminho e faz `store()`. Elimina contenção write-lock periódica do `bootstrap()` que bloqueava handlers a cada `revoked_jtis_poll_secs`. NOTIFY usa copy-on-write (clone+insert+swap) — custo só na revogação, não no request.
+- [x] **Fix #4 — poll interval 5s → 30s** (`src/config.rs::revoked_jtis_poll_secs`): LISTEN/NOTIFY já entrega revogações em real-time, polling existe só pra reconcile caso conexão tenha caído. 5s era exagero (12 queries/min, log noise). 30s mantém propagação ≤30s no pior caso. `bootstrap done` agora em `debug!` pra parar de inundar journalctl.
+- [x] **Fix #5 — alert rule atualizada** (`/etc/prometheus/prometheus-alerts.yml`): `SLODispatcherOverheadP95High` agora consulta `dispatcher_overhead_seconds_bucket` (overhead intrínseco) em vez de `http_request_duration_seconds_bucket` (total incluindo upstream). Description atualizada pra apontar pra causas reais (hot-set inchou / JWKS lento / body buffer congestionado). `promtool check rules` PASS, Prometheus reload OK.
+- [x] **Resultados pós-deploy** (prod 2026-06-10 18:00 UTC, build c/ LTO thin):
+  - **`dispatcher_overhead_seconds` p95 = 95µs** (target 50ms → 528× headroom)
+  - `dispatcher_upstream_seconds` p95 core = 53.75ms (core é o gargalo real — separado pra atribuição correta)
+  - `/_health` p95 = 1.86ms (pure dispatcher path)
+  - `/v1/plans` E2E p95 = 60.8ms (dominado por core)
+  - Binary 7.51MB → 7.83MB (+320KB: arc-swap + metrics crates)
+- [x] **Smoke pós-deploy**: `/_health` 200, `/v1/plans` 200 (69KB), Coraza SQLi 403, HTTPS via Caddy 200, `LISTEN revoked_jtis_inserted active`, hot-set bootstrap OK
+- [x] Alert `SLODispatcherOverheadP95High` agora retorna 0 series (não há firing nem pending)
+- [x] Backup do binário anterior em `/usr/local/sbin/viralefy-dispatcher.bak.1781114459` pra rollback
+
 ### SLOs + Prometheus alerting + dashboard error budget — 2026-06-10
 - [x] `viralefy_ops/observability/slo.yml` — 11 SLOs definidos (api availability/p95/p99, core DB p95, dispatcher overhead p95, payments webhook 99.9% / provider 99%, stripe reconcile freshness, revocation propagation, coraza inspection, backup daily)
 - [x] `viralefy_ops/config/prometheus-alerts.yml` — 26 regras: SLO fast/slow burn (multi-window 1h+5m AND), latência p95/p99, DB query, dispatcher overhead, webhook fast burn, ServiceDown, DBConnectionExhausted, DiskSpaceLow + Critical + FillingFast, BackupFailed, RestoreDrillFailed + Stale, CorazaBlockSpike, AuthBruteforce, TooManyRevokedJTIs, CertExpiringSoon, ReconcileCronFailed, PlanPriceDriftSpike
@@ -25,7 +43,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] `viralefy_ops/grafana/dashboards/slo.json` (UID `viralefy-slo`) — 16 panels: SLO status cards (api/webhook/provider/backup), error budget remaining (gauge red<20% / yellow 20-50% / green>50%), burn-rate multi-window (1h/6h/24h/7d), p95/p99 latency, DB query p95, 5xx por service, firing alerts by severity
 - [x] `prometheus.yml` carrega novo arquivo + `/etc/prometheus/rules/*.yml`; installer copia regras + dashboards
 - [x] Deploy prod 2026-06-10 17:25 UTC: promtool valida 26 rules SUCCESS, reload Prometheus OK, dashboard importado via Grafana API (`https://obs.viralefy.com/d/viralefy-slo/`)
-- [x] Test alerting: `ServiceDown` firing pra `viralefy-api` (esperado — legacy stopped pós-cutover); `SLODispatcherOverheadP95High` pending (real signal — dispatcher p95 atual 61ms > 50ms target — investigar hot-set lookup); 6 alertas `absent()` em pending pra métricas TODO (info)
+- [x] Test alerting: `ServiceDown` firing pra `viralefy-api` (esperado — legacy stopped pós-cutover); `SLODispatcherOverheadP95High` **resolvido** (era falso-positivo de instrumentação — Rust dispatcher não expunha `/metrics`, scrape caía no `fallback(proxy_handler)` e Prometheus raspava as métricas do core via :8090; o "p95 61ms" era na verdade o p95 do core); 6 alertas `absent()` em pending pra métricas TODO (info)
 - [x] `viralefy_archive/SLO-DEFINITIONS.md` — math burn-rate, trade-offs (por que 99.5% não 99.9%), runbook por alerta, lista de métricas TODO
 
 ### Renovate (dep automation) + vuln scans no CI — 2026-06-10
@@ -372,3 +390,66 @@ Causa raiz identificada: crs-setup.conf tinha `SecDefaultAction phase:1/2 "pass"
 - ✅ **Coraza Block ATIVO** (NEW)
 - ⏳ Legacy removido (14d soak até 2026-06-24)
 - ⏳ Pentest externo (orçamento)
+
+---
+
+## 2026-06-10 — Hard-delete LGPD (Art. 18 IV) — RESOLVIDO ✅
+
+Fecha gap C3 do `LGPD-BASELINE-2026-06-10.md`.
+
+### Entregue
+- `viralefy_core/cmd/user-deletion-cron/main.go` — binário Go executor.
+- Migrations:
+  - `042_user_deletion_grace_period` — `executed_at`, `error_message`,
+    status enum estendido (`failed`), index `idx_user_deletion_due`,
+    snapshot `orders.email_at_purchase`/`name_at_purchase`,
+    `orders.user_id` agora nullable (backfill incluso).
+  - `043_user_deletion_drop_fk` — drop da FK
+    `user_deletion_requests.user_id → users(id)` pra preservar a row
+    de auditoria após hard-delete do user.
+- `internal/application/user_data_service.go` — `GetDeletionStatus()`
+  + listas `dataCategoriesDeleted`/`dataCategoriesRetained` pra
+  transparência Art. 9. UPSERT guarded por `WHERE status<>'executed'`.
+- Handler `MeGetDeletion` + rota `GET /v1/me/data/deletion`.
+- Tests unit pras categorias e janela 30d.
+- Systemd unit + timer (`viralefy-user-deletion.service`/`.timer`,
+  03:45 UTC daily, `After=viralefy-reconcile.service`).
+- Installer atualizado (`viralefy_ops/installer/60-systemd.sh`,
+  `bin/viralefy-update`) pra build+copy+enable dos novos binários.
+- Métricas textfile collector
+  (`/var/lib/node_exporter/textfile_collector/viralefy_user_deletion.prom`):
+  - `viralefy_user_deletion_executed_total`
+  - `viralefy_user_deletion_failed_total`
+  - `viralefy_user_deletion_pending_count`
+  - `viralefy_user_deletion_last_run_timestamp_seconds`
+- Runbook completo: `RUNBOOK-USER-DELETION.md`.
+
+### Tabelas — hard delete vs anonimização vs preservada
+Detalhado no runbook. Resumo:
+- **Hard delete**: users, refresh_tokens, password_resets, user_2fa,
+  api_keys, profiles, subscriptions, user_events, user_journeys,
+  email_events (por email), fraud_signals (por email/IP),
+  tickets+ticket_messages, reviews, credit_accounts+credit_transactions,
+  referral_rewards.
+- **Anonimizadas**: orders (preserva snapshot fiscal 5y),
+  audit_log (PII em metadata vira `[DELETED]`, linha sobrevive).
+- **Preservadas**: invoices, order_refunds, stripe_events_processed,
+  user_consent_log.
+
+### Validação local
+- Migration 042+043 aplicadas em postgres dev (porta 15432).
+- Fixture user + 2 orders + audit_log + deletion_request com
+  executes_at no passado.
+- Cron rodou: user deletado, 2 orders anonimizados (user_id=NULL,
+  snapshot fiscal intacto), audit_log preservado com `[DELETED]`,
+  request marcado `executed` com `executed_at`.
+- Re-run idempotente (picked=0).
+- Orphan path testado (request pendente, user já não existe →
+  marca executed sem erro).
+- Tests passam: `go test ./internal/application/ ./internal/interface/http/`.
+
+### Pendência prod
+- Deploy do core + ops (binário + unit/timer + migrations).
+- Habilitar timer: `systemctl enable --now viralefy-user-deletion.timer`.
+- Confirmar métricas chegam no node_exporter.
+- Adicionar alertas Prometheus (recomendações no runbook).
