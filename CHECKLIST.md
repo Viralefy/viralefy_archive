@@ -295,3 +295,32 @@ ssh root@62.238.41.231 'viralefy-update --yes'
 | **viralefy_core** | https://github.com/Viralefy/viralefy_core |
 | **viralefy_auth** | https://github.com/Viralefy/viralefy_auth |
 | **viralefy_dispatcher** | https://github.com/Viralefy/viralefy_dispatcher |
+
+---
+
+## 2026-06-10 12:20 UTC — Coraza Block ATIVO ✅
+
+### Final fix do SecRuleEngine On
+Causa raiz identificada: crs-setup.conf tinha `SecDefaultAction phase:1/2 "pass"`. O `pass` sobrescrevia `deny` das rules individuais. CRS docs sugerem trocar pra `deny,status:403` ao mover de DetectionOnly pra On.
+
+**Fix em ops@9b7b4f6**:
+1. crs-setup.conf: phase:1,2 → `deny,status:403`
+2. coraza.conf: `SecRuleEngine On`
+3. `systemctl restart caddy` (não reload) pra rebuild full do Coraza
+
+**E2E validation em prod**:
+- 5/5 SQLi/XSS attacks → 403 BLOCKED
+- 4/4 legitimate traffic → 200/401 (intacto)
+- Register com password password-manager → 201 (exclusão 900601 phase 2 OK)
+
+**Critérios PHASE-9 100% pronta — agora 8/10**:
+- ✅ Bucket 1-4 cutover
+- ✅ Hot-set revocation E2E (82ms)
+- ✅ Defense-in-depth core
+- ✅ 5+ dashboards Grafana
+- ✅ Smoke E2E dual-mode
+- ✅ Legacy api parada (soak iniciado)
+- ✅ DR drill PASS (9s warm / 1m45s cold)
+- ✅ **Coraza Block ATIVO** (NEW)
+- ⏳ Legacy removido (14d soak até 2026-06-24)
+- ⏳ Pentest externo (orçamento)
