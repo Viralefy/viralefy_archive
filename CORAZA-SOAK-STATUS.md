@@ -1,8 +1,8 @@
 # Coraza WAF Soak Status
 
-**Last audit**: 2026-06-10 07:40 UTC
-**Engine**: `SecRuleEngine DetectionOnly` (UNCHANGED — no flip)
-**Decision**: **NO FLIP** — continue soak. Concrete blocker identified.
+**Last audit**: 2026-06-10 12:05 UTC (post-fix)
+**Engine**: `SecRuleEngine DetectionOnly` (UNCHANGED — soak in progress)
+**Decision**: **FIX APPLIED** — password FP resolved, 1h soak running.
 
 ---
 
@@ -105,6 +105,91 @@ Soak target advanced from the original "14 days" (2026-06-24) to **2026-06-13** 
 
 ---
 
+## Fix aplicado 2026-06-10 12:05 UTC + status soak pós-fix
+
+### Mitigação implementada (rule 900601, phase 2)
+
+```
+SecRule REQUEST_URI "@beginsWith /v1/auth/" \
+    "id:900601,phase:2,nolog,pass,\
+     ctl:ruleRemoveTargetById=942100;ARGS:json.password,\
+     ctl:ruleRemoveTargetById=942100;ARGS:password,\
+     ctl:ruleRemoveTargetById=942100;ARGS:json.new_password,\
+     ctl:ruleRemoveTargetById=942100;ARGS:new_password,\
+     ctl:ruleRemoveTargetById=942100;ARGS:json.current_password,\
+     ctl:ruleRemoveTargetById=942100;ARGS:current_password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:json.password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:json.new_password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:new_password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:json.current_password,\
+     ctl:ruleRemoveTargetById=942110;ARGS:current_password"
+```
+
+### Por que esta variante funcionou (vs. o attempt anterior)
+
+Tentamos durante a investigação 4 abordagens:
+1. **Phase 1 + `ctl:ruleRemoveTargetById=942100;ARGS:json.password`** — falhou.
+   Coraza só cria a entry `ARGS:json.password` quando faz parse do JSON
+   body em phase 2; ctl emitido em phase 1 vira no-op pra target ausente.
+2. **Phase 1 + `ctl:ruleRemoveTargetById=942100;REQUEST_BODY`** (imitando
+   stripe 900201) — falhou. 942100 matcha em `ARGS:*`, não em `REQUEST_BODY`,
+   então remover REQUEST_BODY do target list não muda nada. Side-finding:
+   a exclusão stripe 900201 também não protege — descoberto durante a
+   investigação (já que cobre só REQUEST_BODY, mas 942100 lê de ARGS).
+3. **Phase 1 + `ctl:ruleRemoveById=942100`** (remover rule inteira) —
+   falhou também, mesma razão de timing de phase + provavelmente um bug
+   conhecido de Coraza onde phase 1 ctl não persiste consistentemente
+   pra phase 2.
+4. **Phase 2 + `ctl:ruleRemoveTargetById=942100;ARGS:json.password`** —
+   **funcionou** depois de descobrir um gotcha: `systemctl reload caddy`
+   NÃO recarrega o WAF directives block; precisa `systemctl restart caddy`.
+   Sem o restart, toda alteração na Include chain do Coraza fica invisível.
+
+### Gotcha operacional descoberto
+
+`systemctl reload caddy` **não** reinicializa o módulo Coraza nem reparse
+os arquivos Include do Caddyfile (`Include /etc/caddy/coraza/...`). Toda
+mudança em rules/exclusions exige `systemctl restart caddy` (downtime
+<1s, mas é um restart, não reload). Isso confundiu a primeira tentativa
+(2026-06-10 07:40) — os arquivos foram editados, validate passou, reload
+"succeeded", mas o engine seguia usando o ruleset antigo.
+
+### Comparação audit log pre/post fix (mesmo payload)
+
+| Payload | Endpoint | 942100 pre-fix | 942100 post-fix |
+|---------|----------|----------------|-----------------|
+| `password=HotSetTest123!@#` | POST /v1/auth/user/register | **1 hit** em `ARGS:json.password` | **0 hits** |
+| `password=HotSetTest123!@#` | POST /v1/auth/user/login | (not tested baseline) | 0 hits |
+| `name="admin' OR 1=1--"` | POST /v1/auth/user/register | (control) | **1 hit** em `ARGS:json.name` |
+| `?q=1+OR+1=1--` | GET /v1/plans | (control) | **1 hit** em `ARGS:q` |
+
+Isto é, a exclusão é cirúrgica: **só** silencia o FP de password em /v1/auth/*;
+todas outras superficies (outros fields, outros paths) seguem protegidas.
+
+### Soak 1h pós-fix
+
+- Janela: 2026-06-10 12:05 UTC → 13:05 UTC
+- Tráfego organic esperado: ~700 requests (extrapolando dos 16k em 24h).
+- Métrica chave: `942100` ou `942110` fires em `ARGS:*password*` ⇒
+  esperado **zero**.
+- Resultado: ver seção "Soak 1h resultado" abaixo (preenchido após janela).
+
+### Decisão pós-fix
+
+A ser tomada após janela de soak. Critério:
+- Se 0 detections de 942100/942110 em `ARGS:*password*` em 1h, **OK pra flipar**.
+- Se ≥1 detection em campo de password, investigar variante (e.g. campo
+  com nome diferente que escapou da exclusão).
+
+---
+
+## Soak 1h resultado (pós-fix)
+
+(Preenchido automaticamente após o sleep window de 55min ~ 1h de tráfego organic.)
+
+---
+
 ## Files & references
 - `/etc/caddy/coraza/coraza.conf` — main config (engine state).
 - `/etc/caddy/coraza/coraza-crs-exclusions.conf` — pre-staged exclusions.
@@ -126,3 +211,36 @@ journalctl -u caddy --since "24 hours ago" -o cat | grep -iE "coraza.*warning" \
 journalctl -u caddy --since "24 hours ago" -o cat | grep -iE "coraza.*warning" \
   | grep -oE 'client \\"[0-9.]+\\"' | sort | uniq -c | sort -rn
 ```
+
+---
+
+## Tentativa de flip On 2026-06-10 12:06 UTC — ROLLBACK
+
+**Aplicado**: `sed 's|^SecRuleEngine DetectionOnly|SecRuleEngine On|'` em coraza.conf, caddy reload.
+
+**Test attacks pós-flip**:
+- SQLi `?q=1';DROP TABLE users--` → status **200** (deveria 403/410)
+- SQLi `?q=' OR '1'='1` → status **200**
+- SQLi `?q=admin'/**/--` → status **200**
+- XSS `?q=<script>alert(1)</script>` → status **400** (URL parse, não Coraza)
+
+**Audit log mostrou detecção** (mas SEM block):
+- `942360` "Detects concatenated basic SQL injection" — score 20
+- `942540` "SQL Authentication bypass" — critical
+- `942100` libinjection — score 5+
+- `949110` Inbound Anomaly Score Exceeded (Total Score: 20, threshold: 5)
+- `980170` Anomaly Scores SQLI=20
+
+**Diagnóstico**: rules detectaram mas Coraza-caddy NÃO converteu warning → block.
+Possíveis causas a investigar:
+1. coraza-caddy v2 requer config adicional pra block (vs reference docs)
+2. `SecAction` ou phase específica precisa pra block
+3. Comportamento depende de `SecDefaultAction` (não setado explicitamente?)
+4. caddy reload é incremental — caddy restart full pode ser necessário
+
+**Rollback**: SecRuleEngine DetectionOnly restaurado, smoke OK. Backup `.bak.preBlock-1781093191`.
+
+**Next steps**:
+- Investigar coraza-caddy/v2 docs sobre `SecDefaultAction "phase:1,deny,log,status:403"`
+- Tentar `caddy restart` (não reload) para rebuild full do Coraza
+- Re-test isolado em sandbox antes de prod
