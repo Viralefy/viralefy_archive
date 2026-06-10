@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação de contexto)
 
-**Última atualização:** 2026-06-10 (PHASE-9 100% cutover concluído — tráfego live via Rust dispatcher)
+**Última atualização:** 2026-06-10 (PHASE-9 closed + Coraza Block + ops hardening — pentest baseline, reconcile cron, backup verify drill, hot-set + defense-in-depth, smoke admin via SQL-mint)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
@@ -217,6 +217,15 @@ Migration tracker tipo Laravel — tabela `schema_migrations` com checksum SHA25
 - **Decisão: NO FLIP.** Soak continua até fix da exclusão password + 24-48h de validação. Detalhes em `CORAZA-SOAK-STATUS.md`.
 
 **Plano revisado:** fix exclusion (phase 2 ou `ctl:ruleEngine=Off` escopado por URI) → re-test → soak 24-48h → flip alvo 2026-06-13.
+
+**Update 2026-06-10 12:20 UTC — Coraza SecRuleEngine On ATIVO**:
+- Causa raiz do warning não-bloqueando: CRS `SecDefaultAction phase:1/2,log,auditlog,pass`. O `pass` sobrescreve `deny` das rules individuais.
+- Fix: `SecDefaultAction phase:1/2 → deny,status:403` + `systemctl restart caddy` (não reload)
+- Password FP exclusion `id:900601` phase 2 funcional (commit ops@20f38f7)
+- HTTP methods exclusion `id:900700`: PUT/PATCH/DELETE agora liberados (rule 911100 do CRS bloqueava — backoffice mutations quebradas; commit ops@76b6e0c)
+- E2E validado: 5/5 SQLi/XSS → 403, register password password-manager → 201, GETs → 200, métodos REST OK
+
+**Estado atual: 5 critérios "Fase 9 100% pronta" cumpridos.**
 
 ---
 
