@@ -18,6 +18,16 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ## DONE — sessões 2026-06-09 + 06-10
 
+### SLOs + Prometheus alerting + dashboard error budget — 2026-06-10
+- [x] `viralefy_ops/observability/slo.yml` — 11 SLOs definidos (api availability/p95/p99, core DB p95, dispatcher overhead p95, payments webhook 99.9% / provider 99%, stripe reconcile freshness, revocation propagation, coraza inspection, backup daily)
+- [x] `viralefy_ops/config/prometheus-alerts.yml` — 26 regras: SLO fast/slow burn (multi-window 1h+5m AND), latência p95/p99, DB query, dispatcher overhead, webhook fast burn, ServiceDown, DBConnectionExhausted, DiskSpaceLow + Critical + FillingFast, BackupFailed, RestoreDrillFailed + Stale, CorazaBlockSpike, AuthBruteforce, TooManyRevokedJTIs, CertExpiringSoon, ReconcileCronFailed, PlanPriceDriftSpike
+- [x] `viralefy_ops/config/alertmanager.yml` skeleton (NÃO instalado — webhook ADMIN_WEBHOOK_URL ainda vazio; inhibition rules: ServiceDown silencia SLO/Latency/ErrorRate do mesmo service, critical absorve warning do mesmo slo+service)
+- [x] `viralefy_ops/grafana/dashboards/slo.json` (UID `viralefy-slo`) — 16 panels: SLO status cards (api/webhook/provider/backup), error budget remaining (gauge red<20% / yellow 20-50% / green>50%), burn-rate multi-window (1h/6h/24h/7d), p95/p99 latency, DB query p95, 5xx por service, firing alerts by severity
+- [x] `prometheus.yml` carrega novo arquivo + `/etc/prometheus/rules/*.yml`; installer copia regras + dashboards
+- [x] Deploy prod 2026-06-10 17:25 UTC: promtool valida 26 rules SUCCESS, reload Prometheus OK, dashboard importado via Grafana API (`https://obs.viralefy.com/d/viralefy-slo/`)
+- [x] Test alerting: `ServiceDown` firing pra `viralefy-api` (esperado — legacy stopped pós-cutover); `SLODispatcherOverheadP95High` pending (real signal — dispatcher p95 atual 61ms > 50ms target — investigar hot-set lookup); 6 alertas `absent()` em pending pra métricas TODO (info)
+- [x] `viralefy_archive/SLO-DEFINITIONS.md` — math burn-rate, trade-offs (por que 99.5% não 99.9%), runbook por alerta, lista de métricas TODO
+
 ### Renovate (dep automation) + vuln scans no CI — 2026-06-10
 - [x] Preset central `viralefy_ops/renovate-config.json` (schedule Mondays before 12:00 BRT, group por manager, automerge patch/minor para deps >=1.0, dependency dashboard, vulnerabilityAlerts com label urgent)
 - [x] `renovate.json` em cada um dos 10 repos (`viralefy_api`, `viralefy_api_rust`, `viralefy_archive`, `viralefy_auth`, `viralefy_backoffice`, `viralefy_core`, `viralefy_front`, `viralefy_ops`, `viralefy_payments`, `viralefy_sender`)

@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação de contexto)
 
-**Última atualização:** 2026-06-10 (PHASE-9 closed + Coraza Block + ops hardening — pentest baseline, reconcile cron, backup verify drill, hot-set + defense-in-depth, smoke admin via SQL-mint)
+**Última atualização:** 2026-06-10 (PHASE-9 closed + Coraza Block + ops hardening + SLOs/alerting + error budget dashboard ativo em prod)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
@@ -45,7 +45,7 @@ INTERNET
 Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (DetectionOnly + audit JSON ativo)
    ├── www → viralefy-front (Next 15, :3000)
    ├── admin → viralefy-backoffice (:3001)
-   ├── obs → Grafana (:3030) [4 dashboards Viralefy + scrape de core/dispatcher/caddy]
+   ├── obs → Grafana (:3030) [5 dashboards Viralefy: revenue/payments/behavior/reliability/slo + 37 alert rules (11 legacy + 26 SLO/infra)]
    └── api → ROTEAMENTO POR PATH:
         │
         ├── /v1/plans*, /v1/categories*, /v1/currencies*, /v1/status*,
