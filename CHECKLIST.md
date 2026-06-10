@@ -78,6 +78,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **Grafana finalização**: 4 dashboards importados em prod via API + 3 scrape targets (core/dispatcher/caddy)
 - [x] DR drill runbook ([RUNBOOK-DR.md](RUNBOOK-DR.md)) — 6 fases, target 30min, com critérios objetivos
 - [x] **DR drill EXECUTADO** local sim — 9s warm cache / 1m45s cold projection vs 30min target = PASS com massive headroom. 4 issues acionáveis encontrados (docker-compose v2, migration sequencing, mc entrypoint, health paths)
+- [x] **Backup verify + restore drill automatizado (06-10)** — `viralefy-backup-verify` (daily 04:00 UTC, sanity checks: gzip + schema + size anomaly) + `viralefy-restore-drill` (Sun 05:00 UTC, restore real em docker sandbox 15433 + smoke 5 queries vs prod, ~8s end-to-end). Métricas Prometheus textfile, JSON em stdout. Runbook em [RUNBOOK-BACKUP-VERIFY.md](RUNBOOK-BACKUP-VERIFY.md). **Fix paralelo**: `viralefy-backup.service` estava em loop de falha desde 06-07 (`install -d` em `/var/lib/prometheus` bloqueado por ProtectSystem+CapBoundingSet=""); fix: parent 0755 e textfile write best-effort. First run drill: ok=true, 7s, dump 78KB → 49 tabelas/133 índices, row counts match, smoke max 156ms / SLO 250ms.
 - [x] Lighthouse CI gate em viralefy_front + viralefy_backoffice + polish
 - [x] Playwright CheckoutModal E2E expandido + data-testid + axe-core
 - [x] Coraza WAF audit 24h: 0 false positives orgânicos
