@@ -24,7 +24,8 @@ Pontos fortes inesperados pra fase HML:
 - Política de Privacidade, Termos, Cookies e Reembolso publicados em 8
   idiomas com versionamento (`viralefy_front/src/i18n/legal.ts:10`,
   `updatedAt: "2026-05-30"`).
-- Cookie banner com 3 categorias (necessary/analytics/marketing),
+- Cookie banner com 4 categorias (necessary/preferences/analytics/marketing),
+  defaults LGPD-compliant (Art. 8 §3) e audit log em `user_consent_log`,
   rejeição por padrão de marketing, e mecanismo de revogação
   (`viralefy_front/src/components/CookieBanner.tsx`,
   `viralefy_front/src/lib/gdpr.ts`).
@@ -45,12 +46,12 @@ Pontos críticos:
   titular)** — não lista bases legais por finalidade, retenção exata
   por dado, transferência internacional, identificação do controlador,
   nem direitos do Art. 18 enumerados.
-- **Hard-delete físico nunca executa**: o serviço de deletion grava
-  intenção em `user_deletion_requests` mas o cron de execução é tech
-  debt explícita (`user_data_service.go:20-21` "execução física do
-  delete é tech debt"). Soft-delete via `users.deleted_at` existe
-  (`migration 020`) mas atualmente não é setado por ninguém porque o
-  cron não roda.
+- ~~**Hard-delete físico nunca executa**~~ **RESOLVIDO** em 2026-06-10:
+  implementado `cmd/user-deletion-cron` (binário Go), migrations
+  042/043 (snapshot fiscal em orders + drop FK pra preservar auditoria
+  post-exclusão), systemd timer `viralefy-user-deletion.timer` (03:45
+  UTC daily). Métricas expostas via textfile collector. Detalhes:
+  `viralefy_archive/RUNBOOK-USER-DELETION.md`.
 - **Logs estruturados ainda não mascaram PII**
   (`viralefy_archive/COMPLIANCE.md:159` "Mascaramento de PII ❌").
 - **Postgres não cifrado em repouso**
@@ -133,7 +134,8 @@ GAP de baixa probabilidade mas alto impacto se materializar.
 | `phone`, `telegram`, `whatsapp_number` | Notificação transacional + suporte | Art. 7 I — consentimento (com `whatsapp_opt_in` registrado em DB) | Opt-in explícito; verificar coleta de consentimento separada de "Aceito Termos" pra phone/telegram (hoje vem do form de register sem flag dedicada — REVER) |
 | `profiles.handle` + `orders.publication_url` (alvo do serviço) | Entrega do pacote contratado | Art. 7 V — execução de contrato | Dado central pro serviço |
 | `tracking` (UTM, fbclid, gclid, client_id) em orders | Atribuição de marketing + anti-fraude | Art. 7 IX — legítimo interesse | Necessita LIA (Legitimate Interest Assessment) documentada |
-| `user_events.ip`, `.user_agent` | Anti-fraude + analytics | Art. 7 IX — legítimo interesse + Art. 7 I — consentimento (analytics) | Cookie banner já gateia analytics; **mas backend grava `user_events` independente de consent do banner** → REVER |
+| `user_events.ip`, `.user_agent` | Anti-fraude + analytics | Art. 7 IX — legítimo interesse + Art. 7 I — consentimento (analytics) | ✅ 2026-06-10: backend NULLifica IP/UA quando `X-Analytics-Consent != "1"`; coluna `analytics_consent` registra o estado da decisão por row. |
+| `user_consent_log.*` | Comprovação de consent (LGPD Art. 8 §6) | Art. 7 II — obrigação legal | Append-only. IP/UA aqui são intencionais (comprovação). Hard-delete só no exercício do Art. 18 IX. |
 | `refresh_tokens.issue_ip/ua`, `password_resets.requested_ip/ua` | Forense de segurança | Art. 7 IX — legítimo interesse | LIA: prevenção a fraude e proteção de conta |
 | `audit_log.metadata` (IP, UA, motivo) | Auditoria de mudanças admin | Art. 7 II — cumprimento de obrigação legal/regulatória + IX | |
 | `orders.amount_cents`, `invoices`, `credit_transactions` | Cobrança + faturamento | Art. 7 V — contrato + Art. 7 II — obrigação legal fiscal | Receita Federal exige guarda 5 anos |
@@ -154,7 +156,7 @@ LGPD exige ROPA pra controladores.
 | Categoria | Retenção Recomendada | Implementação Atual | Status |
 |---|---|---|---|
 | Usuário ativo | Indefinido enquanto conta existir | OK | ✅ |
-| Usuário com pedido de exclusão | 30d janela cancelamento → hard-delete | Janela existe (`user_data_service.go:37`), **hard-delete cron não existe** | ❌ CRÍTICO |
+| Usuário com pedido de exclusão | 30d janela cancelamento → hard-delete | Janela + cron implementados (`cmd/user-deletion-cron`, timer 03:45 UTC). Anonimização de orders preserva 5y fiscal | ✅ |
 | Faturas / orders pagas | 5 anos (Receita Federal, Art. 195 CTN) | Sem TTL — retenção indefinida (aceitável p/ orders, **mas precisa documento de política**) | ⚠️ |
 | `audit_log` | 6 anos (boa prática) | Sem TTL — indefinido | ⚠️ |
 | `refresh_tokens` | Até `expires_at` (30d) + cleanup | TTL natural; cron de cleanup **não localizado** (deve haver — verificar) | ⚠️ |
@@ -240,36 +242,51 @@ obrigatório antes do PRD.
 ### 7.1 Cookie Banner
 
 ✅ Existe em `viralefy_front/src/components/CookieBanner.tsx`.
-Comportamento (auditado):
+**Atualizado 2026-06-10 (gap C5)** — comportamento corrente:
 
-- Aparece quando `localStorage["viralefy_gdpr_consent"] === null`
-  (CookieBanner.tsx:24-27).
-- 3 botões diretos: Accept all / Reject non-essential / Manage.
-- Modal "Manage" com toggles Necessary (always-on), Analytics
-  (default ON), Marketing (default OFF) (CookieBanner.tsx:19-20).
-- Default ON pra analytics no toggle é **questionável**: usuário
-  precisa ativamente desmarcar — LGPD exige consent **livre e
-  específico** (Art. 8 §3). Recomenda-se default OFF.
+- Aparece quando `getConsent()` devolve null (storage vazio, versão
+  antiga ou consent expirado >12 meses).
+- 3 botões diretos: **Aceitar todos** / **Apenas essenciais** /
+  **Personalizar** (PT-BR default; fallback EN via `navigator.language`).
+- Modal "Personalizar" com 4 toggles: Necessary (always-on, disabled),
+  Preferences (default ON — utility cookie), **Analytics (default OFF)**,
+  **Marketing (default OFF)**. Conforme LGPD Art. 8 §3 (consent livre).
+- Schema versionado (`version=2`); upgrade força reconsent universal.
+- Re-prompt automático após 365 dias (recomendação ANPD).
+- Cada decisão é logada em `user_consent_log` via POST `/v1/me/consent`
+  (audit trail Art. 8 §6).
 - Página de gerenciamento `/legal/cookie-preferences` permite reset
   (vide `gdpr.ts:resetConsent`).
+- Runbook operacional: `viralefy_archive/RUNBOOK-COOKIE-CONSENT.md`.
 
 ### 7.2 Tracking ativo no front
 
+- **GTM container `GTM-K7GQ4H32`**: 2026-06-10 movido pra
+  `components/GtmLoader.tsx` — carregamento lazy via `next/script`
+  **somente após consent analytics**. Google Consent Mode v2 com
+  `default: denied` é setado antes do GTM inicializar.
 - **Sentry** (`sentry.client.config.ts`): no-op quando `NEXT_PUBLIC_SENTRY_DSN`
-  vazio. Em produção deve gateá-lo no consent `analytics`. Hoje **não
-  está gateado** — se DSN configurado, Sentry captura erros antes
-  do consent.
+  vazio. Em produção deve gateá-lo no consent `analytics` (TODO A5
+  documentado, não impede o gap C5).
 - **Cookies essenciais declarados**: `viralefy_token` (sessão),
   cookie de moeda. Documentado em `/legal/cookies`.
-- **Não foram localizados** GA, GTM, Meta Pixel, Hotjar, TikTok Pixel,
-  Google Ads tag no front (`grep -rn` confirmou).
 
-### 7.3 Tracking backend NÃO gateado por consent
+### 7.3 Tracking backend (RESOLVED 2026-06-10)
 
-⚠️ **CRÍTICO**: `user_events` (migration 033) recebe `ip`, `user_agent`,
-`utm`, `payload` de pageviews/clicks **server-side**, independente do
-estado de consent no `CookieBanner`. O backend não consulta o flag
-`analytics: bool` antes de gravar. Isto contradiz a intenção do banner.
+✅ `user_events` (migration 033) **agora respeita o header
+`X-Analytics-Consent`** enviado pelo `viralefy_front/src/lib/track.ts`:
+
+- Header "1" (consent dado) → IP + UA gravados normalmente,
+  `analytics_consent = TRUE` na nova coluna (migration 041).
+- Header "0" / ausente → IP + UA viram NULL (`UserEventRepo.Record`
+  faz o NULLify), `analytics_consent = FALSE`. Mantém contagem de
+  eventos pra produto sem PII.
+- Coluna `analytics_consent BOOLEAN` na `user_events` permite
+  auditoria a posteriori + backfill seletivo.
+
+Audit log de cada decisão de consent fica em `user_consent_log`
+(migration 041) — IP+UA dele são intencionais (base legal Art. 8 §6,
+comprovação).
 
 ---
 
@@ -338,7 +355,7 @@ Verificado `viralefy_archive/`:
 | C2 | Política de Privacidade não atende Art. 9 LGPD | Multas + ação ANPD | 3d (advogado + impl) |
 | C3 | Cron de hard-delete físico inexistente — pedidos ficam "pending" para sempre | Não atende Art. 18 IV | 2d (cron + testes) |
 | C4 | Plano de resposta a incidente + 72h ANPD inexistente | Art. 48 inadimplência em incidente real | 1d (runbook) |
-| C5 | Cookie banner default ON pra analytics + tracking backend não gateado por consent | Art. 8 §3 (consent não livre) | 1d (default OFF + middleware backend) |
+| ~~C5~~ | ~~Cookie banner default ON pra analytics + tracking backend não gateado por consent~~ | ~~Art. 8 §3~~ | **✅ RESOLVED 2026-06-10** — banner default OFF (commit em viralefy_front), backend NULLifica IP/UA via header `X-Analytics-Consent` (migration 041 em viralefy_core), audit log em `user_consent_log`. Runbook: `RUNBOOK-COOKIE-CONSENT.md`. |
 
 ### ALTO
 
