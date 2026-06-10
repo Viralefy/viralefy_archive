@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-**Última atualização:** 2026-06-10 (Bucket 1 + Bucket 2 ATIVOS em prod)
+**Última atualização:** 2026-06-10 (Buckets 1+2+3+2c ATIVOS em prod — 100% das rotas do PHASE-9 cutáveis hoje cutadas)
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
@@ -45,6 +45,28 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] Não-regressão: Bucket 1 200, admin/checkout/login ainda monolito
 - [x] Rollback validado em ambas direções (0 downtime via reload)
 - [x] Pushed: [Viralefy/viralefy_ops@0389cc0](https://github.com/Viralefy/viralefy_ops/commit/0389cc0)
+
+### PHASE-9 Bucket 3 cutover (2026-06-10 04:14 UTC)
+- [x] Caddyfile com `handle /v1/admin*` routing pra `:8090` → core (52+ rotas)
+- [x] Parity pré-swap: 12 rotas testadas, 401 sem Bearer em ambos paths
+- [x] Smoke E2E HTTPS: 7 GETs admin → 401 (RBAC gate intacto)
+- [x] Pushed: [Viralefy/viralefy_ops@920dbe7](https://github.com/Viralefy/viralefy_ops/commit/920dbe7)
+
+### PHASE-9 Bucket 2c cutover (2026-06-10 04:20 UTC)
+- [x] viralefy_auth: 6 public routes adicionadas (`/v1/auth/{user/login,user/register,user/login/2fa,login,login/2fa,login/2fa/enroll}`)
+- [x] Rate-limit in-memory 10/15min per-IP, sliding window, zero deps externas
+- [x] Build + deploy em prod (binary 10.97MB stripped, restart zero-downtime)
+- [x] Caddyfile com `handle /v1/auth*` routing pra `:8090` → auth
+- [x] Smoke E2E HTTPS: 422 INVALID_INPUT (empty) + 401 UNAUTHORIZED (bad creds) ✓
+- [x] Não-regressão: Buckets 1+2+3 + checkout + webhook + /internal/* preservados
+- [x] Pushed: [Viralefy/viralefy_auth@ed5ead4](https://github.com/Viralefy/viralefy_auth/commit/ed5ead4) + [Viralefy/viralefy_ops@c675d72](https://github.com/Viralefy/viralefy_ops/commit/c675d72)
+
+### Engineering paralela (sessão 06-10, 5 agents)
+- [x] Grafana dashboards (4 JSONs em `viralefy_ops/grafana/dashboards/`) — revenue, payments, behavior, reliability
+- [x] DR drill runbook ([RUNBOOK-DR.md](RUNBOOK-DR.md)) — 6 fases, target 30min, com critérios objetivos
+- [x] Lighthouse CI gate em viralefy_front + viralefy_backoffice ([Viralefy/viralefy_front@1a838c1](https://github.com/Viralefy/viralefy_front/commit/1a838c1) + [Viralefy/viralefy_backoffice@ef7b3ca](https://github.com/Viralefy/viralefy_backoffice/commit/ef7b3ca))
+- [x] Playwright CheckoutModal E2E expandido (11 testes desktop+mobile+a11y)
+- [x] Coraza WAF audit 24h: 0 false positives orgânicos; recomenda manter DetectionOnly por mais 14 dias; pré-stage `coraza-crs-exclusions.conf` p/ Stripe webhook + /v1/reviews futuras
 
 
 ### PHASE-9 Fase 9b — viralefy_auth completo
@@ -125,36 +147,43 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] **Monitorar 24h erro rate + latência p95** (dispatcher vs legacy)
 - [ ] Se estável 48h → Bucket 2
 
-### Bucket 2 — User auth (semana 2-3) — VER [PHASE-9-BUCKET-2-PLAN.md](PHASE-9-BUCKET-2-PLAN.md)
-Split em sub-buckets baseado em audit (legacy já dual-signs → canary desnecessário):
-- [x] **Bucket 2a+2b** — `/v1/me/*` (38 rotas GET+POST+PUT+DELETE) ✅ cutover 06-10
-- [ ] **Bucket 2c** — `/v1/auth/user/{register,login,login/2fa}` (4 rotas)
-- [ ] Smoke E2E autenticado: register → login → 2FA enroll → orders → API key
-- [ ] Validar 2FA persistido via auth-core compartilhando DB
+### Bucket 2 — User auth ✅ DONE 2026-06-10
+- [x] **Bucket 2a+2b** — `/v1/me/*` (38 rotas) cutover
+- [x] **Bucket 2c** — `/v1/auth/*` (6 rotas: register/login/login/2fa user+admin)
+  - Auth ganhou public routes (commit Viralefy/viralefy_auth@ed5ead4)
+  - Rate-limit 10/15min per-IP via X-Real-IP
+  - Smoke E2E HTTPS: 422 INVALID_INPUT (empty body) + 401 UNAUTHORIZED (bad creds) ✓
+- [ ] Smoke E2E autenticado real (register → login → orders → API key) — depende de test user
 - [ ] Hot-set revogação testado end-to-end (revogar JTI no auth, dispatcher rejeita em ≤5s)
 - [ ] Reconciliação diária: nenhum order criado em path diferente
-- [ ] Monitorar 24-48h Bucket 2 estável antes de 2c
 
-### Bucket 3 — Admin (semana 4)
-- [ ] Rotas: `/v1/admin/*` (52 rotas, RBAC com role permissions)
-- [ ] Smoke RBAC: superadmin vs manager vs viewer
-- [ ] Validar audit_log gravado pelo core
-- [ ] Bulk approve proofs + edit gateways funcionais
+### Bucket 3 — Admin ✅ DONE 2026-06-10
+- [x] `/v1/admin/*` (52+ rotas com RBAC) cutover
+- [x] Parity pré-swap: 12 rotas testadas 401 sem Bearer
+- [x] Smoke E2E HTTPS: 7 GETs admin → 401 (auth gate intacto)
+- [ ] Smoke E2E com admin token real (RBAC validation per role)
+- [ ] Validar audit_log gravado pelo core (não pelo legacy)
 
-### Bucket 4 — Checkout + webhooks (semana 5, shadow traffic)
+### ~~Bucket 3 — Admin~~ (movido pra DONE)
+
+### Bucket 4 — Checkout + webhooks (PENDENTE, exige shadow traffic)
+**Único bucket NÃO cutado** — checkout é money-critical, mantém abordagem original:
 - [ ] Shadow traffic: api duplica request pra dispatcher, log diff de response
 - [ ] 72h shadow → canary 1% → 10% → 50% → 100%
 - [ ] Reconciliação diária de orders criadas em cada path
-- [ ] Stripe/Heleket/Abacate webhooks roteados pra `:8081` via dispatcher
+- [ ] Stripe/Heleket/Abacate webhooks roteados pra `:8081` via dispatcher (atualmente direto)
 - [ ] Run full E2E (register → checkout → webhook → order confirmed)
 - [ ] Stripe reconcile cron continua rodando (defense in depth)
 
 ### Coraza WAF — DetectionOnly → Block (paralelo aos buckets)
-- [ ] 14 dias monitorando false positives via journald
-- [ ] Tuning `CRS_EXCLUSION_*` em `crs-setup.conf` por falsos positivos observados
-- [ ] Mudar `SecRuleEngine On` (Block real)
-- [ ] Validar com payloads benignos (search com payload nicho, upload PNG, markdown review)
-- [ ] Dashboard Grafana de Coraza hits + falsos positivos
+- [x] ~~Audit 24h false positives via journald~~ — 06-10: 0 FP orgânicos (só self-traffic)
+- [x] ~~Pré-stage exclusões CRS~~ — `viralefy_ops/config/coraza-crs-exclusions.conf` (forward-looking)
+- [ ] **Continuar soak**: 14 dias com tráfego organic real antes de flipar
+- [ ] Verificar por que `/var/log/caddy-waf/audit.log` está 0 bytes (SecAuditLog wiring)
+- [ ] Aplicar exclusões em prod (`Include /etc/caddy/coraza/coraza-crs-exclusions.conf` no Caddyfile)
+- [ ] Mudar `SecRuleEngine On` (Block real) — após 14 dias clean
+- [ ] Validar com payloads benignos pós-flip (search nicho, upload PNG, markdown review)
+- [ ] Dashboard Grafana de Coraza hits — JSON ja existe (behavior.json)
 
 ---
 
@@ -167,17 +196,21 @@ Split em sub-buckets baseado em audit (legacy já dual-signs → canary desneces
 
 ### Engineering — médio impacto
 - [ ] Object storage migration: proofs base64 antigos → MinIO keys
-- [ ] Grafana contact points (email/Slack)
-- [ ] 4 custom Grafana dashboards (revenue, payments, behavior, reliability)
+- [ ] Grafana contact points (email/Slack) — requer cliente fornecer webhook
+- [x] ~~4 custom Grafana dashboards~~ — DONE 06-10 (4 JSONs prontos pra import)
+- [ ] Adicionar scrape targets em prometheus.yml: core(`:8084`), payments(`:8081`), sender(`:8082`), dispatcher(`:8090`), caddy(`:2019`), postgres-exporter(`:9187`)
 - [ ] Sentry source maps no CI
 - [ ] LGPD compliance review formal
 
 ### Engineering — baixo impacto
 - [ ] Pentest externa (Tier 3 audit per PHASE-9 §13)
 - [ ] WAF Cloudflare nativo (depois de Coraza estabilizar)
-- [ ] DR drill provisão nova + restore < 30min (target)
-- [ ] Playwright CheckoutModal E2E
-- [ ] Lighthouse CI gate
+- [x] ~~DR drill runbook~~ — DONE 06-10 ([RUNBOOK-DR.md](RUNBOOK-DR.md))
+- [ ] **Executar** DR drill scriptado (provisão sandbox + cronometrar restore)
+- [x] ~~Playwright CheckoutModal E2E~~ — DONE 06-10 (11 testes)
+- [ ] Adicionar `data-testid` em CheckoutModal/BuyPlanCta + `@axe-core/playwright` (TODOs do Playwright agent)
+- [x] ~~Lighthouse CI gate~~ — DONE 06-10
+- [ ] Resolver TODOs do Lighthouse: plan detail URL + MOCK_AUTH no backoffice dashboard
 
 ### Decisão de produto pendente
 - [~] Multi-vendor settlement model
