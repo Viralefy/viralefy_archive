@@ -227,3 +227,38 @@ Plano completo: [PHASE-9-ARCHITECTURE.md](PHASE-9-ARCHITECTURE.md) (1056 linhas,
 - Integrar Coraza WAF no Caddy via xcaddy build.
 - Deploy paralelo do core no port 8084 (smoke contra prod).
 - NENHUMA mudança em prod desta sessão — só fundação no GitHub.
+
+### Atualização: Fase 9b + 9d entregues (mesmo dia, sessão seguinte)
+
+**viralefy_auth ([5abfb7c](https://github.com/Viralefy/viralefy_auth/commit/5abfb7c)) — funcional ponta a ponta:**
+- Migration 039 no core (refresh_tokens + revoked_jtis + password_resets)
+- Domain layer (5 arquivos: user, admin, token, twofa, errors)
+- 5 postgres repos + db.go com AssertSchema falha-fast
+- token_service.go: mint RS256 + verify + hot-set + rotação refresh (anti-replay)
+- auth_service.go: LoginUser/LoginAdmin/CompleteLogin2FA/Register/Enroll2FA/Verify2FA/PasswordReset
+- HTTP: 14 endpoints `/internal/v1/*` gated por X-Internal-Token + 2 abertos (health, JWKS público)
+- Binary 15MB. totp tests passam.
+
+**viralefy_dispatcher ([6ecc632](https://github.com/Viralefy/viralefy_dispatcher/commit/6ecc632)) — funcional ponta a ponta:**
+- Reverse proxy axum + reqwest com headers safe-list
+- X-Internal-Token auto-injetado (impossível cliente injetar)
+- Rate limit tower_governor 30 burst + 1/s per-IP via ConnectInfo
+- Path traversal denylist case-insensitive (../, ..%2f, ..%5c, %00, <script, javascript:)
+- 12 tests + smoke E2E PASS contra 3 mocks (core/auth/payments)
+- Validado: 40 requests rapid → 25 pass + 15 rate-limited (429)
+
+**Smoke E2E validado localmente:**
+```
+/v1/plans            → core (proxy + x-internal-token injetado)
+/v1/auth/login       → auth (proxy)
+/v1/webhooks/stripe  → payments (proxy)
+/_health             → dispatcher (resposta inline)
+/v1/foo/..%2f/etc    → 400 BAD_REQUEST (path traversal block)
+40 requests rapid    → 25 OK + 15 RATE-LIMITED
+```
+
+**O que falta na PHASE-9:**
+- JWT verify offline no dispatcher (JWKS cache 60s + hot-set sqlx polling)
+- Integração Coraza WAF no Caddy via xcaddy build (Fase 9a)
+- Deploy paralelo do core em prod no port :8084 (cutover)
+- viralefy_ops: systemd units pros 3 novos + viralefy-update integração
