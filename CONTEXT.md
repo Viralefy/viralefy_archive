@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação de contexto)
 
-**Última atualização:** 2026-06-10 (PHASE-9 stack completa em prod)
+**Última atualização:** 2026-06-10 (PHASE-9 100% cutover concluído — tráfego live via Rust dispatcher)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
@@ -37,31 +37,33 @@ Marketplace de engajamento Instagram/TikTok, **prod live em https://www.viralefy
 
 ---
 
-## 3. Arquitetura PHASE-9 (deployada em prod, cutover pendente)
+## 3. Arquitetura PHASE-9 — CUTOVER 100% ATIVO em prod
 
 ```
 INTERNET
    ↓
-Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (DetectionOnly)
+Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (DetectionOnly + audit JSON ativo)
    ├── www → viralefy-front (Next 15, :3000)
    ├── admin → viralefy-backoffice (:3001)
-   └── api → viralefy-api LEGACY (:8080) ← reverse_proxy ATUAL
-              │
-              ├── HTTP loopback → viralefy-payments (:8081)
-              └── HTTP loopback → viralefy-sender (:8082)
+   ├── obs → Grafana (:3030) [4 dashboards Viralefy + scrape de core/dispatcher/caddy]
+   └── api → ROTEAMENTO POR PATH:
+        │
+        ├── /v1/plans*, /v1/categories*, /v1/currencies*, /v1/status*,
+        │   /v1/country-ppp*, /v1/tax-rates*  → dispatcher :8090 → core :8084
+        ├── /.well-known/jwks.json            → dispatcher :8090 → auth :8083
+        ├── /v1/auth/*                        → dispatcher :8090 → auth :8083
+        ├── /v1/me/* (38 rotas)               → dispatcher :8090 → core :8084
+        ├── /v1/admin/* (52+ rotas)           → dispatcher :8090 → core :8084
+        ├── /v1/checkout                      → dispatcher :8090 → core :8084
+        ├── /v1/webhooks/{stripe,heleket,...} → payments :8081 (direto, Caddy-rewrite)
+        ├── /internal/*                       → 404 (defense-in-depth na borda)
+        └── /health, /v1/auth-legacy (não usado) → api LEGACY :8080 (dead code)
 
-      ┌── PHASE-9 STACK (deployada paralelo, NÃO recebe tráfego ainda) ──┐
-      │                                                                  │
-      │   viralefy-dispatcher Rust (:8090) [borda futura]                │
-      │      ├── /v1/auth/* + JWKS  → viralefy-auth (:8083)              │
-      │      ├── /v1/me/*, /admin/* → viralefy-core (:8084)              │
-      │      ├── /v1/checkout, /v1/plans → viralefy-core                 │
-      │      ├── /v1/webhooks/{stripe,...} → viralefy-payments           │
-      │      └── notifs → viralefy-sender                                │
-      │                                                                  │
-      │   Cutover futuro: Caddyfile reverse_proxy api → :8090            │
-      │   Rollback: trocar de volta pra :8080. Zero downtime.            │
-      └──────────────────────────────────────────────────────────────────┘
+viralefy-api LEGACY :8080 ainda ativo mas NÃO recebe tráfego de produção.
+Cron StripeReconcile roda em paralelo (idempotente). Aguarda 14d soak
+sem regressão pra ser parado e arquivado.
+
+Rollback: comentar `handle` blocks no Caddyfile + reload = 0-downtime.
 ```
 
 **Auth interno entre services:** `INTERNAL_SHARED_SECRET` em `X-Internal-Token`. Loopback-only.
@@ -195,19 +197,20 @@ Migration tracker tipo Laravel — tabela `schema_migrations` com checksum SHA25
 
 ---
 
-## 10. Coraza WAF — DetectionOnly em prod
+## 10. Coraza WAF — DetectionOnly em prod (audit log ativo após fix 06-10)
 
 - Buildado via `xcaddy build v2.11.3 --with github.com/corazawaf/coraza-caddy/v2`
-- Binary 54MB (legacy preservado em `/usr/bin/caddy.legacy-20260610-012110`)
 - OWASP CRS 4.10.0 em `/etc/caddy/coraza/crs/` (46 rule files)
-- `SecRuleEngine DetectionOnly` (logs no journald do Caddy, requests passam 200)
-- `SecAuditEngine On` (logs no journald primary)
+- `SecRuleEngine DetectionOnly`
+- **`SecAuditLog /var/log/caddy-waf/audit.log` ATIVO** (estava comentado; fix 06-10)
+- `SecAuditLogFormat JSON` + `SecAuditLogRelevantStatus ".*"` (logs todos detect mesmo com 200 OK upstream)
+- Pre-stage exclusões em `/etc/caddy/coraza/coraza-crs-exclusions.conf` (Stripe webhook sig + /v1/reviews markdown body)
 
 **Validado em prod com payloads reais:**
-- SQLi `?q=1 OR 1=1--` → rule `942100` libinjection detectada, Anomaly Score 5
-- XSS `?q=<script>alert(1)</script>` → 4 rules `941xxx` detectadas, Anomaly Score 20
+- SQLi `?q=1 OR 1=1--` → rule `942100` libinjection detectada
+- XSS `?q=<script>alert(1)</script>` → 4 rules `941xxx` detectadas + audit log popula 6278 bytes
 
-**Plano:** 14 dias monitorando false positives → tuning `CRS_EXCLUSION_*` → `SecRuleEngine On` (Block real).
+**Plano:** 14 dias monitorando false positives orgânicos → tuning exclusions → `SecRuleEngine On`.
 
 ---
 

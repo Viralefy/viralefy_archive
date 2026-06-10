@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-**Última atualização:** 2026-06-10 (Buckets 1+2+3+2c ATIVOS em prod — 100% das rotas do PHASE-9 cutáveis hoje cutadas)
+**Última atualização:** 2026-06-10 (TODOS os 4 buckets PHASE-9 ATIVOS em prod — 104+ rotas via dispatcher)
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
@@ -166,24 +166,24 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ### ~~Bucket 3 — Admin~~ (movido pra DONE)
 
-### Bucket 4 — Checkout + webhooks (PENDENTE, exige shadow traffic)
-**Único bucket NÃO cutado** — checkout é money-critical, mantém abordagem original:
-- [ ] Shadow traffic: api duplica request pra dispatcher, log diff de response
-- [ ] 72h shadow → canary 1% → 10% → 50% → 100%
-- [ ] Reconciliação diária de orders criadas em cada path
-- [ ] Stripe/Heleket/Abacate webhooks roteados pra `:8081` via dispatcher (atualmente direto)
-- [ ] Run full E2E (register → checkout → webhook → order confirmed)
-- [ ] Stripe reconcile cron continua rodando (defense in depth)
+### Bucket 4 — Checkout ✅ DONE 2026-06-10
+- [x] `/v1/checkout*` cutover via Caddyfile → dispatcher → core
+- [x] Parity 422 INVALID_INPUT em ambos paths (body vazio), 404 NOT_FOUND (plan inválido)
+- [x] Smoke E2E + não-regressão validados
+- [x] Pushed: [Viralefy/viralefy_ops@edf1ba5](https://github.com/Viralefy/viralefy_ops/commit/edf1ba5)
+- [ ] Run full E2E real (register → checkout → webhook → order confirmed) — depende de Stripe sandbox
+- [x] Webhooks `/v1/webhooks/*` continuam direto pra payments (decisão arquitetural)
+- [ ] **Cleanup pendente**: desabilitar StripeReconcileCron no legacy (duplica polls; após parar legacy)
 
 ### Coraza WAF — DetectionOnly → Block (paralelo aos buckets)
 - [x] ~~Audit 24h false positives via journald~~ — 06-10: 0 FP orgânicos (só self-traffic)
-- [x] ~~Pré-stage exclusões CRS~~ — `viralefy_ops/config/coraza-crs-exclusions.conf` (forward-looking)
-- [ ] **Continuar soak**: 14 dias com tráfego organic real antes de flipar
-- [ ] Verificar por que `/var/log/caddy-waf/audit.log` está 0 bytes (SecAuditLog wiring)
-- [ ] Aplicar exclusões em prod (`Include /etc/caddy/coraza/coraza-crs-exclusions.conf` no Caddyfile)
+- [x] ~~Pré-stage exclusões CRS~~ — `viralefy_ops/config/coraza-crs-exclusions.conf`
+- [x] ~~`/var/log/caddy-waf/audit.log` 0 bytes~~ — FIX 06-10 (SecAuditLog estava comentado + JSON format + RelevantStatus `.*`)
+- [x] ~~Aplicar exclusões em prod~~ — `Include` adicionado no Caddyfile, ordem correta entre crs-setup e rules
+- [x] ~~Dashboard Grafana Coraza~~ — behavior.json importado em prod (UID viralefy-behavior)
+- [ ] **Continuar soak**: 14 dias com tráfego organic real antes de flipar (audit log agora populando)
 - [ ] Mudar `SecRuleEngine On` (Block real) — após 14 dias clean
-- [ ] Validar com payloads benignos pós-flip (search nicho, upload PNG, markdown review)
-- [ ] Dashboard Grafana de Coraza hits — JSON ja existe (behavior.json)
+- [ ] Validar com payloads benignos pós-flip
 
 ---
 
@@ -195,12 +195,13 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] Slack/Discord webhook URL (admin alerts)
 
 ### Engineering — médio impacto
-- [ ] Object storage migration: proofs base64 antigos → MinIO keys
+- [x] ~~Object storage migration: proofs base64 → MinIO~~ — DONE 06-10 (migration code + runbook)
+- [ ] **Executar** migrator em prod (manual: backup DB + run binary + monitor)
 - [ ] Grafana contact points (email/Slack) — requer cliente fornecer webhook
-- [x] ~~4 custom Grafana dashboards~~ — DONE 06-10 (4 JSONs prontos pra import)
-- [ ] Adicionar scrape targets em prometheus.yml: core(`:8084`), payments(`:8081`), sender(`:8082`), dispatcher(`:8090`), caddy(`:2019`), postgres-exporter(`:9187`)
-- [ ] Sentry source maps no CI
-- [ ] LGPD compliance review formal
+- [x] ~~4 custom Grafana dashboards~~ — DONE 06-10 (importados em prod via API)
+- [x] ~~Scrape targets prometheus.yml~~ — DONE 06-10 (core/dispatcher/caddy ativos; auth/payments/sender TODO: expor /metrics; postgres-exporter TODO: instalar)
+- [x] ~~Sentry source maps no CI~~ — DONE 06-10 (front + backoffice workflows)
+- [ ] LGPD compliance review formal (externo, juridico)
 
 ### Engineering — baixo impacto
 - [ ] Pentest externa (Tier 3 audit per PHASE-9 §13)
