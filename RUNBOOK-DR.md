@@ -326,3 +326,65 @@ Se 1-6 passam e só 7 falha → DR é **aceito**; observabilidade entra em backl
 - [systemd/viralefy-api.service](../viralefy_ops/systemd/viralefy-api.service) — exemplo de hardening
 - [systemd/viralefy-backup.timer](../viralefy_ops/systemd/viralefy-backup.timer) — 03:00 UTC diário
 - [README.md](../viralefy_ops/README.md) — visão geral do ops
+
+---
+
+## Drill executado 2026-06-10 (simulação local)
+
+Drill local em `/tmp/viralefy-dr-drill/`, sem tocar produção. Hardware do dev (Ryzen + NVMe), Docker `29.1.3`, Go `1.26.3`, Rust stable. Imagens Postgres/Caddy estavam em cache local; MinIO foi puxada na hora.
+
+**Resultado: PASS** (smoke 8/8, total muito abaixo do orçamento de 30min — mesmo na projeção fria).
+
+### Tempo por fase
+
+| Fase | Budget | Real (cache quente) | Projeção fria (mesmo HW) |
+|---|---|---|---|
+| A — sandbox + dump restore | 300s | 4s | ~6s (pull MinIO domina) |
+| B — build paralelo Go(5) + Rust(1) | 420s | <1s (cache) | ~85s (Rust é o gargalo; Go cold=51s) |
+| C — start services + migrate up | 360s | 2s | ~5s |
+| D — MinIO bucket via `mc` | 240s | 1s | ~3s (pull `mc` image) |
+| E — Caddy local reverse-proxy | 300s | 2s | ~3s |
+| F — Smoke E2E (8 checks) | 180s | <1s | <1s |
+| **Total** | **1800s** | **9s** | **~105s (≈1m45s)** |
+
+### Smoke E2E — 8/8 PASS
+
+- `GET /v1/plans` → 200
+- `POST /v1/auth/user/login` (creds inválidas) → 401
+- `POST /v1/auth/user/register` → 422 (DB tem schema mas falta seed de país/PPP — esperado em drill)
+- `viralefy-api /health` → 200
+- `viralefy-payments /internal/health` → 200
+- `viralefy-sender /internal/health` → 200
+- `viralefy-auth /internal/v1/health` → 200
+- `viralefy-core /health` → 200
+- `viralefy-dispatcher /internal/health` → 200
+- Hot-set: `INSERT INTO revoked_jtis (jti, expires_at)` → row visível em SELECT
+
+### Achados (issues encontrados no drill)
+
+1. **`docker-compose` v1 no Ubuntu 24.04 está quebrado** (`distutils` removido do Python 3.12). Em VPS Ubuntu 24.04 fresca o installer precisa instalar **`docker-compose-plugin`** (v2) e usar `docker compose` em vez de `docker-compose`. Atualmente o [85-storage.sh](../viralefy_ops/installer/85-storage.sh) provavelmente assume um deles — auditar antes do próximo DR real.
+2. **Ordem de migrations**: `viralefy-api migrate up` aplica 38, mas faltam 2 (`039_auth_tokens.up.sql`, `040_proof_storage_key.up.sql`) que vivem em [viralefy_core/internal/.../migrations/](../viralefy_core/internal/infrastructure/persistence/postgres/migrations/). Se Fase C só rodar o `viralefy-api migrate up`, o serviço `viralefy-auth` falha no `schema assert` de `refresh_tokens` e fica em crash loop. **Ação**: o installer + a runbook precisam rodar **`viralefy-core migrate up` explicitamente** depois do api. Hoje a runbook documenta só o boot do api — atualizar §3 Fase B/C ou garantir que `70-start.sh` ordene `core` antes de `auth`.
+3. **Imagem do `mc` (MinIO Client)** tem `ENTRYPOINT ["mc"]`, então `docker run minio/mc sh -c "..."` falha com `sh is not a recognized command`. Usar `--entrypoint sh`. Pequeno, mas trava o passo 4.3 da §3 se copy-paste literal.
+4. **Health paths heterogêneos**: cada serviço expõe um path diferente — api/core em `/health`, payments/sender/dispatcher em `/internal/health`, auth em `/internal/v1/health`. O `viralefy-smoke` precisa cobrir todos; recomendo padronizar em `/internal/v1/health` em todos os repos para um próximo ciclo.
+5. **Sem `caddy:2.11`** localmente — usei `caddy:2`. Em prod fresh, o pull do image `caddy:2.11` está no caminho crítico do Fase E. Sugiro pin de `caddy:2-alpine` (menor) ou pré-pull no installer.
+
+### Buracos conhecidos da simulação (não testados aqui)
+
+- TLS Let's Encrypt issuance — pulado (drill HTTP-only). Em DR real é o passo mais imprevisível (rate limit + propagação DNS).
+- Coraza WAF — pulado por escolha (simplificar).
+- Restore real de `pg_dump --format=plain` de produção (drill usou schema mínimo + migrations limpas).
+- `/var/lib/viralefy-storage/` snapshot tarball — bucket subiu vazio.
+- Systemd hardening (`MemoryDenyWriteExecute`, etc) — drill rodou via `setsid`, não via systemd unit.
+- Observabilidade (Grafana/Loki/Tempo/Prometheus/Alloy) — não testado.
+
+### Recomendações concretas para o próximo DR real
+
+1. **Pré-pullar imagens Docker** no installer (`postgres:16-alpine`, `caddy:2.11`, `minio/minio:latest`, `minio/mc:latest`). Em VPS undersized isso domina A+D+E.
+2. **Compilar binários em CI** (release tarballs no GitHub Releases) — Fase B cai de ~85s pra ~3s de download. Maior ganho de RTO disponível.
+3. **Migration sequencing**: garantir que `70-start.sh` rode `viralefy-core migrate up` **antes** de subir o `viralefy-auth.service`, ou que o `viralefy-api migrate up` seja substituído por um meta-comando que execute todas as migrations relevantes em ordem.
+4. **Smoke script unificado** (`viralefy-smoke`) precisa conhecer os 4 paths de health (`/health`, `/internal/health`, `/internal/v1/health`) ou — melhor — padronizar todos os serviços em `/internal/v1/health`.
+5. **Trocar `docker-compose` v1 por `docker compose` (plugin v2)** em todos os scripts. v1 está quebrado em Ubuntu 24.04 com Python 3.12.
+6. **`--entrypoint sh` em qualquer `docker run minio/mc`** — refletir na runbook (§3.4 / Fase D).
+7. **Documentar a ordem real** de migrations entre os repos (api=38, core+=2) num diagrama curto, pra futuro maintainer não tropeçar.
+
+### Próximo drill: 2026-07-06 (primeira segunda do mês, 22:00 UTC)
