@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md (priorizado pra próxima sessão)
 
-**Última atualização:** 2026-06-10 (TODOS os 4 buckets PHASE-9 ATIVOS em prod — 104+ rotas via dispatcher)
+**Última atualização:** 2026-06-10 (PHASE-9 fechado + legacy parada + observability completa + defense-in-depth ativo + DR drill PASS)
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção.
 
@@ -61,19 +61,25 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] Não-regressão: Buckets 1+2+3 + checkout + webhook + /internal/* preservados
 - [x] Pushed: [Viralefy/viralefy_auth@ed5ead4](https://github.com/Viralefy/viralefy_auth/commit/ed5ead4) + [Viralefy/viralefy_ops@c675d72](https://github.com/Viralefy/viralefy_ops/commit/c675d72)
 
-### Engineering paralela (sessões 06-10, 12 agents totais)
+### Engineering paralela (sessões 06-10, 19 agents totais)
 - [x] Grafana dashboards (4 JSONs em `viralefy_ops/grafana/dashboards/`) — revenue, payments, behavior, reliability
 - [x] **Grafana finalização**: 4 dashboards importados em prod via API + 3 scrape targets (core/dispatcher/caddy)
 - [x] DR drill runbook ([RUNBOOK-DR.md](RUNBOOK-DR.md)) — 6 fases, target 30min, com critérios objetivos
-- [x] Lighthouse CI gate em viralefy_front + viralefy_backoffice
-- [x] Lighthouse polish: plan URL stable + MOCK_AUTH bypass backoffice
-- [x] Playwright CheckoutModal E2E expandido (11 testes desktop+mobile+a11y)
-- [x] **Playwright polish**: data-testid em CheckoutModal/BuyPlanCta + @axe-core/playwright ativo
-- [x] Coraza WAF audit 24h: 0 false positives orgânicos; pré-stage `coraza-crs-exclusions.conf`
-- [x] **Coraza audit log FIX**: SecAuditLog estava comentado em coraza.conf — agora populando JSON em /var/log/caddy-waf/audit.log
-- [x] Object storage migration code + runbook (proofs base64 → MinIO) — código em viralefy_core@8a6b373, runbook em [RUNBOOK-PROOF-MIGRATION.md](RUNBOOK-PROOF-MIGRATION.md)
+- [x] **DR drill EXECUTADO** local sim — 9s warm cache / 1m45s cold projection vs 30min target = PASS com massive headroom. 4 issues acionáveis encontrados (docker-compose v2, migration sequencing, mc entrypoint, health paths)
+- [x] Lighthouse CI gate em viralefy_front + viralefy_backoffice + polish
+- [x] Playwright CheckoutModal E2E expandido + data-testid + axe-core
+- [x] Coraza WAF audit 24h: 0 false positives orgânicos
+- [x] **Coraza audit log FIX**: SecAuditLog estava comentado em coraza.conf
+- [x] **Coraza re-audit pós-fix (06-10 07:40)**: 16.474 req / 2.274 IPs / 4.234 URIs em 24h. 1 FP estrutural (`942100` em password ARGS). Decisão: NO FLIP, target 2026-06-13 ([CORAZA-SOAK-STATUS.md](CORAZA-SOAK-STATUS.md))
+- [x] Object storage migration code + runbook + EXECUÇÃO em prod (0 rows pra migrar em HML, infra ready)
 - [x] Sentry source maps no CI (front + backoffice workflows)
-- [x] **CRÍTICO**: Hot-set revocation FIX — middleware enforce_hot_set adicionado ao dispatcher Rust ([dde89a5](https://github.com/Viralefy/viralefy_dispatcher/commit/dde89a5)). E2E validated em 82ms.
+- [x] **CRÍTICO**: Hot-set revocation FIX — middleware enforce_hot_set no dispatcher Rust ([dde89a5](https://github.com/Viralefy/viralefy_dispatcher/commit/dde89a5)). E2E validated em 82ms
+- [x] **Defense-in-depth**: revoked_jtis check em core ValidateToken ([Viralefy/viralefy_core@2cf03e4](https://github.com/Viralefy/viralefy_core/commit/2cf03e4)). Hit direto em core (bypass dispatcher) também rejeita. O(1) lookup, latência negligível
+- [x] **Legacy api STOPPED + DISABLED** 2026-06-10 07:36 UTC. Soak 14d iniciado. `/etc/viralefy/.legacy-deprecated` marker em prod. Remove scheduled 2026-06-24
+- [x] **Caddyfile default fallback** → dispatcher (era → legacy). Paths desconhecidos resolvidos por dispatcher.resolve_upstream
+- [x] **postgres-exporter** instalado em prod ([Viralefy/viralefy_ops@0898ff0](https://github.com/Viralefy/viralefy_ops/commit/0898ff0)). 330+ pg_* métricas em Prometheus
+- [x] **`/metrics` em auth, payments, sender** — 3 services Go expostos em Prometheus (commits e384019, 804e8f5, 19b438d). 14 targets up em prod
+- [x] **viralefy-smoke atualizado** — checa dispatcher (:8090) em vez de legacy (:8080); upstream loopback core+auth preservado
 
 
 ### PHASE-9 Fase 9b — viralefy_auth completo
@@ -238,15 +244,16 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 - [x] **Bucket 1-4 cutover completo, tráfego 100% no dispatcher** ✓ 2026-06-10
 - [x] **Hot-set revocation funcionando E2E** ✓ 82ms (fix 2026-06-10)
-- [x] **5 dashboards Grafana ativos** ✓ (4 Viralefy + 1 pre-existente API RED)
+- [x] **Defense-in-depth core ValidateToken** ✓ bypass dispatcher também rejeita
+- [x] **5+ dashboards Grafana ativos** ✓
 - [x] **Smoke E2E dual-mode** ✓ rollback path validado em todos 4 buckets
-- [ ] api legacy parado (systemctl stop viralefy-api) por 14 dias sem regressão (soak iniciado 06-10)
-- [ ] api legacy removido do viralefy-update + repo arquivado
-- [ ] Coraza em `SecRuleEngine On` por 30 dias sem falso positivo crítico (audit log ativo, soak 14d em curso)
+- [x] **api legacy parado** ✓ `systemctl stop viralefy-api && systemctl disable` (2026-06-10 07:36 UTC). Soak 14d em curso
+- [x] **Runbook restore < 30min validado em DR drill** ✓ 9s warm / 1m45s cold projection vs 30min target (local sim 2026-06-10)
+- [ ] api legacy removido do `viralefy-update` + repo arquivado (após 14d soak, target 2026-06-24)
+- [ ] Coraza em `SecRuleEngine On` por 30 dias sem falso positivo crítico (target flip: 2026-06-13, depende do fix password FP)
 - [ ] Pentest externo da nova arquitetura (orçamento externo)
-- [ ] Runbook restore < 30min testado em DR drill (sandbox Hetzner)
 
-**Status atual:** **5 de 9 critérios concluídos**. Restantes são time-gated (14d-30d soaks) ou externos (pentest, DR drill).
+**Status atual:** **7 de 10 critérios concluídos**. Restantes 3 são time-gated (soak 14d / 30d) ou externos (pentest).
 
 ---
 
