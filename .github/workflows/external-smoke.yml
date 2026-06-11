@@ -1,0 +1,82 @@
+name: External Smoke (prod)
+
+# Runs against PROD from an external GitHub-hosted runner — never on the
+# viralefy infra. Triggers every 15 minutes 24/7 + manual dispatch.
+# Not wired to PRs (no value: would only hit prod again from CI).
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why are you triggering manually? (optional, for audit)"
+        required: false
+        default: "manual"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never overlap runs — a slow run shouldn't double-fire and double-create
+  # test orders. Cancel any in-progress run when a new one is dispatched.
+  group: external-smoke-prod
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: External smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      WWW_BASE: https://www.viralefy.com
+      ADMIN_BASE: https://admin.viralefy.com
+      API_BASE: https://api.viralefy.com
+      REQ_TIMEOUT: "10"
+      P95_BUDGET_MS: "1000"
+      RUN_ID: gh-${{ github.run_id }}-${{ github.run_attempt }}
+      RESULTS_FILE: ${{ github.workspace }}/external-smoke-results.jsonl
+      FAILURES_FILE: ${{ github.workspace }}/external-smoke-failures.json
+      SUMMARY_FILE: ${{ github.workspace }}/external-smoke-summary.md
+      # Optional — if set in repo Secrets, failures are POSTed here.
+      # Endpoint contract: JSON {event, run_id, total, failures, items[]}.
+      ADMIN_WEBHOOK_URL: ${{ secrets.ADMIN_WEBHOOK_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install runtime deps (jq, openssl, curl already present)
+        run: |
+          set -eux
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq openssl ca-certificates curl
+          jq --version
+          curl --version | head -1
+
+      - name: Run external smoke
+        id: smoke
+        run: |
+          chmod +x scripts/external-smoke/run.sh scripts/external-smoke/lib.sh scripts/external-smoke/tests/*.sh
+          ./scripts/external-smoke/run.sh
+
+      - name: Write step summary
+        if: always()
+        run: |
+          if [[ -f "$SUMMARY_FILE" ]]; then
+            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "summary file missing" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload artifacts (results + failures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-smoke-${{ github.run_id }}
+          path: |
+            external-smoke-results.jsonl
+            external-smoke-failures.json
+            external-smoke-summary.md
+          retention-days: 90
+          if-no-files-found: warn

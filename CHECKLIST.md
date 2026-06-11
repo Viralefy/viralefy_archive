@@ -1,6 +1,6 @@
 # Viralefy — CHECKLIST.md
 
-**Última atualização:** 2026-06-10 18:30 UTC
+**Última atualização:** 2026-06-11 03:30 UTC
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção · `[L]` LGPD/legal · `[T]` time-gated · `[$]` cliente fornecer · `[E]` externo (orçamento)
 
@@ -22,6 +22,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ### Segurança
 
+- [x] **External smoke (prod regression detector)** — GH Actions cron 15min, 36 assertions × 8 grupos, **inclui POST /v1/checkout com tracking.landing_url** (regression test pro FP Coraza 931130 de 2026-06-10). Runner externo (ubuntu-latest), zero footprint em prod. `RUNBOOK-EXTERNAL-SMOKE.md`. Dry-run local: 36/36 pass em ~1m45s.
 - [x] **Coraza WAF SecRuleEngine On + Block real** (2026-06-10 12:20 UTC)
 - [x] **SecDefaultAction phase 1/2 → deny,status:403** (causa raiz do warning não-block)
 - [x] **Coraza audit log JSON ativo** (era 0 bytes, SecAuditLog estava comentado)

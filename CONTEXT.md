@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação)
 
-**Última atualização:** 2026-06-10 18:30 UTC (PHASE-9 fechado + hardening + LGPD parcial + observability completa)
+**Última atualização:** 2026-06-11 03:30 UTC (PHASE-9 fechado + hardening + LGPD parcial + observability completa + external smoke ativo)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
@@ -272,6 +272,7 @@ Config em 10 repos via central preset `viralefy_ops/renovate-config.json`. Sched
 | RUNBOOK-BACKUP-VERIFY.md | backup + verify + restore drill |
 | **RUNBOOK-INCIDENT-RESPONSE.md** | 955 linhas, 8 playbooks (SEV1-4) |
 | RUNBOOK-SMOKE-ADMIN.md | SQL-mint admin token, RBAC E2E sem TOTP |
+| **RUNBOOK-EXTERNAL-SMOKE.md** | GH Actions cron 15min, 36 assertions × prod, regression test Coraza 931130 |
 | RUNBOOK-RENOVATE.md | install + automerge + triagem |
 | **SLO-DEFINITIONS.md** | 11 SLOs + error budgets + burn rate |
 | INCIDENT-ORDER-450F0E6F.md | reconcile FP investigation |

@@ -353,7 +353,13 @@ sudo -u postgres psql -d viralefy -c "
 
 ### Playbook F — Coraza WAF false positive bloqueando usuário real
 
-**Sintoma**: usuário reporta erro genérico (403) em ação legítima. Audit log mostra match em regra CRS.
+**Sintoma**: usuário reporta erro genérico (403) em ação legítima. Audit log mostra match em regra CRS. Tipicamente o response NÃO tem JSON envelope (Caddy responde diretamente) e header `server: Caddy` aparece — distinguindo do 403 do app.
+
+**Caso de referência — Incidente 2026-06-10** (ver `INCIDENT-ORDER-450F0E6F.md`):
+- Sintoma: POST /v1/checkout retornando 403 em massa.
+- Causa raiz: CRS rule 942100 (SQLi detector PL2) interpretou `tracking.landing_url = "https://www.viralefy.com/us/instagram-followers"` como SQLi pattern (hyphen + multi-segment path + scheme).
+- Fix: exclusion targetada por `REQUEST_URI @beginsWith /v1/checkout` + `ruleRemoveById=942100`.
+- Detection gap: smoke não cobria POST /v1/checkout com payload real — só `/v1/plans` GET. Fix preventivo em `viralefy-smoke` (2026-06-11) adiciona check #6 com payload REAL do CheckoutModal incluindo `tracking.landing_url`.
 
 **Checklist**:
 ```bash
@@ -361,13 +367,17 @@ sudo -u postgres psql -d viralefy -c "
 tail -200 /var/log/caddy-waf/audit.log | grep -iE 'blocked|denied|score' | tail -20
 
 # 2. Pega o ID da rule (campo "id" ou "ruleId")
-# Ex: 942100 (SQLi false positive em campo descrição), 941100 (XSS em rich text)
+# Ex: 942100 (SQLi false positive em campo descrição/URL), 941100 (XSS em rich text)
 
 # 3. Identifica path/método/payload do request real
 journalctl -u caddy --since '15 min ago' | grep -i "<request_id_do_audit>"
 
 # 4. Confirma que é FP (não ataque real) — repete request controlado
 curl -i 'https://api.viralefy.com/<endpoint>' -d '<payload-do-user>'
+
+# 5. Confirma com smoke (mais rápido que reproduzir cliente)
+viralefy-smoke 2>&1 | tail -15
+# Smoke #6 já cobre POST /v1/checkout com tracking real desde 2026-06-11.
 ```
 
 **Mitigação — exclusão temporária**:
@@ -375,9 +385,9 @@ curl -i 'https://api.viralefy.com/<endpoint>' -d '<payload-do-user>'
 # Edita o arquivo de exclusions (template em /etc/caddy/coraza/coraza-crs-exclusions.conf)
 vim /etc/caddy/coraza/coraza-crs-exclusions.conf
 
-# Exemplo: desliga rule 942100 só pro path /v1/items/:id
-# SecRule REQUEST_URI "@beginsWith /v1/items/" \
-#   "id:90001,phase:1,nolog,pass,ctl:ruleRemoveById=942100"
+# Exemplo: desliga rule 942100 só pro path /v1/checkout
+# SecRule REQUEST_URI "@beginsWith /v1/checkout" \
+#   "id:90099,phase:1,nolog,pass,ctl:ruleRemoveById=942100"
 
 # Valida sintaxe
 caddy validate --config /etc/caddy/Caddyfile
@@ -388,12 +398,21 @@ systemctl reload caddy
 # Verifica que real user passa
 curl -i 'https://api.viralefy.com/<endpoint>' -d '<payload-do-user>'
 tail -5 /var/log/caddy-waf/audit.log
+
+# E roda smoke pra confirmar regression test passa
+viralefy-smoke
 ```
 
 **Follow-up obrigatório** (vira ticket SEV3):
 - Avalia se a regra precisa ajuste permanente (mover pra `coraza-crs-setup.conf`) ou se exclusion específica basta.
-- Roda full smoke pra garantir que exclusion não abriu hole.
+- Roda full smoke pra garantir que exclusion não abriu hole nem regrediu outro endpoint.
 - Documenta no `CORAZA-SOAK-STATUS.md`.
+- Se exclusion foi pra novo endpoint, considera adicionar check #N no `viralefy-smoke` com payload representativo (lição 2026-06-10).
+
+**Prevenção sistêmica**:
+- `viralefy-smoke` deve incluir POST com payloads REAIS pra TODO endpoint mutativo que aceita campos de URL/path-like de usuário (landing_url, referrer, return_url, callback_url, etc.). Esses campos são o vetor #1 de FP Coraza.
+- Fixtures usam pattern `*@viralefy.test` — cleanup automático via `viralefy-test-cleanup.timer` (hourly).
+- Métricas `viralefy_test_cleanup_rows_total` no Grafana — spike indica smoke ou CI maluco.
 
 ---
 
