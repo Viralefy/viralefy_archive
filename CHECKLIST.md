@@ -28,6 +28,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **Coraza audit log JSON ativo** (era 0 bytes, SecAuditLog estava comentado)
 - [x] **Coraza paranoia level 2** + bodyproc enforcement (pentest #5)
 - [x] **Exclusões CRS custom**: 900201 Stripe sig, 900601 password phase 2, 900700 REST methods, 900710/720 PL2
+- [x] **Coraza exclusion 900300 (`/v1/me/reviews`) validada com payload real** (2026-06-11) — pré-stage apontava pra URI inexistente (`/v1/reviews`) e cobria só `body`. Audit confirmou: endpoint real é `/v1/me/reviews`, campos free-text são `body` E `title`, sem sanitização server-side (defesa = React JSX auto-escape). 12 payloads testados (markdown legit, script/img/svg/iframe/body XSS, SQLi, javascript:URL). Rule 900300 corrigida pra phase 2 + `ARGS:json.{body,title}` + variantes. `REVIEW-XSS-AUDIT.md`.
 - [x] **CORS preflight fix** (login estava quebrado pós-cutover, 405 → 204)
 - [x] **Hot-set revogação E2E dispatcher**: 82ms (target ≤5s, 60x melhor)
 - [x] **Defense-in-depth core ValidateToken** (RevocationCache + LISTEN/NOTIFY + 30s fallback)
@@ -169,6 +170,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 ### Posso fazer em sessões futuras (tech debt)
 
 #### Médio impacto
+- [ ] **Server-side review sanitization (bluemonday.UGCPolicy)** — `ReviewService.Create` aceita HTML cru hoje; defesa única é JSX auto-escape no front (REVIEW-XSS-AUDIT.md). Defense-in-depth: sanitizar `body`+`title` antes do INSERT pra cobrir consumers não-React (admin futura UI, RSS, email digest, mobile).
 - [ ] **Build automation reconcile/user-deletion no viralefy-update** (hoje scp manual)
 - [ ] **Adicionar audit_log no InvoiceService.AdminMarkPaid** (silent hoje, dificultou investigação 450f0e6f)
 - [ ] **Invariante reconcile**: `manual_paid_no_proof` (manual_pix paid sem order_proofs row)
