@@ -330,7 +330,22 @@ Estado vs `viralefy_archive/diretrizes.md` (v4.0). Detalhes em `ENGINEERING-CONF
 - [ ] **`handlers.go` monolítico** (3325 linhas em core / 3125 em api). Quebrar por bounded context. §6 violado
 - [ ] **Sem linter custom para imports cross-context** — mitiga risco silencioso de ADR-0001
 - [ ] **Outbox apenas em sender** — generalizar `event_outbox` no core (ADR-0002 fase 2)
-- [ ] **Test Kit ops incompleto** — pentest/authz/hardening em construção (§22.3)
+- [x] **Test Kit ops — chaos + integration entregues** (2026-06-11): 10 chaos
+      scripts (input-fuzz, property-based, service-kill, db-disconnect,
+      concurrent-load, memory-pressure, clock-skew, slow-loris,
+      partition-test, timeout-stress) + 10 integration scripts
+      (login-superadmin-flow, user-registration-to-purchase,
+      admin-crud-plan, admin-user-management, password-reset-flow,
+      2fa-enroll-verify-flow, proof-upload-multipart,
+      refresh-token-rotation, stripe-webhook-simulation,
+      rate-limit-and-recover). Destrutivos (service-kill/db-disconnect/
+      partition-test) gated por `EDUCE_CHAOS_ALLOW=1`. Run HML:
+      integration 1 pass / 1 fail / 8 skip (fail = rate-limit colateral;
+      skips = sem creds env); chaos 5 pass / 1 fail / 4 skip
+      (fail = JWKS rate-limited — finding real, ver abaixo).
+      Commit f357832 em viralefy_ops.
+- [ ] **Test Kit ops — outros modos pendentes**: pentest/authz/hardening
+      seguem em construção por outros agentes (§22.3)
 - [ ] **LGPD C1+C2+C4 pendente** — DPIA, política retenção, DPO/direitos (§32)
 
 ### DDD audit por repo (2026-06-11)
@@ -354,3 +369,17 @@ Estado vs `viralefy_archive/diretrizes.md` (v4.0). Detalhes em `ENGINEERING-CONF
 5. **Pentest externo Tier 3** scheduled?
 6. **Refactor `handlers.go`** quebrar por bounded context (top gap conformance)
 7. **Tech debt baixo impacto**: padronizar /health, anonimizar orders após 5 anos, etc.
+
+### 🔥 Findings da run chaos (2026-06-11 — viralefy_ops f357832)
+
+- **SEV-2 JWKS rate-limited**: `GET /.well-known/jwks.json` retornou 429 em
+  96/100 requests sequenciais (loopback) — IPLimiter aplicado ao path.
+  JWKS DEVE estar sempre disponível pra verifiers externos (sdk, sender,
+  payments, integradores). Corrigir whitelist do path ou bumpar quota
+  pra `>> 1000/min`.
+- **LOW concurrent-load**: 50 GETs paralelos em `/v1/plans` derrubam taxa
+  de sucesso pra ~4% (429s). Endpoint público com IPLimiter sequencial
+  agressivo demais.
+- **Validar pra integration**: exportar `VIRALEFY_TEST_SUPERADMIN_PASS`,
+  `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL` na máquina HML pra rodar os
+  9 scripts que skipam por env ausente.

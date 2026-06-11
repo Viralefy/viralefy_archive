@@ -255,6 +255,29 @@ Config em 10 repos via central preset `viralefy_ops/renovate-config.json`. Sched
 
 ---
 
+## 14.B Test Kit `<project>_ops/tests/` (§22.3 diretrizes)
+
+| modo | scripts | onde | gate |
+|---|---|---|---|
+| smoke | 7 | viralefy_ops/tests/smoke/ | sempre roda |
+| pentest | 5+ | viralefy_ops/tests/pentest/ | sempre roda |
+| security | 1 | viralefy_ops/tests/security/ | sempre roda |
+| **integration** | **10** (2026-06-11) | viralefy_ops/tests/integration/ | requer seeds + env (SUPERADMIN_PASS, STRIPE_WEBHOOK_SECRET, DATABASE_URL) |
+| **chaos** | **10** (2026-06-11) | viralefy_ops/tests/chaos/ | service-kill/db-disconnect/partition-test gated por `EDUCE_CHAOS_ALLOW=1` |
+
+Helpers em `tests/lib.sh`: `test_section`, `test_pass`, `test_fail`,
+`test_skip`, `test_summary`, `http_call`, `assert_http_in`,
+`assert_http_status`, `assert_json_field`, `assert_header_present`,
+`assert_no_pii`.
+
+Skip vs fail: scripts skipam graciosamente quando env/deps ausentes
+(retornam exit 0 e contam só skip); falhas reais são exit 1 + banner FAIL.
+
+Findings recentes pela run em HML (2026-06-11): JWKS endpoint sob
+IPLimiter (SEV-2 — bumpar quota). Detalhes em CHECKLIST.md.
+
+---
+
 ## 15. Documentos no archive (referência)
 
 | Doc | Conteúdo |
