@@ -308,11 +308,49 @@ ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-user-deletio
 
 ---
 
+## Conformance §22 diretrizes
+
+Estado vs `viralefy_archive/diretrizes.md` (v4.0). Detalhes em `ENGINEERING-CONFORMANCE-AUDIT.md` + `adr/`.
+
+### ADRs criados (2026-06-11)
+
+- [x] ADR-0001 — Shared database em vez de schema-per-service (desvio §10 aceito)
+- [x] ADR-0002 — HTTP loopback sync em vez de Outbox + NATS/Kafka (desvio §9 aceito)
+- [x] ADR-0003 — bcrypt cost 12 (conforme §13)
+- [x] ADR-0004 — viralefy_api LEGACY soak até 2026-06-24
+- [x] ADR-0005 — Single tenant (§15 não se aplica)
+- [x] ADR-0006 — Coraza WAF on-prem em vez de Cloudflare
+- [x] ADR-0007 — Migration tracker sequential + checksum
+- [x] ADR-0008 — Next.js 14 + React + Tailwind padrão frontend
+- [x] ADR-0009 — Multi-repo (10 repos)
+- [x] ADR-0010 — Payment providers com ACL parcial
+
+### Top 5 gaps (Q3 2026 roadmap)
+
+- [ ] **`handlers.go` monolítico** (3325 linhas em core / 3125 em api). Quebrar por bounded context. §6 violado
+- [ ] **Sem linter custom para imports cross-context** — mitiga risco silencioso de ADR-0001
+- [ ] **Outbox apenas em sender** — generalizar `event_outbox` no core (ADR-0002 fase 2)
+- [ ] **Test Kit ops incompleto** — pentest/authz/hardening em construção (§22.3)
+- [ ] **LGPD C1+C2+C4 pendente** — DPIA, política retenção, DPO/direitos (§32)
+
+### DDD audit por repo (2026-06-11)
+
+| Repo | domain imports proibidos | application→infra (hexagonal) | maior arquivo |
+|---|---|---|---|
+| viralefy_core | 0 ✅ | 34 ⚠️ híbrido §4.X | handlers.go 3325 ❌ |
+| viralefy_api (legacy) | 0 ✅ | 33 ⚠️ | handlers.go 3125 (vai arquivar) |
+| viralefy_auth | 0 ✅ | 2 ✅ | auth_service.go 470 |
+| viralefy_payments | 0 ✅ | **0 ✅** referência | payment_methods.go 363 |
+| viralefy_sender | 0 ✅ | **0 ✅** referência | outbox.go 395 |
+
+---
+
 ## 🎯 Próxima sessão — Priorizar
 
 1. **Verificar prod healthy** (smoke + alerts)
-2. **Check 2026-06-24 soak** se chegou — remover legacy api do repo
+2. **Check 2026-06-24 soak** se chegou — remover legacy api do repo (ADR-0004 cleanup plan)
 3. **Cliente forneceu Sentry/Telegram/Slack?** → configurar
 4. **Cliente instalou Renovate App?** → primeiros PRs devem aparecer
 5. **Pentest externo Tier 3** scheduled?
-6. **Tech debt baixo impacto**: padronizar /health, anonimizar orders após 5 anos, etc.
+6. **Refactor `handlers.go`** quebrar por bounded context (top gap conformance)
+7. **Tech debt baixo impacto**: padronizar /health, anonimizar orders após 5 anos, etc.
