@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação)
 
-**Última atualização:** 2026-06-11 03:40 UTC (PHASE-9 fechado + hardening + LGPD adicional 3 itens + observability completa + external smoke ativo)
+**Última atualização:** 2026-06-11 03:50 UTC (PHASE-9 fechado + hardening + LGPD adicional 3 itens + observability completa + external smoke ativo + internal smoke E2E checkout + test-cleanup cron)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 

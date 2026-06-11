@@ -19,6 +19,9 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **Legacy api STOPPED + DISABLED** (2026-06-10 07:36 UTC, soak 14d até 2026-06-24)
 - [x] **viralefy-update skipa legacy** (marker `/etc/viralefy/.legacy-deprecated`)
 - [x] **viralefy-smoke atualizado** (port :8090, mapping de health paths)
+- [x] **viralefy-smoke check #6 — POST /v1/checkout E2E com tracking real** (2026-06-11). Complementa external-smoke com cobertura interna pós-deploy: replica payload do CheckoutModal incluindo `tracking.landing_url="https://www.viralefy.com/us/instagram-followers"` (vetor do Coraza FP 2026-06-10). Total runtime 1.3s. Falha aqui = bloqueia próximo deploy via systemd OnFailure.
+- [x] **viralefy-test-cleanup-cron** (hourly, 2026-06-11) — limpa fixtures `*@viralefy.test` deixadas pelo smoke E2E (orders unpaid + profiles + refresh_tokens + user_events + email_events + users sem orders pagas). TX atômica, pattern strict, métricas textfile `viralefy_test_cleanup_rows_total`. Deploy inicial removeu 7 rows de debris do incidente 2026-06-10. Timer `*:17:00 UTC` + jitter 5min.
+- [x] **RUNBOOK-INCIDENT-RESPONSE Playbook F atualizado** (2026-06-11) — caso 2026-06-10 documentado, comando `viralefy-smoke` pós-fix integrado ao checklist, seção "Prevenção sistêmica" cita pattern `*@viralefy.test` + métrica cleanup.
 
 ### Segurança
 
