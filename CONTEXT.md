@@ -1,8 +1,8 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação)
 
-**Última atualização:** 2026-06-11 03:50 UTC (PHASE-9 fechado + hardening + LGPD adicional 3 itens + observability completa + external smoke ativo + internal smoke E2E checkout + test-cleanup cron)
+**Última atualização:** 2026-06-11 05:00 UTC (PHASE-9 + PHASE-10 Test Kit + Hardening + LGPD parcial + 10 ADRs + observability completa + JWKS rate-limit fix SEV-2)
 
-Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
+Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Estado factual sem narrativa.
 
 ---
 
@@ -45,12 +45,11 @@ INTERNET
 Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (SecRuleEngine ON, block real)
    ├── www → viralefy-front (Next 15, :3000)
    ├── admin → viralefy-backoffice (:3001)
-   ├── obs → Grafana (:3030) [5 dashboards + Loki + Tempo + Alloy + Alertmanager skeleton]
+   ├── obs → Grafana (:3030) [6 dashboards + Loki + Tempo + Alloy + Alertmanager]
    └── api → ROTEAMENTO POR PATH:
         │
-        ├── /v1/plans*, /v1/categories*, /v1/currencies*, /v1/status*,
-        │   /v1/country-ppp*, /v1/tax-rates*  → dispatcher :8090 → core :8084
-        ├── /.well-known/jwks.json            → dispatcher :8090 → auth :8083
+        ├── /.well-known/jwks.json            → DIRETO auth :8083 (SEV-2 fix bypass)
+        ├── /v1/plans*, /v1/categories*, etc  → dispatcher :8090 → core :8084
         ├── /v1/auth/*                        → dispatcher :8090 → auth :8083
         ├── /v1/me/*                          → dispatcher :8090 → core :8084
         ├── /v1/admin/*                       → dispatcher :8090 → core :8084
@@ -62,13 +61,16 @@ Caddy 2.11.3 + Coraza WAF + OWASP CRS 4.10 (SecRuleEngine ON, block real)
 viralefy-api LEGACY :8080 STOPPED + DISABLED (soak 14d até 2026-06-24).
 Catch-all `:443 { tls internal; respond 421 }` pra Host header tampering.
 
-Coraza rules: SQLi/XSS/RCE → 403 BLOCKED. PUT/PATCH/DELETE liberados
-(exclusion 900700). Password password-manager (PL2) ok via 900601.
+Coraza rules: SQLi/XSS/RCE → 403 BLOCKED.
+PUT/PATCH/DELETE liberados (exclusion 900700).
+Password password-manager (PL2) ok via 900601.
+Tracking URLs liberadas em /v1/checkout, /v1/auth/*, /v1/me/* (900800-802).
+Reviews body+title liberadas (900300 phase 2).
 ```
 
 **Auth interno entre services:** `INTERNAL_SHARED_SECRET` em `X-Internal-Token`. Loopback-only.
 
-**Object storage:** MinIO Docker `/var/lib/viralefy-storage/`, S3-compat (proofs bucket + public). Migrator binary criado, 0 rows pra migrar em HML (todos NULL ou já no MinIO).
+**Object storage:** MinIO Docker `/var/lib/viralefy-storage/`, S3-compat. Migrator binary criado, 0 rows pra migrar em HML.
 
 ---
 
@@ -77,15 +79,15 @@ Coraza rules: SQLi/XSS/RCE → 403 BLOCKED. PUT/PATCH/DELETE liberados
 | Repo | Função | Estado |
 |---|---|---|
 | `viralefy_api` | Monolito Go LEGACY (port 8080) | STOPPED + DISABLED, soak até 2026-06-24 |
-| `viralefy_payments` | Providers + webhooks (8081) | Live, /internal/metrics expostas |
-| `viralefy_sender` | Email + telegram + outbox (8082) | Live, /internal/metrics expostas |
-| `viralefy_front` | Next.js storefront | Live + cookie consent default-OFF |
+| `viralefy_payments` | Providers + webhooks (8081) | Live, /health unificado + /internal/metrics |
+| `viralefy_sender` | Email + telegram + outbox (8082) | Live, /health unificado + /internal/metrics |
+| `viralefy_front` | Next.js storefront | Live + cookie consent default-OFF + /legal/cookies |
 | `viralefy_backoffice` | Next.js admin panel | Live + MOCK_AUTH bypass + /api/metrics |
-| `viralefy_ops` | systemd + installer + Caddy + CLIs | Live, 5 timers + 26 alerts + 5 dashboards |
-| `viralefy_archive` | docs + memory (este repo) | Live, 17+ runbooks/docs |
-| **`viralefy_core`** | **Motor Go (port 8084)** | Live, defense-in-depth + métricas + reconcile + user-deletion |
-| **`viralefy_auth`** | **Identidade Go (port 8083)** — JWT + 2FA + hot-set | Live, /internal/metrics + public auth routes |
-| **`viralefy_dispatcher`** | **Borda Rust (port 8090)** — sanitiza + proxy + JWT verify | Live, hot-set ArcSwap lock-free + /metrics próprias |
+| `viralefy_ops` | systemd + installer + Caddy + CLIs + Test Kit §22 | Live, 7 timers + 26 alerts + 6 dashboards |
+| `viralefy_archive` | docs + memory + ADRs + workflows | Live, 33 MDs + 10 ADRs |
+| **`viralefy_core`** | **Motor Go (port 8084)** | Live, defense-in-depth + métricas + crons |
+| **`viralefy_auth`** | **Identidade Go (port 8083)** — JWT + 2FA + hot-set | Live, /health + 6 public routes |
+| **`viralefy_dispatcher`** | **Borda Rust (port 8090)** — sanitiza + proxy + JWT verify | Live, hot-set ArcSwap lock-free + /health + /metrics |
 
 ---
 
@@ -101,8 +103,10 @@ Coraza rules: SQLi/XSS/RCE → 403 BLOCKED. PUT/PATCH/DELETE liberados
 | 8090 | viralefy-dispatcher | 11MB | Rust |
 | — | Caddy + Coraza | 100MB | Go + WAF |
 | 9187 | postgres-exporter | 23MB | Go |
+| 3000 | viralefy-front | ~100MB | Node |
+| 3001 | viralefy-backoffice | ~200MB | Node |
 
-**Stack apps: ~260MB. Observability adicional (Prometheus+Grafana+Loki+Tempo+Alloy): ~1.2GB.**
+**Stack apps: ~560MB. Observability adicional (Prometheus+Grafana+Loki+Tempo+Alloy): ~1.2GB.**
 
 ---
 
@@ -116,7 +120,7 @@ Migration tracker tipo Laravel — `schema_migrations` com checksum SHA256, auto
 - 043: user_deletion_drop_fk (FK user_deletion_requests.user_id → users dropada pra LGPD anonymization)
 - 044: user_consent (user_consent_log + user_events.analytics_consent)
 
-⚠️ 041 vazio (conflict de agents paralelos resolvido renomeando consent → 044). Não há migration 041 real.
+⚠️ 041 vazio (conflict de agents paralelos resolvido renomeando consent → 044).
 
 **Núcleo:** users, admins, roles, role_permissions, plans, plan_prices, categories, orders (com email_at_purchase + name_at_purchase pra LGPD), order_refunds, order_proofs, payment_gateways, stripe_events_processed, credit_accounts, credit_transactions, invoices, profiles, subscriptions.
 
@@ -135,24 +139,28 @@ Migration tracker tipo Laravel — `schema_migrations` com checksum SHA256, auto
 - **2FA:** TOTP RFC 6238 + AES-256-GCM secret encryption + bcrypt backup codes
 - **Hot-set revogação E2E em 82ms** (target ≤5s, 60x melhor):
   - **Dispatcher Rust** via PgListener + ArcSwap<HashSet> (lock-free reads)
-  - **Core Go** defense-in-depth via RevocationCache (LISTEN/NOTIFY + 30s poll fallback) — bypass dispatcher também rejeita
+  - **Core Go** defense-in-depth via RevocationCache (LISTEN/NOTIFY + 30s poll fallback)
 - **Refresh tokens:** rotação encadeada (anti-replay), TTL 30d, replay → force-logout do subject inteiro
+- **JWKS:** Caddy bypass dispatcher (rate-limit fix SEV-2), Cache-Control 60s + 300s stale-while-revalidate
 
 ---
 
 ## 8. Env vars críticas em `/etc/viralefy/.env`
 
-**Presentes em prod:** DATABASE_URL, JWT_SECRET + JWT_PRIVATE_KEY_PATH, TWOFA_ENCRYPTION_KEY, INTERNAL_SHARED_SECRET, RESEND_API_KEY, TURNSTILE_SECRET_KEY, STORAGE_ACCESS/SECRET_KEY (MinIO), PAYMENTS/SENDER_INTERNAL_URL, GRAFANA_ADMIN_PASSWORD, postgres_exporter password (em `/etc/viralefy/postgres-exporter.env`).
+**Presentes em prod:** DATABASE_URL, JWT_SECRET + JWT_PRIVATE_KEY_PATH, TWOFA_ENCRYPTION_KEY, INTERNAL_SHARED_SECRET, RESEND_API_KEY, TURNSTILE_SECRET_KEY, STORAGE_ACCESS/SECRET_KEY (MinIO), PAYMENTS/SENDER_INTERNAL_URL, GRAFANA_ADMIN_PASSWORD, postgres_exporter password.
 
-**Env por service (systemd unit):** core CORE_PORT=8084, auth VAUTH_BIND_ADDR/TTLs, dispatcher VAPI_BIND_ADDR + VAPI_*_URL + VAPI_JWKS_CACHE_TTL_SECS=60 + VAPI_REVOKED_POLL_SECS=30.
+**Env por service (systemd unit):**
+- core: `CORE_PORT=8084`
+- auth: `VAUTH_BIND_ADDR=127.0.0.1:8083`, TTLs
+- dispatcher: `VAPI_BIND_ADDR=127.0.0.1:8090`, `VAPI_*_URL`, `VAPI_JWKS_CACHE_TTL_SECS=60`, `VAPI_REVOKED_POLL_SECS=30`
 
 **Opt-in pendentes (cliente fornecer):**
-- `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` — error tracking
-- `SENTRY_AUTH_TOKEN` — GitHub Secret pra source maps CI
+- `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`
+- `SENTRY_AUTH_TOKEN` em GitHub Secrets
 - `TELEGRAM_BOT_TOKEN` / `TELEGRAM_ADMIN_CHAT_ID`
 - `ADMIN_WEBHOOK_URL` — Slack/Discord
-- `LHCI_GITHUB_APP_TOKEN` — Lighthouse status checks
-- Renovate GitHub App — instalar via https://github.com/apps/renovate
+- `LHCI_GITHUB_APP_TOKEN`
+- Renovate GitHub App — instalar em github.com/Viralefy
 
 ---
 
@@ -161,14 +169,21 @@ Migration tracker tipo Laravel — `schema_migrations` com checksum SHA256, auto
 | Ação | Comando |
 |---|---|
 | Deploy | `ssh root@62.238.41.231 'viralefy-update --yes'` |
-| Smoke | `ssh root@62.238.41.231 'viralefy-smoke'` |
+| Smoke (rapido) | `ssh root@62.238.41.231 'viralefy-test smoke'` |
+| Full test suite | `ssh root@62.238.41.231 'viralefy-test all'` |
+| Pentest | `ssh root@62.238.41.231 'viralefy-test pentest'` |
+| Security | `ssh root@62.238.41.231 'viralefy-test security'` |
+| Hardening | `ssh root@62.238.41.231 'viralefy-test hardening'` |
+| Authz | `ssh root@62.238.41.231 'viralefy-test authz'` |
 | Status | `ssh root@62.238.41.231 'viralefy-status'` |
 | Logs core/auth/dispatcher | `journalctl -u viralefy-<svc> -f` |
 | Logs Coraza | `tail -f /var/log/caddy-waf/audit.log` |
 | Migrate | `sudo -u viralefy-core /usr/local/sbin/viralefy-core migrate {status,up}` |
-| Backup/Verify/Restore | `viralefy-backup`, `viralefy-backup-verify`, `viralefy-restore-drill` |
+| Backup manual | `viralefy-backup` |
 | Reconcile drift | `systemctl start viralefy-reconcile` |
 | Hard-delete users | `systemctl start viralefy-user-deletion` |
+| Seed test data | `viralefy-test seed-all` |
+| Clean test data | `viralefy-test clean-seeds` |
 
 ---
 
@@ -176,35 +191,35 @@ Migration tracker tipo Laravel — `schema_migrations` com checksum SHA256, auto
 
 - xcaddy v2.11.3 + coraza-caddy/v2 + OWASP CRS 4.10.0
 - `SecRuleEngine On` (2026-06-10 12:20 UTC)
-- `SecDefaultAction phase:1/2 → deny,status:403` (causa raiz do não-bloquear: era `pass`)
+- `SecDefaultAction phase:1/2 → deny,status:403` (causa raiz do warning não-block)
 - `SecAuditLog /var/log/caddy-waf/audit.log` JSON, RelevantStatus `.*`
-- Paranoia level 2 + bodyproc enforcement (pentest fix #5)
+- Paranoia level 2 + bodyproc enforcement
 
 **Exclusões custom em `/etc/caddy/coraza/coraza-crs-exclusions.conf`:**
 - `id:900201` Stripe webhook signature bypass
-- `id:900601` phase 2 — exclui ARGS:*password de rule 942100 (libinjection FP em senhas password-manager)
+- `id:900300` /v1/me/reviews body+title (rule 941xxx XSS FPs) — fix 2026-06-11
+- `id:900601` phase 2 — exclui ARGS:*password de rule 942100 (libinjection password-manager FP)
 - `id:900700` phase 1 — `tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE`
-- `id:900710` paranoia 2
-- `id:900720` bodyproc enforcement
+- `id:900710/720` paranoia 2 + bodyproc enforcement
+- `id:900800/801/802` — tracking URLs em /v1/checkout, /v1/auth/*, /v1/me/* (rule 931xxx RFI FP) — fix 2026-06-10
 
 **Validado em prod — TODOS BLOCKED 403:** SQLi (4 variants), XSS (2 variants), Host header tampering → 421.
-
-**Legitimate traffic intacto:** registers com password password-manager → 201, GETs → 200, REST methods PUT/PATCH/DELETE → 401 (auth gate, não WAF).
 
 ---
 
 ## 11. CORS + Security Headers
 
-CORS na borda (Caddy responde preflight, evita 405 do dispatcher):
+CORS na borda (Caddy responde preflight):
 - `OPTIONS` → 204 + ACAO headers reflectindo Origin
 - POST/GET com Origin → adiciona `Access-Control-Allow-Origin` dinâmico
 
 Security headers em todos vhosts:
 - HSTS preload, X-Content-Type-Options nosniff
-- CSP (front: GTM/Cloudflare Turnstile permitidos; backoffice: frame-ancestors none)
-- Cross-Origin-Resource-Policy (same-site front+api, same-origin backoffice+obs)
+- CSP (front com GTM/Cloudflare Turnstile, backoffice frame-ancestors none)
+- Cross-Origin-Resource-Policy (same-site api+www, same-origin admin+obs)
 - Cross-Origin-Embedder-Policy require-corp (backoffice apenas)
-- Permissions-Policy, Referrer-Policy
+- **Permissions-Policy em API** (camera/microphone/geolocation/payment/usb negados) — fix 2026-06-11
+- Referrer-Policy
 - `-Server -X-Powered-By`
 
 ---
@@ -213,14 +228,14 @@ Security headers em todos vhosts:
 
 **Prometheus:** 15/16 targets up (legacy api desabilitado intencional).
 
-**Services com /metrics:** core, auth, payments, sender, dispatcher (próprias), front, backoffice (/api/metrics), caddy, postgres-exporter, node-exporter, prometheus, grafana, loki, tempo, alloy.
+**Services com /metrics + /health:** core, auth, payments, sender, dispatcher (próprias), front, backoffice (/api/metrics), caddy, postgres-exporter, node-exporter, prometheus, grafana, loki, tempo, alloy.
 
-**Grafana 5+ dashboards importados:**
-- viralefy-revenue, viralefy-payments, viralefy-behavior, viralefy-reliability, viralefy-slo (error budget + burn rate), viralefy-api-red (pre-existente).
+**Grafana 6 dashboards importados:**
+- viralefy-revenue, viralefy-payments, viralefy-behavior, viralefy-reliability, viralefy-slo, viralefy-phase9 (26 painéis cross-service)
 
 **SLOs (11):** api availability 99.5%, api p95 <500ms, **dispatcher overhead <50ms (atual 95µs = 528x headroom)**, payments webhook 99.9%, db query p95 <100ms, etc.
 
-**Alerting (26 rules):** SLO burn-rate multi-window, ServiceDown, DBConnectionExhausted, DiskSpaceLow, BackupFailed, ReconcileDriftHigh, CorazaBlockSpike, AuthBruteforce, CertExpiringSoon, etc. Alertmanager skeleton com inhibition rules. Webhook ADMIN_WEBHOOK_URL TODO cliente.
+**Alerting (26 rules):** SLO burn-rate multi-window, ServiceDown, DBConnectionExhausted, DiskSpaceLow, BackupFailed, ReconcileDriftHigh, CorazaBlockSpike, AuthBruteforce, CertExpiringSoon. Alertmanager skeleton com inhibition rules. Webhook ADMIN_WEBHOOK_URL TODO cliente.
 
 ---
 
@@ -229,88 +244,74 @@ Security headers em todos vhosts:
 | Timer | Frequência | Função |
 |---|---|---|
 | viralefy-backup | daily 03:00 UTC | pg_dump compactado + retenção 7d/4w/6m |
-| viralefy-backup-verify | daily 04:09 UTC | gzip integrity + schema check + size anomaly |
-| viralefy-restore-drill | weekly Sun 05:09 UTC | sandbox Docker isolated, restore 7s |
-| viralefy-reconcile | daily 03:37 UTC | 15 invariants de drift (orders, refresh_tokens, credits, etc) |
-| viralefy-user-deletion | daily 03:53 UTC | hard-delete físico LGPD (grace 30d → exec) |
-| viralefy-orders-anonymize | monthly dia 1 04:30 UTC | anonimização PII em orders >5y (Receita 5y + LGPD Art. 16). Sentinela `[ANONYMIZED]` preserva id/total/currency/gateway_id (fiscais). Métricas `viralefy_orders_anonymized_total` + `viralefy_orders_anonymize_pending_count` (textfile collector). |
+| viralefy-backup-verify | daily 04:09 UTC | gzip integrity + schema check |
+| viralefy-restore-drill | weekly Sun 05:09 UTC | sandbox Docker isolated |
+| viralefy-reconcile | daily 03:37 UTC | 16 invariants de drift |
+| viralefy-user-deletion | daily 03:53 UTC | hard-delete físico LGPD (grace 30d) |
+| viralefy-test-cleanup | hourly :17 UTC | cleanup `*@viralefy.test` |
+| viralefy-orders-anonymize | monthly 04:30 UTC | LGPD Art. 16 5y fiscal retention |
 
-**Crons in-process (rodam dentro de viralefy-core):**
-- stripe_reconcile (5min, polling Stripe Sessions API + métricas Prometheus)
-- event_retention (24h, max 90d em user_events/email_events/ab_events)
-- plan_price_drift (1h, alerta drift entre plan_prices)
-- review_request (1h, batch 50, delay 7d pós-delivery)
+**Crons in-process (viralefy-core):**
+- stripe_reconcile (5min)
+- event_retention (24h)
+- plan_price_drift (1h, samples logados — Q3 fix)
+- review_request (1h)
 
 ---
 
-## 14. Renovate (cliente precisa instalar App)
+## 14. Test Kit (PHASE-10, §22 diretrizes)
 
-Config em 10 repos via central preset `viralefy_ops/renovate-config.json`. Schedule Monday 09:00 BRT, group por linguagem, automerge patches non-major, lockfile maintenance mensal. Vulnerability alerts trigger urgent labels.
+CLI `viralefy-test` em prod (`/usr/local/sbin/`) com subcommands:
+
+| Modo | Scripts | Duração | Status |
+|---|---|---|---|
+| smoke | 9 | 3s | 9/9 pass ✅ |
+| pentest | 27 OWASP | 21s | 27/27 pass ✅ |
+| security | 10 | 1s | 9/10 (1 test script bug) |
+| hardening | 10 | <1min | 6/10 + 4 findings (CAA, DNSSEC, HSTS preload, admin) |
+| authz | 10 (RBAC + BOLA) | 186s | 10/10 pass ✅ |
+| integration | 10 (E2E) | <3min | 1 pass + skips + 1 rate-limit collateral |
+| chaos | 10 (3 gated) | <5min | 5 pass + 1 finding (JWKS rate-limit → SEV-2 FIXED) |
+| simulated | engine Python | 5-15min | 19.500 combos (125 rotas × 6 personas × 26 injections) |
+| unit | delega go test / npm test | 5-15min | - |
+| all | tudo exceto chaos+unit | ~10min | - |
+| full | + chaos + unit | ~20min | - |
+
+External smoke (GH Actions cron 15min, off-prod): 36 assertions, 36/36 pass em dry-run.
+
+---
+
+## 15. Renovate (cliente precisa instalar App)
+
+Config em 10 repos via central preset `viralefy_ops/renovate-config.json`. Schedule Monday 09:00 BRT, group por linguagem, automerge patches non-major.
 
 **Vuln scans no CI:**
 - Go: `govulncheck ./...` (continue-on-error: true)
 - Rust: `cargo audit`
 - Node: `npm audit --audit-level=high`
-- Workflow `security.yml` em auth/payments/sender/api_rust
 
 ---
 
-## 14.B Test Kit `<project>_ops/tests/` (§22.3 diretrizes)
+## 16. Documentos no archive (33 MDs + 10 ADRs)
 
-| modo | scripts | onde | gate |
-|---|---|---|---|
-| smoke | 7 | viralefy_ops/tests/smoke/ | sempre roda |
-| pentest | 5+ | viralefy_ops/tests/pentest/ | sempre roda |
-| security | 1 | viralefy_ops/tests/security/ | sempre roda |
-| **integration** | **10** (2026-06-11) | viralefy_ops/tests/integration/ | requer seeds + env (SUPERADMIN_PASS, STRIPE_WEBHOOK_SECRET, DATABASE_URL) |
-| **chaos** | **10** (2026-06-11) | viralefy_ops/tests/chaos/ | service-kill/db-disconnect/partition-test gated por `EDUCE_CHAOS_ALLOW=1` |
-
-Helpers em `tests/lib.sh`: `test_section`, `test_pass`, `test_fail`,
-`test_skip`, `test_summary`, `http_call`, `assert_http_in`,
-`assert_http_status`, `assert_json_field`, `assert_header_present`,
-`assert_no_pii`.
-
-Skip vs fail: scripts skipam graciosamente quando env/deps ausentes
-(retornam exit 0 e contam só skip); falhas reais são exit 1 + banner FAIL.
-
-Findings recentes pela run em HML (2026-06-11): JWKS endpoint sob
-IPLimiter (SEV-2 — bumpar quota). Detalhes em CHECKLIST.md.
+Ver `INDEX.md` pra mapa completo. Highlights:
+- CONTEXT.md (este), CHECKLIST.md, INDEX.md, diretrizes.md (normativo)
+- ENGINEERING-CONFORMANCE-AUDIT.md (gap analysis)
+- 11 runbooks (DR, Incident, Backup, User-deletion, Cookie, Proof, Smoke-admin, External-smoke, Renovate, Cloudflare, Operação geral)
+- 4 baselines auditadas (Pentest, Coraza, Review XSS, LGPD)
+- 10 ADRs em formato MADR
+- SLO-DEFINITIONS, PHASE-7/8/9 plans, ROADMAP
 
 ---
 
-## 15. Documentos no archive (referência)
-
-| Doc | Conteúdo |
-|---|---|
-| **CONTEXT.md** | este arquivo |
-| **CHECKLIST.md** | done + pending priorizado |
-| PHASE-9-ARCHITECTURE.md | plano original (1056 linhas) |
-| PHASE-9-BUCKET-2-PLAN.md | split 2a/2b/2c (159 linhas) |
-| CORAZA-SOAK-STATUS.md | re-audit + fix dos FPs |
-| **PENTEST-BASELINE-2026-06-10.md** | self-pentest baseline + resolved findings |
-| **LGPD-BASELINE-2026-06-10.md** | self-audit + 5 gaps + roadmap 18d |
-| RUNBOOK-DR.md | disaster recovery, 6 fases, drill 9s warm |
-| RUNBOOK-PROOF-MIGRATION.md | base64 → MinIO |
-| RUNBOOK-USER-DELETION.md | LGPD hard-delete cron |
-| RUNBOOK-COOKIE-CONSENT.md | LGPD Art. 8 4 categorias |
-| RUNBOOK-BACKUP-VERIFY.md | backup + verify + restore drill |
-| **RUNBOOK-INCIDENT-RESPONSE.md** | 955 linhas, 8 playbooks (SEV1-4) |
-| RUNBOOK-SMOKE-ADMIN.md | SQL-mint admin token, RBAC E2E sem TOTP |
-| **RUNBOOK-EXTERNAL-SMOKE.md** | GH Actions cron 15min, 36 assertions × prod, regression test Coraza 931130 |
-| RUNBOOK-RENOVATE.md | install + automerge + triagem |
-| **SLO-DEFINITIONS.md** | 11 SLOs + error budgets + burn rate |
-| INCIDENT-ORDER-450F0E6F.md | reconcile FP investigation |
-
----
-
-## 16. Pra começar uma nova sessão
+## 17. Pra começar uma nova sessão
 
 ```bash
 # 1. Extract SSH key
 awk '/BEGIN OPENSSH/,/END OPENSSH/' /media/sonne/Archives/projects/viralefy/credentials > /tmp/vf-ssh.key && chmod 600 /tmp/vf-ssh.key
 
 # 2. Quick health check
-ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-smoke && systemctl is-active viralefy-{payments,sender,auth,core,dispatcher,caddy,postgres-exporter}'
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test smoke && systemctl is-active viralefy-{payments,sender,auth,core,dispatcher,caddy,postgres-exporter,backoffice,front}'
 
 # 3. Read CHECKLIST.md pra ver done + pending
 
@@ -318,7 +319,10 @@ ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-smoke && systemctl is-active
 ssh -i /tmp/vf-ssh.key root@62.238.41.231 \
   'curl -s http://127.0.0.1:9090/api/v1/alerts | jq ".data.alerts[] | select(.state==\"firing\") | {name: .labels.alertname, severity: .labels.severity}"'
 
-# 5. Recent commits across repos
+# 5. Test cover
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test all 2>&1 | tail -20'
+
+# 6. Recent commits across repos
 for r in viralefy_{core,auth,api_rust,payments,sender,ops,front,backoffice,archive}; do
   echo "=== $r ===" && cd /media/sonne/Archives/projects/viralefy/$r && git log --oneline -3
 done

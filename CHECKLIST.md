@@ -1,88 +1,86 @@
 # Viralefy — CHECKLIST.md
 
-**Última atualização:** 2026-06-11 03:30 UTC
+**Última atualização:** 2026-06-11 05:00 UTC
 
-Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker/atenção · `[L]` LGPD/legal · `[T]` time-gated · `[$]` cliente fornecer · `[E]` externo (orçamento)
+Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker · `[L]` LGPD/legal · `[T]` time-gated · `[$]` cliente fornecer · `[E]` externo (orçamento) · `[Q3]` planejado Q3 2026
 
 ---
 
-## ✅ DONE — Estado de prod consolidado
+## ✅ DONE — Estado consolidado de prod
 
 ### Cutover PHASE-9 (104+ rotas via dispatcher)
 
 - [x] **Bucket 1** — /v1/plans*, /v1/categories*, /v1/currencies*, /v1/status*, /v1/country-ppp*, /v1/tax-rates*, /.well-known/jwks.json (7 rotas)
 - [x] **Bucket 2 (a+b)** — /v1/me/* (38 rotas GET+POST+PUT+DELETE)
-- [x] **Bucket 2c** — /v1/auth/* (6 rotas user+admin login/register/2fa) + viralefy_auth ganhou public routes
+- [x] **Bucket 2c** — /v1/auth/* (6 rotas user+admin login/register/2fa) + viralefy_auth public routes
 - [x] **Bucket 3** — /v1/admin/* (52+ rotas com RBAC)
 - [x] **Bucket 4** — /v1/checkout (1 rota)
-- [x] **Caddyfile default fallback** → dispatcher :8090 (era → legacy :8080)
+- [x] **Caddyfile default fallback** → dispatcher :8090
 - [x] **Legacy api STOPPED + DISABLED** (2026-06-10 07:36 UTC, soak 14d até 2026-06-24)
 - [x] **viralefy-update skipa legacy** (marker `/etc/viralefy/.legacy-deprecated`)
-- [x] **viralefy-smoke atualizado** (port :8090, mapping de health paths)
-- [x] **viralefy-smoke check #6 — POST /v1/checkout E2E com tracking real** (2026-06-11). Complementa external-smoke com cobertura interna pós-deploy: replica payload do CheckoutModal incluindo `tracking.landing_url="https://www.viralefy.com/us/instagram-followers"` (vetor do Coraza FP 2026-06-10). Total runtime 1.3s. Falha aqui = bloqueia próximo deploy via systemd OnFailure.
-- [x] **viralefy-test-cleanup-cron** (hourly, 2026-06-11) — limpa fixtures `*@viralefy.test` deixadas pelo smoke E2E (orders unpaid + profiles + refresh_tokens + user_events + email_events + users sem orders pagas). TX atômica, pattern strict, métricas textfile `viralefy_test_cleanup_rows_total`. Deploy inicial removeu 7 rows de debris do incidente 2026-06-10. Timer `*:17:00 UTC` + jitter 5min.
-- [x] **RUNBOOK-INCIDENT-RESPONSE Playbook F atualizado** (2026-06-11) — caso 2026-06-10 documentado, comando `viralefy-smoke` pós-fix integrado ao checklist, seção "Prevenção sistêmica" cita pattern `*@viralefy.test` + métrica cleanup.
+- [x] **JWKS bypass dispatcher** (SEV-2 fix 2026-06-11): Caddy direto → auth :8083 + Cache-Control 60s
 
 ### Segurança
 
-- [x] **External smoke (prod regression detector)** — GH Actions cron 15min, 36 assertions × 8 grupos, **inclui POST /v1/checkout com tracking.landing_url** (regression test pro FP Coraza 931130 de 2026-06-10). Runner externo (ubuntu-latest), zero footprint em prod. `RUNBOOK-EXTERNAL-SMOKE.md`. Dry-run local: 36/36 pass em ~1m45s.
-- [x] **Coraza WAF SecRuleEngine On + Block real** (2026-06-10 12:20 UTC)
-- [x] **SecDefaultAction phase 1/2 → deny,status:403** (causa raiz do warning não-block)
-- [x] **Coraza audit log JSON ativo** (era 0 bytes, SecAuditLog estava comentado)
-- [x] **Coraza paranoia level 2** + bodyproc enforcement (pentest #5)
-- [x] **Exclusões CRS custom**: 900201 Stripe sig, 900601 password phase 2, 900700 REST methods, 900710/720 PL2
-- [x] **Coraza exclusion 900300 (`/v1/me/reviews`) validada com payload real** (2026-06-11) — pré-stage apontava pra URI inexistente (`/v1/reviews`) e cobria só `body`. Audit confirmou: endpoint real é `/v1/me/reviews`, campos free-text são `body` E `title`, sem sanitização server-side (defesa = React JSX auto-escape). 12 payloads testados (markdown legit, script/img/svg/iframe/body XSS, SQLi, javascript:URL). Rule 900300 corrigida pra phase 2 + `ARGS:json.{body,title}` + variantes. `REVIEW-XSS-AUDIT.md`.
+- [x] **Coraza WAF SecRuleEngine On + Block real**
+- [x] **SecDefaultAction phase 1/2 → deny,status:403**
+- [x] **Coraza audit log JSON ativo**
+- [x] **Coraza paranoia level 2** + bodyproc enforcement
+- [x] **Exclusões CRS custom**: 900201 Stripe, 900300 reviews, 900601 password, 900700 REST methods, 900710/720 PL2, 900800/801/802 tracking URLs
 - [x] **CORS preflight fix** (login estava quebrado pós-cutover, 405 → 204)
 - [x] **Hot-set revogação E2E dispatcher**: 82ms (target ≤5s, 60x melhor)
 - [x] **Defense-in-depth core ValidateToken** (RevocationCache + LISTEN/NOTIFY + 30s fallback)
-- [x] **Host header tampering protection** (:443 catch-all → 421 Misdirected Request)
+- [x] **Host header tampering protection** (:443 catch-all → 421)
 - [x] **Security headers em todos vhosts** (CSP, COEP/CORP, Permissions-Policy, HSTS preload)
-- [x] **3 HIGH vulns fixados** (Go chi/jwt outdated, npm tmp <0.2.6, rsa@0.9.10 risk-accepted)
+- [x] **Permissions-Policy em api** (camera/microphone/geolocation/payment/usb negados — fix 2026-06-11)
+- [x] **3 HIGH vulns fixados** (Go chi/jwt, npm tmp, rsa@0.9.10 risk-accepted)
 - [x] **Pentest MEDIUM #4 #5 #7 #10 fixados** (host, CRLF, COEP/CORP, Server header)
+- [x] **Reviews XSS audit + fix** — rule 900300 estava broken (URI errada + phase 1), 12 payloads testados
 
-### Infraestrutura paralela (PHASE-9 stack)
+### Infraestrutura PHASE-9
 
-- [x] **viralefy-core** (Go :8084) — fork 1:1 do legacy api, defense-in-depth, métricas
-- [x] **viralefy-auth** (Go :8083) — 14 endpoints + 6 public routes + rate-limit + /internal/metrics
-- [x] **viralefy-dispatcher** (Rust :8090) — JWKS cache + hot-set ArcSwap lock-free + /metrics dedicadas + rate-limit per-IP
+- [x] **viralefy-core** (Go :8084) — defense-in-depth + métricas + 4 crons
+- [x] **viralefy-auth** (Go :8083) — 14 endpoints + 6 public routes + rate-limit
+- [x] **viralefy-dispatcher** (Rust :8090) — JWKS cache + hot-set ArcSwap + /metrics próprias
 - [x] **Caddy + Coraza WAF buildado** via xcaddy + OWASP CRS 4.10
-- [x] **postgres-exporter v0.17.1** com role read-only + systemd hardened
+- [x] **postgres-exporter v0.17.1** com role read-only
 
 ### Observability completa
 
-- [x] **5 dashboards Grafana** importados (revenue, payments, behavior, reliability, slo)
-- [x] **15/16 Prometheus targets up** (legacy disabled intencional)
-- [x] **/metrics em todos services**: core, auth, payments, sender, dispatcher (próprias), front, backoffice
-- [x] **11 SLOs definidos** (availability 99.5%, p95 latency, dispatcher overhead, webhook ingestion, etc.)
-- [x] **26 alerting rules** (SLO burn-rate, ServiceDown, DBConnectionExhausted, BackupFailed, etc.)
+- [x] **6 dashboards Grafana** (revenue, payments, behavior, reliability, slo, phase9 com 26 painéis)
+- [x] **15/16 Prometheus targets up**
+- [x] **/health unificado** em todos services + backward compat (PHASE-10)
+- [x] **/metrics em todos services**: core, auth, payments, sender, dispatcher, front, backoffice
+- [x] **11 SLOs definidos** + 26 alerting rules
 - [x] **Alertmanager skeleton** com inhibition rules
-- [x] **Dispatcher p95 instrumentation bug fixed** (era core sendo scrapeado via fallback; real overhead 95µs = 528x headroom)
-- [x] **Stripe reconcile freshness metric** (5 métricas Prometheus + SLO firing→OK)
-- [x] **SLO dashboard com error budget** (16 panels)
+- [x] **Dispatcher p95 instrumentation bug fixed** (95µs = 528x headroom)
+- [x] **Stripe reconcile freshness metric** (5 métricas Prometheus)
 
-### Ops automation
+### Ops automation (7 timers ativos)
 
-- [x] **viralefy-backup daily** — pg_dump compactado + retenção 7d/4w/6m
-- [x] **viralefy-backup-verify daily** — gzip integrity + schema check + size anomaly
-- [x] **viralefy-restore-drill weekly** — sandbox Docker isolated, 7s drill
-- [x] **viralefy-reconcile daily** — 15 invariants de drift (orders/refresh_tokens/credits/etc)
-- [x] **viralefy-user-deletion daily** — hard-delete físico LGPD grace 30d
-- [x] **viralefy-orders-anonymize monthly** — anonimização PII em orders >5y (Receita 5y + LGPD Art. 16) — dia 1, 04:30 UTC
-- [x] **Backup loop bug 3 dias** fixado (chmod parent + capability)
-- [x] **DR runbook + drill executado** — 9s warm cache / 1m45s cold projection vs 30min target = PASS
+- [x] **viralefy-backup** daily 03:00 UTC
+- [x] **viralefy-backup-verify** daily 04:09 UTC
+- [x] **viralefy-restore-drill** weekly Sun 05:09 UTC
+- [x] **viralefy-reconcile** daily 03:37 UTC (16 invariants)
+- [x] **viralefy-user-deletion** daily 03:53 UTC (LGPD grace 30d)
+- [x] **viralefy-test-cleanup** hourly :17 UTC (limpa `*@viralefy.test`)
+- [x] **viralefy-orders-anonymize** monthly 04:30 UTC (LGPD Art. 16 5y)
+- [x] **Backup loop bug 3 dias** fixado
+- [x] **DR runbook + drill executado** — 9s warm cache / 1m45s cold projection
+- [x] **Build automation reconcile/user-deletion no viralefy-update**
 
-### LGPD (parcial)
+### LGPD
 
-- [x] **Endpoints LGPD existentes**: GET /v1/me/data/export, POST/DELETE /v1/me/data/deletion
-- [x] **C3 RESOLVIDO** — Hard-delete cron implementado (Go + systemd timer)
+- [x] **Endpoints existentes**: GET /v1/me/data/export, POST/DELETE /v1/me/data/deletion, POST /v1/me/consent
+- [x] **C3 RESOLVIDO** — Hard-delete cron implementado
 - [x] **C5 RESOLVIDO** — Cookie consent default-OFF + backend skip PII se !consent
-- [x] **user_consent_log table** (append-only, LGPD Art. 8 §6 prova de consent)
+- [x] **user_consent_log table** (append-only, LGPD Art. 8 §6)
 - [x] **user_events.analytics_consent** flag (privacy-by-default)
-- [x] **Object storage migrator** (proofs base64 → MinIO, infra ready)
+- [x] **/legal/cookies página pública** — inventário completo de cookies, multilíngue
+- [x] **Consent renewal anual** — TTL 365d + re-prompt automático
+- [x] **Orders anonymize 5y** — cron mensal + métricas textfile
+- [x] **Object storage migrator** (proofs base64 → MinIO)
 - [x] **LGPD self-audit baseline** (score BAIXA-MÉDIA, 5 gaps + roadmap 18d)
-- [x] **Orders anonymize cron** (2026-06-11) — Art. 16 retenção fiscal 5y → anonimização PII
-- [x] **Cookie list pública /legal/cookies** (2026-06-11) — tabela exaustiva PT+EN
-- [x] **Consent renewal 365d** (2026-06-11) — banner detecta expiração e exibe copy explicativa
 
 ### Frontend polish
 
@@ -90,27 +88,36 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **Playwright CheckoutModal E2E** (11 testes desktop+mobile+a11y)
 - [x] **data-testid** em CheckoutModal/BuyPlanCta/CouponInput
 - [x] **@axe-core/playwright** a11y test ativo
-- [x] **Sentry source maps no CI** (front + backoffice workflows)
-- [x] **Cookie consent banner** com 4 categorias + audit log
-- [x] **MOCK_AUTH bypass backoffice** pro Lighthouse dashboard
+- [x] **Sentry source maps no CI**
+- [x] **Cookie consent banner** com 4 categorias + audit log + renovação anual
+- [x] **MOCK_AUTH bypass backoffice** pro Lighthouse
 
-### Docs e runbooks (17+ files)
+### Test Kit (PHASE-10 §22 diretrizes)
 
-- [x] PHASE-9-ARCHITECTURE.md (1056 linhas)
-- [x] PHASE-9-BUCKET-2-PLAN.md
-- [x] CORAZA-SOAK-STATUS.md
-- [x] PENTEST-BASELINE-2026-06-10.md (3 HIGH + 4 MEDIUM resolved, 3 deferred)
-- [x] LGPD-BASELINE-2026-06-10.md
-- [x] RUNBOOK-DR.md + drill executado
-- [x] RUNBOOK-PROOF-MIGRATION.md + executado
-- [x] RUNBOOK-USER-DELETION.md
-- [x] RUNBOOK-COOKIE-CONSENT.md
-- [x] RUNBOOK-BACKUP-VERIFY.md
-- [x] RUNBOOK-INCIDENT-RESPONSE.md (955 linhas, 8 playbooks SEV1-4)
-- [x] RUNBOOK-SMOKE-ADMIN.md (SQL-mint sem TOTP)
-- [x] RUNBOOK-RENOVATE.md
-- [x] SLO-DEFINITIONS.md
-- [x] INCIDENT-ORDER-450F0E6F.md (reconcile FP)
+- [x] **CLI `viralefy-test`** com 14 subcommands
+- [x] **tests/lib.sh** (helpers compartilhados)
+- [x] **tests/smoke/** — 9 scripts (9/9 pass em 3s)
+- [x] **tests/pentest/** — 27 scripts OWASP (27/27 pass em 21s)
+- [x] **tests/security/** — 10 scripts (9/10 pass)
+- [x] **tests/hardening/** — 10 scripts (6/10 pass + 4 findings reais)
+- [x] **tests/authz/** — 10 scripts RBAC + BOLA (10/10 pass em 186s)
+- [x] **tests/integration/** — 10 scripts E2E
+- [x] **tests/chaos/** — 10 scripts (3 gated por env destrutivo)
+- [x] **tests/simulated/** — engine Python (125 rotas × 6 personas × 26 injections = 19.500 combos)
+- [x] **tests/seeds/** — 5 personas SQL idempotentes
+- [x] **External smoke** GitHub Actions cron 15min (36 assertions)
+- [x] **summary.json schema** §22.2 (fonte única pra dashboards)
+
+### Engineering Conformance (§22 diretrizes)
+
+- [x] **10 ADRs criados** em formato MADR (shared DB, HTTP loopback, bcrypt 12, legacy soak, single tenant, Coraza, migrations seq, Next.js, multi-repo, payment ACL)
+- [x] **ENGINEERING-CONFORMANCE-AUDIT.md** com tabela §0-§35 + DDD audit por repo + roadmap Q3
+- [x] **DDD compliance verified**: 0 imports proibidos em domain/ em todos os 5 Go repos
+- [x] **payments + sender = referência limpa** (0 imports cross, arquivos < 500 linhas)
+
+### Docs e runbooks (33 MDs + 10 ADRs no archive)
+
+Ver `INDEX.md` para mapa completo.
 
 ### Dependency management
 
@@ -121,17 +128,17 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ### Smoke admin Bucket 3 RBAC
 
-- [x] **27/27 endpoints superadmin** OK (200)
+- [x] **27/27 endpoints superadmin** OK
 - [x] **5/5 writes viewer** → 403 (RBAC OK)
 - [x] **Hot-set revogação E2E em admin** → 1.75s
-- [x] **Audit log gravado pelo core** (não pelo legacy)
+- [x] **Audit log gravado pelo core**
 
 ### Critério "Fase 9 100% pronta" — 8/10 cumpridos
 
 - [x] **Bucket 1-4 cutover completo, tráfego 100% no dispatcher**
 - [x] **Hot-set revocation funcionando E2E** (82ms)
 - [x] **Defense-in-depth core ValidateToken**
-- [x] **5+ dashboards Grafana ativos**
+- [x] **6 dashboards Grafana ativos** (+1 phase9)
 - [x] **Smoke E2E dual-mode** (rollback validado todos buckets)
 - [x] **api legacy parado** (soak iniciado)
 - [x] **Runbook restore < 30min validado em DR drill**
@@ -141,12 +148,28 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ---
 
+## 🚨 Incidentes resolvidos esta semana
+
+| Data | Evento | Severidade | Status |
+|---|---|---|---|
+| 2026-06-10 | CORS preflight 405 (login quebrado) | SEV-2 | ✅ FIXED |
+| 2026-06-10 | Coraza RFI rule 931130 bloqueando tracking URLs | SEV-2 | ✅ FIXED |
+| 2026-06-10 | Coraza PUT/PATCH/DELETE bloqueado | SEV-2 | ✅ FIXED |
+| 2026-06-10 | Coraza password 942100 FP | LOW | ✅ FIXED |
+| 2026-06-10 | viralefy-backup loop falha 3 dias | SEV-3 | ✅ FIXED |
+| 2026-06-11 | JWKS rate-limited 429 | **SEV-2** | ✅ FIXED |
+| 2026-06-11 | Backoffice down 502 (killed pelo systemd) | SEV-2 | ✅ FIXED (restart) |
+| 2026-06-11 | API missing Permissions-Policy | LOW | ✅ FIXED |
+| 2026-06-10 | Order 450f0e6f FP reconcile (manual_pix) | LOW | ✅ FIXED (query refine) |
+
+---
+
 ## ⏳ PENDÊNCIAS — Priorizado
 
 ### Time-gated (não pode acelerar)
 
 - [ ] **[T]** **2026-06-24**: Soak legacy 14d completo → remover viralefy_api de viralefy-update + arquivar repo
-- [ ] **[T]** **Após 14d soak Coraza** sem FP crítico → marcar produção estável
+- [ ] **[T]** **Após 14d Coraza sem FP crítico** → marcar produção estável
 - [ ] **[T]** **Após 30d Coraza Block**: arquivar `CORAZA-SOAK-STATUS.md` como histórico
 
 ### Cliente precisa fornecer
@@ -155,48 +178,59 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] **[$]** `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN`
 - [ ] **[$]** `SENTRY_AUTH_TOKEN` em GitHub Secrets (source maps CI)
 - [ ] **[$]** `ADMIN_WEBHOOK_URL` (Slack/Discord pra alertas Prometheus)
-- [ ] **[$]** `LHCI_GITHUB_APP_TOKEN` em GitHub Secrets (Lighthouse status checks)
-- [ ] **[$]** **Instalar Renovate GitHub App** em github.com/Viralefy (https://github.com/apps/renovate)
+- [ ] **[$]** `LHCI_GITHUB_APP_TOKEN` em GitHub Secrets
+- [ ] **[$]** **Instalar Renovate GitHub App** em github.com/Viralefy
 - [ ] **[$]** Configurar Grafana contact points (após webhook fornecido)
 
 ### Externos (orçamento)
 
-- [ ] **[E]** **Pentest externo Tier 3** (R$ 30-80k esperado) — focar IDOR/BOLA/business logic que self-pentest não cobre
+- [ ] **[E]** **Pentest externo Tier 3** (R$ 30-80k) — focar IDOR/BOLA/business logic
 - [ ] **[E]** **LGPD review formal** com advogado especialista (R$ 5-20k)
-- [ ] **[E]** **Cloudflare WAF Business plan** ($200/mês) — após Coraza estável 30d
-- [ ] **[E]** **Hetzner DR drill real** (cliente API token + sandbox CX22 ~€0.01/h)
+- [ ] **[E]** **Cloudflare WAF Business** ($200/mês) — após Coraza estável 30d (gate: >5M req/dia OU primeiro DDoS L7)
+- [ ] **[E]** **Hetzner DR drill real** (API token + sandbox CX22)
 
 ### LGPD gaps (depende de cliente + jurídico)
 
 - [ ] **[L]** **C1**: Designar DPO/Encarregado + criar `dpo@viralefy.com`
-- [ ] **[L]** **C2**: Política de Privacidade atender Art. 9 LGPD (bases legais por finalidade, retenção, controlador, direitos, ANPD peticionar)
+- [ ] **[L]** **C2**: Política de Privacidade atender Art. 9 LGPD
 - [ ] **[L]** **C4**: Runbook ANPD 72h (notificação de incidente)
 - [ ] **[L]** Termos de uso revisão jurídica
-- [ ] **[L]** Cross-border data transfer formal (Art. 33) — Stripe Irlanda, Heleket, Resend
+- [ ] **[L]** Cross-border data transfer formal (Art. 33)
+- [ ] **[L]** DPAs (Data Processing Agreements) com Stripe/Resend/Heleket/AbacatePay
 
-### Posso fazer em sessões futuras (tech debt)
+### Findings do Test Kit (Q3)
 
-#### Médio impacto
-- [ ] **Server-side review sanitization (bluemonday.UGCPolicy)** — `ReviewService.Create` aceita HTML cru hoje; defesa única é JSX auto-escape no front (REVIEW-XSS-AUDIT.md). Defense-in-depth: sanitizar `body`+`title` antes do INSERT pra cobrir consumers não-React (admin futura UI, RSS, email digest, mobile).
-- [ ] **Build automation reconcile/user-deletion no viralefy-update** (hoje scp manual)
-- [ ] **Adicionar audit_log no InvoiceService.AdminMarkPaid** (silent hoje, dificultou investigação 450f0e6f)
-- [ ] **Invariante reconcile**: `manual_paid_no_proof` (manual_pix paid sem order_proofs row)
-- [ ] **Cloudflare WAF setup runbook** + DNS migration
-- [ ] **Custom Grafana queries** pra metrics de PHASE-9 services (já scraped, ainda não em dashboard)
-- [ ] **Plan_prices BTC drift** investigation (2 rows detectadas pelo cron, expected ou bug?)
+- [ ] **CAA records ausentes** em viralefy.com (qualquer CA pode emitir cert)
+- [ ] **DNSSEC** zona viralefy.com não assinada
+- [ ] **HSTS preload list** — submeter em https://hstspreload.org/?domain=viralefy.com
+- [ ] **Manager POST /v1/admin/plans → 500** — handler validation bug
+- [ ] **Backoffice systemd OOM/idle kill** — investigar `Stopping` no journal
 
-#### Baixo impacto / Polish
-- [ ] **Health paths standardization** (PHASE-10 tech debt — heterogeneity documented no smoke)
-- [ ] **Stripe reconcile cron disable no legacy** — já moot (legacy parado)
+### Tech debt — Médio impacto (Q3 2026)
+
+- [ ] **[Q3]** Quebrar `handlers.go` do `viralefy_core` (3325 linhas) por bounded context (auth/checkout/orders/admin/plans)
+- [ ] **[Q3]** Quebrar `handlers.go` do `viralefy_api` legacy (3125 linhas) — N/A após remove 2026-06-24
+- [ ] **[Q3]** Generalizar `event_outbox` no core (hoje só sender)
+- [ ] **[Q3]** Linter custom impedindo queries cross-context na shared DB (ADR-0001)
+- [ ] **[Q3]** Migration tracker timestamp-based (evita conflito agents paralelos)
+- [ ] **[Q3]** **Reviews backend bluemonday.UGCPolicy()** — hoje defesa única é React JSX escape
+- [ ] **[Q3]** Centralizar `bcryptCost` em `shared/crypto`
+- [ ] **[Q3]** Cloudflare setup runbook + DNS migration (gate: >5M req/dia)
+
+### Tech debt — Baixo impacto
+
+- [ ] **Padronizar /health endpoint response shape** (uniformizar JSON keys)
 - [ ] **DR drill executado em Hetzner real** (precisa cliente fornecer API token)
-- [ ] **Smoke admin com TOTP físico** (precisa cliente ou TOTP shared)
-- [ ] **Padronizar `/health` em todos services** (vs atual mix `/health`, `/internal/health`, `/_health`)
+- [ ] **Smoke admin com TOTP físico** (precisa cliente)
+- [ ] **Padronizar `paid_at` column** entre orders e invoices
+- [ ] **Plan_prices BTC drift** — front sobrescreve baseline (Q3 fix UX form)
 
-#### LGPD additional (não-bloqueadores)
-- [x] **Anonimização orders.email_at_purchase** após 5 anos fiscal — `cmd/orders-anonymize-cron` + timer mensal (dia 1, 04:30 UTC) + métricas `viralefy_orders_anonymized_total` (2026-06-11)
-- [x] **Padronizar consent renovação anual** com banner re-prompt — `GDPR_MAX_AGE_MS=365d` + `isConsentExpired()` distinguindo primeira visita vs renovação; banner mostra copy "Por LGPD, atualizamos sua preferência de cookies. Confirme novamente." (2026-06-11)
-- [x] **Cookie list pública** (legal/cookies page com lista atualizada) — `/legal/cookies` shadow do `[doc]` com tabela exaustiva: viralefy_token, viralefy_currency, viralefy_gdpr_consent, __cf_bm, cf_clearance, _ga*, _gid, sentry-trace. Provedor/propósito/categoria/duração/tipo PT+EN, CTA gerenciar (2026-06-11)
-- [ ] **Data Processing Agreements (DPAs)** com Stripe/Resend/Heleket/AbacatePay
+### LGPD additional (não-bloqueadores)
+
+- [ ] **Padronizar consent renovação** com banner UX mais sutil
+- [ ] **DPIA** (Data Protection Impact Assessment) — auditoria interna formal
+- [ ] **Política de retenção** por tipo de dado documentada
+- [ ] **Processo formal de direitos do titular** (atendimento)
 
 ### Decisão de produto pendente (não-tech)
 
@@ -207,54 +241,53 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] **[~]** Blog content engine
 - [ ] **[~]** Backlinks outreach
 
-### Tech debt observado / não-bloqueador
+### Smoke E2E gaps (precisam credenciais reais)
 
-- [ ] **Migration tracker single-id** (timestamp-based ao invés de sequential N) — evita conflito agents paralelos
-- [x] **dispatcher poll_secs 5s → 30s** (LISTEN/NOTIFY handles real-time)
-- [ ] **Coraza paranoia 2 monitoring** — observar novos FPs em soak
-- [x] **Order 450f0e6f resolved** (FP do manual_pix design)
-- [ ] **/v1/reviews markdown injection** exclusion já preparada (não validada em real review yet)
-
-### Smoke E2E gaps
-
-- [ ] **E2E real authenticated user**: register → login → 2FA enroll → orders → API key (precisa test infra)
-- [x] **Hot-set revogação real-time E2E** com user real (validado com test users 82ms + admin 1.75s)
-- [x] **Reconciliação diária de orders** entre paths legacy vs core (legacy parado = não aplica; reconcile cron ativo)
+- [ ] **Smoke E2E admin com TOTP** (cliente forneça secret)
 - [ ] **Stripe sandbox**: full E2E checkout → webhook → order confirmed (precisa sandbox key)
+- [ ] **Heleket sandbox**: webhook signature validation real
+- [ ] **AbacatePay sandbox**: PIX dinâmico flow real
 
 ---
 
 ## 🚨 Estado crítico pra não regredir
 
-- [x] Migration tracker estilo Laravel — `schema_migrations` + checksum + auto-backfill prod legado
+- [x] Migration tracker estilo Laravel — `schema_migrations` + checksum + auto-backfill
 - [x] `Seed()` NÃO roda automático em boot
 - [x] `ON CONFLICT DO UPDATE` → `DO NOTHING` em seeds
 - [x] Caddy bloqueia `/internal/*` externamente (404)
 - [x] CORE_PORT precedência sobre PORT
-- [x] **CORS na borda do Caddy** (login depende, fix em 06-10 16:10 UTC)
+- [x] **CORS na borda do Caddy** (login depende, fix 06-10)
 - [x] **Coraza SecDefaultAction phase 1/2 → deny** (sem isso warning não block)
-- [x] **Hot-set revocation enforce_hot_set middleware no dispatcher** (sem isso revoke = no-op)
+- [x] **Hot-set revocation enforce_hot_set middleware no dispatcher**
 - [x] **CRS exclusions ordem importa** (Include antes de rules/*.conf)
-- [x] **Caddy restart vs reload** quando Coraza config muda (reload incremental, não rebuilda Coraza instance)
+- [x] **Caddy restart vs reload** quando Coraza config muda
 - [x] **viralefy-api scrape commented** em prometheus.yml (alertas ApiDown senão firing)
+- [x] **JWKS bypass dispatcher rate-limit** (Caddy proxy direto pra auth, SEV-2)
+- [x] **Coraza 931xxx (RFI) exclusions em paths com tracking URLs**
+- [x] **Permissions-Policy em API** (defense-in-depth)
+- [x] **Backoffice systemd MUST stay active** (502 quando killed)
 
 ---
 
-## 📊 Métricas operacionais (snapshot 2026-06-10 18:30 UTC)
+## 📊 Métricas operacionais (snapshot 2026-06-11 05:00 UTC)
 
 | Métrica | Valor |
 |---|---|
-| Services active | 7/7 (api stopped intencional) |
+| Services active | 9/9 (api stopped intencional) |
 | Prometheus targets up | 15/16 |
-| Coraza Block rate (test) | 100% (SQLi+XSS+RCE → 403) |
+| Coraza Block rate (test) | 100% (SQLi/XSS/RCE/Method tampering → 403) |
 | Hot-set revoke latency | 82ms (target ≤5s) |
 | Dispatcher overhead p95 | 95µs (target ≤50ms = 528x headroom) |
+| JWKS availability | 100% (Caddy bypass dispatcher rate-limit) |
 | Backup state | 4 dumps recentes, 0 hard issues |
 | TLS grade | A (testssl) |
-| WAF block rate (pentest) | 82.4% (14/17 attack types) |
+| WAF block rate (pentest) | 100% (27/27 OWASP scripts) |
 | Govulncheck vulns | 0 chamadas em todos services Go |
-| Total stack RAM | ~260MB (apps) + 1.2GB (observability) |
-| Smoke E2E | 100% pass |
+| Total stack RAM | ~560MB (apps) + 1.2GB (observability) |
+| Smoke E2E | 9/9 pass em 3s |
+| Pentest | 27/27 pass em 21s |
+| Authz | 10/10 pass em 186s |
 
 ---
 
@@ -262,7 +295,10 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 
 ```bash
 # Health check completo
-ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-smoke && systemctl is-active viralefy-{payments,sender,auth,core,dispatcher,caddy,postgres-exporter} && systemctl list-timers | grep viralefy'
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test smoke && systemctl is-active viralefy-{payments,sender,auth,core,dispatcher,caddy,postgres-exporter,backoffice,front} && systemctl list-timers | grep viralefy'
+
+# Full test suite
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test all'
 
 # Logs Coraza WAF
 ssh -i /tmp/vf-ssh.key root@62.238.41.231 'tail -f /var/log/caddy-waf/audit.log'
@@ -283,10 +319,16 @@ ssh -i /tmp/vf-ssh.key root@62.238.41.231 'curl -s http://127.0.0.1:9090/api/v1/
 ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-update --yes'
 
 # Reconcile drift manual
-ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-reconcile && journalctl -u viralefy-reconcile --since "10 sec ago" -o cat | tail -5'
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-reconcile && journalctl -u viralefy-reconcile --since "10 sec ago" -o cat | tail -10'
 
-# User deletion cron manual
-ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-user-deletion && journalctl -u viralefy-user-deletion --since "10 sec ago" -o cat | tail -10'
+# Backup verify
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-backup-verify'
+
+# Seed test data
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test seed-all'
+
+# Clean test users
+ssh -i /tmp/vf-ssh.key root@62.238.41.231 'viralefy-test clean-seeds'
 ```
 
 ---
@@ -295,12 +337,12 @@ ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-user-deletio
 
 | Repo | URL | Estado |
 |---|---|---|
-| viralefy_api (legacy) | https://github.com/Viralefy/viralefy_api | STOPPED, soak |
+| viralefy_api (legacy) | https://github.com/Viralefy/viralefy_api | STOPPED, soak até 2026-06-24 |
 | viralefy_payments | https://github.com/Viralefy/viralefy_payments | Live |
 | viralefy_sender | https://github.com/Viralefy/viralefy_sender | Live |
-| viralefy_front | https://github.com/Viralefy/viralefy_front | Live + consent banner |
+| viralefy_front | https://github.com/Viralefy/viralefy_front | Live + cookies/legal |
 | viralefy_backoffice | https://github.com/Viralefy/viralefy_backoffice | Live |
-| viralefy_ops | https://github.com/Viralefy/viralefy_ops | Live |
+| viralefy_ops | https://github.com/Viralefy/viralefy_ops | Live + Test Kit §22 |
 | viralefy_archive | https://github.com/Viralefy/viralefy_archive | Live (este repo) |
 | **viralefy_core** | https://github.com/Viralefy/viralefy_core | Live (motor principal) |
 | **viralefy_auth** | https://github.com/Viralefy/viralefy_auth | Live |
@@ -308,78 +350,13 @@ ssh -i /tmp/vf-ssh.key root@62.238.41.231 'systemctl start viralefy-user-deletio
 
 ---
 
-## Conformance §22 diretrizes
-
-Estado vs `viralefy_archive/diretrizes.md` (v4.0). Detalhes em `ENGINEERING-CONFORMANCE-AUDIT.md` + `adr/`.
-
-### ADRs criados (2026-06-11)
-
-- [x] ADR-0001 — Shared database em vez de schema-per-service (desvio §10 aceito)
-- [x] ADR-0002 — HTTP loopback sync em vez de Outbox + NATS/Kafka (desvio §9 aceito)
-- [x] ADR-0003 — bcrypt cost 12 (conforme §13)
-- [x] ADR-0004 — viralefy_api LEGACY soak até 2026-06-24
-- [x] ADR-0005 — Single tenant (§15 não se aplica)
-- [x] ADR-0006 — Coraza WAF on-prem em vez de Cloudflare
-- [x] ADR-0007 — Migration tracker sequential + checksum
-- [x] ADR-0008 — Next.js 14 + React + Tailwind padrão frontend
-- [x] ADR-0009 — Multi-repo (10 repos)
-- [x] ADR-0010 — Payment providers com ACL parcial
-
-### Top 5 gaps (Q3 2026 roadmap)
-
-- [ ] **`handlers.go` monolítico** (3325 linhas em core / 3125 em api). Quebrar por bounded context. §6 violado
-- [ ] **Sem linter custom para imports cross-context** — mitiga risco silencioso de ADR-0001
-- [ ] **Outbox apenas em sender** — generalizar `event_outbox` no core (ADR-0002 fase 2)
-- [x] **Test Kit ops — chaos + integration entregues** (2026-06-11): 10 chaos
-      scripts (input-fuzz, property-based, service-kill, db-disconnect,
-      concurrent-load, memory-pressure, clock-skew, slow-loris,
-      partition-test, timeout-stress) + 10 integration scripts
-      (login-superadmin-flow, user-registration-to-purchase,
-      admin-crud-plan, admin-user-management, password-reset-flow,
-      2fa-enroll-verify-flow, proof-upload-multipart,
-      refresh-token-rotation, stripe-webhook-simulation,
-      rate-limit-and-recover). Destrutivos (service-kill/db-disconnect/
-      partition-test) gated por `EDUCE_CHAOS_ALLOW=1`. Run HML:
-      integration 1 pass / 1 fail / 8 skip (fail = rate-limit colateral;
-      skips = sem creds env); chaos 5 pass / 1 fail / 4 skip
-      (fail = JWKS rate-limited — finding real, ver abaixo).
-      Commit f357832 em viralefy_ops.
-- [ ] **Test Kit ops — outros modos pendentes**: pentest/authz/hardening
-      seguem em construção por outros agentes (§22.3)
-- [ ] **LGPD C1+C2+C4 pendente** — DPIA, política retenção, DPO/direitos (§32)
-
-### DDD audit por repo (2026-06-11)
-
-| Repo | domain imports proibidos | application→infra (hexagonal) | maior arquivo |
-|---|---|---|---|
-| viralefy_core | 0 ✅ | 34 ⚠️ híbrido §4.X | handlers.go 3325 ❌ |
-| viralefy_api (legacy) | 0 ✅ | 33 ⚠️ | handlers.go 3125 (vai arquivar) |
-| viralefy_auth | 0 ✅ | 2 ✅ | auth_service.go 470 |
-| viralefy_payments | 0 ✅ | **0 ✅** referência | payment_methods.go 363 |
-| viralefy_sender | 0 ✅ | **0 ✅** referência | outbox.go 395 |
-
----
-
 ## 🎯 Próxima sessão — Priorizar
 
-1. **Verificar prod healthy** (smoke + alerts)
-2. **Check 2026-06-24 soak** se chegou — remover legacy api do repo (ADR-0004 cleanup plan)
+1. **Verificar prod healthy** (`viralefy-test smoke` + check alerts)
+2. **Check 2026-06-24** se chegou — remover legacy api do repo + arquivar
 3. **Cliente forneceu Sentry/Telegram/Slack?** → configurar
-4. **Cliente instalou Renovate App?** → primeiros PRs devem aparecer
+4. **Cliente instalou Renovate App?** → primeiros PRs aparecem segunda-feira
 5. **Pentest externo Tier 3** scheduled?
-6. **Refactor `handlers.go`** quebrar por bounded context (top gap conformance)
-7. **Tech debt baixo impacto**: padronizar /health, anonimizar orders após 5 anos, etc.
-
-### 🔥 Findings da run chaos (2026-06-11 — viralefy_ops f357832)
-
-- **SEV-2 JWKS rate-limited**: `GET /.well-known/jwks.json` retornou 429 em
-  96/100 requests sequenciais (loopback) — IPLimiter aplicado ao path.
-  JWKS DEVE estar sempre disponível pra verifiers externos (sdk, sender,
-  payments, integradores). Corrigir whitelist do path ou bumpar quota
-  pra `>> 1000/min`.
-- **LOW concurrent-load**: 50 GETs paralelos em `/v1/plans` derrubam taxa
-  de sucesso pra ~4% (429s). Endpoint público com IPLimiter sequencial
-  agressivo demais.
-- **Validar pra integration**: exportar `VIRALEFY_TEST_SUPERADMIN_PASS`,
-  `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL` na máquina HML pra rodar os
-  9 scripts que skipam por env ausente.
+6. **CAA records + DNSSEC** — fix DNS findings hardening
+7. **Submit HSTS preload list**
+8. **Q3 refactor**: handlers.go por bounded context (start by /v1/auth/* extraction)
