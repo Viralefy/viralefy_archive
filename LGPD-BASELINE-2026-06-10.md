@@ -157,7 +157,7 @@ LGPD exige ROPA pra controladores.
 |---|---|---|---|
 | Usuário ativo | Indefinido enquanto conta existir | OK | ✅ |
 | Usuário com pedido de exclusão | 30d janela cancelamento → hard-delete | Janela + cron implementados (`cmd/user-deletion-cron`, timer 03:45 UTC). Anonimização de orders preserva 5y fiscal | ✅ |
-| Faturas / orders pagas | 5 anos (Receita Federal, Art. 195 CTN) | Sem TTL — retenção indefinida (aceitável p/ orders, **mas precisa documento de política**) | ⚠️ |
+| Faturas / orders pagas | 5 anos (Receita Federal, Art. 195 CTN) — após o prazo, anonimização do snapshot PII | Cron mensal `viralefy-orders-anonymize.timer` (todo dia 1 às 04:30 UTC) implementado 2026-06-11: `UPDATE orders SET email_at_purchase='[ANONYMIZED]', name_at_purchase='[ANONYMIZED]' WHERE paid_at < NOW() - INTERVAL '5 years'`. Preserva id, total_cents, currency, gateway_id, paid_at (fiscais). Métricas `viralefy_orders_anonymized_total` + `viralefy_orders_anonymize_pending_count` via textfile collector | ✅ |
 | `audit_log` | 6 anos (boa prática) | Sem TTL — indefinido | ⚠️ |
 | `refresh_tokens` | Até `expires_at` (30d) + cleanup | TTL natural; cron de cleanup **não localizado** (deve haver — verificar) | ⚠️ |
 | `revoked_jtis` | Até `expires_at` (TTL do access token, ~1h) | TTL natural | ✅ |
@@ -199,7 +199,7 @@ Política de Privacidade pública. Retenção é definida ad-hoc em código.
 |---|---|---|---|
 | Política de Privacidade | `/legal/privacy?lang=pt` (8 idiomas) | 2026-05-30 (`legal.ts:161`) | ⚠️ Existe mas **incompleta para LGPD** — vide §6 abaixo |
 | Termos de Uso | `/legal/terms?lang=pt` | 2026-05-30 | ✅ Existe; revisar 18+ + foro |
-| Política de Cookies | `/legal/cookies?lang=pt` | 2026-05-30 | ⚠️ Diz "não exibimos banner" (`legal.ts:232`) mas o banner **EXISTE e está mounted** — texto contradiz implementação |
+| Política de Cookies | `/legal/cookies?lang=pt` | 2026-05-30 (texto i18n) + 2026-06-11 (tabela exaustiva) | ⚠️ Texto i18n diz "não exibimos banner" (`legal.ts:232`) e ainda contradiz implementação — refactor pendente. ✅ Página `src/app/legal/cookies/page.tsx` adicionada 2026-06-11: lista item-a-item de todos os cookies/storage (viralefy_token, viralefy_currency, viralefy_gdpr_consent, __cf_bm, cf_clearance, _ga*, _gid, sentry-trace) com provedor, propósito, categoria, duração, tipo. CTA "Gerenciar preferências" + JSON-LD. PT/EN. |
 | Política de Reembolso | `/legal/refund?lang=pt` | 2026-05-31 | ✅ |
 | Sobre | `/legal/about` | 2026-05-30 | ✅ |
 | Contato | `/legal/contact` | 2026-05-30 | ✅ |
@@ -243,7 +243,8 @@ obrigatório antes do PRD.
 ### 7.1 Cookie Banner
 
 ✅ Existe em `viralefy_front/src/components/CookieBanner.tsx`.
-**Atualizado 2026-06-10 (gap C5)** — comportamento corrente:
+**Atualizado 2026-06-10 (gap C5) + 2026-06-11 (renewal UX)** —
+comportamento corrente:
 
 - Aparece quando `getConsent()` devolve null (storage vazio, versão
   antiga ou consent expirado >12 meses).
@@ -254,10 +255,18 @@ obrigatório antes do PRD.
   **Marketing (default OFF)**. Conforme LGPD Art. 8 §3 (consent livre).
 - Schema versionado (`version=2`); upgrade força reconsent universal.
 - Re-prompt automático após 365 dias (recomendação ANPD).
+- **Renewal UX (2026-06-11)**: quando o motivo do re-prompt foi
+  expiração (e não primeira visita), o banner mostra título adicional
+  "Renovação anual de consentimento" + copy "Por LGPD, atualizamos sua
+  preferência de cookies. Confirme novamente." — detecção via
+  `isConsentExpired()` em `lib/gdpr.ts`.
 - Cada decisão é logada em `user_consent_log` via POST `/v1/me/consent`
   (audit trail Art. 8 §6).
 - Página de gerenciamento `/legal/cookie-preferences` permite reset
   (vide `gdpr.ts:resetConsent`).
+- Página de listagem `/legal/cookies` (2026-06-11) traz a tabela
+  exaustiva de todos os cookies/storage com provedor, propósito,
+  categoria, duração e tipo — recomendação ANPD de transparência total.
 - Runbook operacional: `viralefy_archive/RUNBOOK-COOKIE-CONSENT.md`.
 
 ### 7.2 Tracking ativo no front

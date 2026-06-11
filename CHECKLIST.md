@@ -64,6 +64,7 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **viralefy-restore-drill weekly** — sandbox Docker isolated, 7s drill
 - [x] **viralefy-reconcile daily** — 15 invariants de drift (orders/refresh_tokens/credits/etc)
 - [x] **viralefy-user-deletion daily** — hard-delete físico LGPD grace 30d
+- [x] **viralefy-orders-anonymize monthly** — anonimização PII em orders >5y (Receita 5y + LGPD Art. 16) — dia 1, 04:30 UTC
 - [x] **Backup loop bug 3 dias** fixado (chmod parent + capability)
 - [x] **DR runbook + drill executado** — 9s warm cache / 1m45s cold projection vs 30min target = PASS
 
@@ -76,6 +77,9 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] **user_events.analytics_consent** flag (privacy-by-default)
 - [x] **Object storage migrator** (proofs base64 → MinIO, infra ready)
 - [x] **LGPD self-audit baseline** (score BAIXA-MÉDIA, 5 gaps + roadmap 18d)
+- [x] **Orders anonymize cron** (2026-06-11) — Art. 16 retenção fiscal 5y → anonimização PII
+- [x] **Cookie list pública /legal/cookies** (2026-06-11) — tabela exaustiva PT+EN
+- [x] **Consent renewal 365d** (2026-06-11) — banner detecta expiração e exibe copy explicativa
 
 ### Frontend polish
 
@@ -186,9 +190,9 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] **Padronizar `/health` em todos services** (vs atual mix `/health`, `/internal/health`, `/_health`)
 
 #### LGPD additional (não-bloqueadores)
-- [ ] **Anonimização orders.email_at_purchase** após 5 anos fiscal
-- [ ] **Padronizar consent renovação anual** com banner re-prompt
-- [ ] **Cookie list pública** (legal/cookies page com lista atualizada)
+- [x] **Anonimização orders.email_at_purchase** após 5 anos fiscal — `cmd/orders-anonymize-cron` + timer mensal (dia 1, 04:30 UTC) + métricas `viralefy_orders_anonymized_total` (2026-06-11)
+- [x] **Padronizar consent renovação anual** com banner re-prompt — `GDPR_MAX_AGE_MS=365d` + `isConsentExpired()` distinguindo primeira visita vs renovação; banner mostra copy "Por LGPD, atualizamos sua preferência de cookies. Confirme novamente." (2026-06-11)
+- [x] **Cookie list pública** (legal/cookies page com lista atualizada) — `/legal/cookies` shadow do `[doc]` com tabela exaustiva: viralefy_token, viralefy_currency, viralefy_gdpr_consent, __cf_bm, cf_clearance, _ga*, _gid, sentry-trace. Provedor/propósito/categoria/duração/tipo PT+EN, CTA gerenciar (2026-06-11)
 - [ ] **Data Processing Agreements (DPAs)** com Stripe/Resend/Heleket/AbacatePay
 
 ### Decisão de produto pendente (não-tech)

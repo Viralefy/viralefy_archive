@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot pra compactação)
 
-**Última atualização:** 2026-06-11 03:30 UTC (PHASE-9 fechado + hardening + LGPD parcial + observability completa + external smoke ativo)
+**Última atualização:** 2026-06-11 03:40 UTC (PHASE-9 fechado + hardening + LGPD adicional 3 itens + observability completa + external smoke ativo)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Resume estado factual sem narrativa.
 
@@ -233,6 +233,7 @@ Security headers em todos vhosts:
 | viralefy-restore-drill | weekly Sun 05:09 UTC | sandbox Docker isolated, restore 7s |
 | viralefy-reconcile | daily 03:37 UTC | 15 invariants de drift (orders, refresh_tokens, credits, etc) |
 | viralefy-user-deletion | daily 03:53 UTC | hard-delete físico LGPD (grace 30d → exec) |
+| viralefy-orders-anonymize | monthly dia 1 04:30 UTC | anonimização PII em orders >5y (Receita 5y + LGPD Art. 16). Sentinela `[ANONYMIZED]` preserva id/total/currency/gateway_id (fiscais). Métricas `viralefy_orders_anonymized_total` + `viralefy_orders_anonymize_pending_count` (textfile collector). |
 
 **Crons in-process (rodam dentro de viralefy-core):**
 - stripe_reconcile (5min, polling Stripe Sessions API + métricas Prometheus)
