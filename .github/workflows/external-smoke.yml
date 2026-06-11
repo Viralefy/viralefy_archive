@@ -54,11 +54,44 @@ jobs:
           jq --version
           curl --version | head -1
 
-      - name: Run external smoke
+      - name: Run external smoke (legacy harness)
         id: smoke
         run: |
           chmod +x scripts/external-smoke/run.sh scripts/external-smoke/lib.sh scripts/external-smoke/tests/*.sh
           ./scripts/external-smoke/run.sh
+
+      # Roda o novo CLI viralefy-test smoke (§22 diretrizes) contra prod
+      # também, usando os scripts compartilhados do viralefy_ops. Mantém o
+      # legacy acima rodando em paralelo até o cutover completo. Falha aqui
+      # NÃO bloqueia a workflow (continue-on-error) durante o soak — quando
+      # o legacy for descomissionado, remover continue-on-error e o passo
+      # legacy.
+      - name: Run viralefy-test smoke (new CLI, against prod)
+        id: viralefy-test
+        continue-on-error: true
+        env:
+          VIRALEFY_TEST_API_BASE: https://api.viralefy.com
+          VIRALEFY_TEST_FRONT_BASE: https://www.viralefy.com
+          VIRALEFY_TEST_ADMIN_BASE: https://admin.viralefy.com
+          VIRALEFY_TEST_ORIGIN: https://www.viralefy.com
+        run: |
+          set -eux
+          # Clona viralefy_ops pra reusar o CLI + tests/. Em runner GH não
+          # temos acesso ao repo ops por default (privado em alguns ambientes);
+          # quando público, basta clonar shallow.
+          git clone --depth 1 https://github.com/Viralefy/viralefy_ops.git "$RUNNER_TEMP/ops" 2>/dev/null || {
+            echo "viralefy_ops clone falhou — skipping new CLI run (esperado se repo privado)"
+            exit 0
+          }
+          chmod 755 "$RUNNER_TEMP/ops/bin/viralefy-test"
+          find "$RUNNER_TEMP/ops/tests" -name '*.sh' -exec chmod 755 {} +
+          VIRALEFY_TESTS_DIR="$RUNNER_TEMP/ops/tests" \
+            "$RUNNER_TEMP/ops/bin/viralefy-test" smoke \
+            --log-dir "$GITHUB_WORKSPACE/viralefy-test-logs" || true
+          # Mostra summary.json no log
+          if [[ -f "$GITHUB_WORKSPACE/viralefy-test-logs/summary.json" ]]; then
+            cat "$GITHUB_WORKSPACE/viralefy-test-logs/summary.json"
+          fi
 
       - name: Write step summary
         if: always()
@@ -78,5 +111,6 @@ jobs:
             external-smoke-results.jsonl
             external-smoke-failures.json
             external-smoke-summary.md
+            viralefy-test-logs/**
           retention-days: 90
           if-no-files-found: warn
