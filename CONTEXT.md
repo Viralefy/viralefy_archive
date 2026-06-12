@@ -141,7 +141,7 @@ invoices, users.
 | 900601 | /v1/auth/* password (libinjection FPs) |
 | 900700/710/720 | PUT/PATCH/DELETE + paranoia=2 + body parser |
 | 900800/801/802 | RFI 931xxx em /v1/checkout, /v1/auth/, /v1/me/ |
-| 900920 | 932240 (RCE) + 942430-442 (SQL char/comment) — todos accuracy=0 |
+| 900920 | 932240 (RCE) + 942430-442 (SQL char/comment) + 920230 (multi URL enc) — todos accuracy=0 |
 | 900930 | 931xxx em ARGS:return_to (SSO callback) |
 
 **Importante**: `systemctl reload caddy` NÃO recarrega ruleset Coraza —
