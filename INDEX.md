@@ -1,6 +1,6 @@
 # Viralefy — INDEX.md (Índice de Documentação)
 
-**Última atualização:** 2026-06-11 05:00 UTC
+**Última atualização:** 2026-06-12
 
 Mapa completo de todos os documentos do `viralefy_archive`. Para começar: leia `CONTEXT.md`, depois `CHECKLIST.md`.
 
@@ -8,12 +8,13 @@ Mapa completo de todos os documentos do `viralefy_archive`. Para começar: leia 
 
 ## 📍 Entry points (leia primeiro)
 
-| Doc | Propósito | Tamanho |
-|---|---|---|
-| **[CONTEXT.md](CONTEXT.md)** | Snapshot factual do estado atual da plataforma | ~16KB |
-| **[CHECKLIST.md](CHECKLIST.md)** | Done + pending priorizado | ~22KB |
-| **[README.md](README.md)** | Overview do archive | - |
-| **[diretrizes.md](diretrizes.md)** | Padrões de engenharia (normativo) v4.0 | 37KB |
+| Doc | Propósito |
+|---|---|
+| **[CONTEXT.md](CONTEXT.md)** | Snapshot factual do estado atual da plataforma |
+| **[CHECKLIST.md](CHECKLIST.md)** | Done + pending priorizado |
+| **[SESSION-2026-06-11.md](SESSION-2026-06-11.md)** | Detalhes da sessão de 11/06 (auth UI / tracking / soft-delete / honeypot) |
+| **[README.md](README.md)** | Overview do archive |
+| **[diretrizes.md](diretrizes.md)** | Padrões de engenharia (normativo) v4.0 |
 
 ---
 
