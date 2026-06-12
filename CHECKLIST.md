@@ -155,7 +155,15 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [ ] Centralizar `bcryptCost = 12` em const único (3 lugares atualmente)
 
 ### Bugs reportados
-- [ ] Manager POST /v1/admin/plans retornando 500 (investigar)
+- [ ] POST /v1/admin/plans 500 em duplicate — **root cause 2026-06-12**:
+      constraint `plans_category_name_key UNIQUE(category,name)` retorna pg
+      23505, mas `writeError` em [core http/response.go:27-56](../viralefy_core/internal/interface/http/response.go#L27-L56) não
+      mapeia `*pgconn.PgError` → cai no default INTERNAL_ERROR/500 em vez
+      de 409 Conflict. Fix: detectar Code==23505 → `domain.ErrConflict`,
+      Code==23503 (FK) → `domain.ErrInvalidInput`. Afeta toda entidade
+      cujo repo retorna pgx err raw em UNIQUE/FK violation.
+- [ ] `writeError` não loga o erro raw — 500s ficam silenciosos no journald.
+      Adicionar `slog.Warn("handler error", "err", err.Error())` no default branch.
 - [ ] plan_prices BTC drift UX (override form não persiste)
 
 ### DNS findings (auditoria 2026-06-10)
