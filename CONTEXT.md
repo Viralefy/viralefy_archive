@@ -144,8 +144,12 @@ invoices, users.
 | 900920 | 932240 (RCE) + 942430-442 (SQL char/comment) + 920230 (multi URL enc) — todos accuracy=0 |
 | 900930 | 931xxx em ARGS:return_to (SSO callback) |
 
-**Importante**: `systemctl reload caddy` NÃO recarrega ruleset Coraza —
-use `systemctl restart caddy` quando mexer em `coraza-*.conf`.
+**Importante**:
+- `systemctl reload caddy` NÃO recarrega ruleset Coraza —
+  use `systemctl restart caddy` quando mexer em `coraza-*.conf`.
+- Path correto do exclusions na máquina: `/etc/caddy/coraza/coraza-crs-exclusions.conf`
+  (subpasta `coraza/` — Caddyfile faz `Include` desse path). NÃO deployar
+  na raiz `/etc/caddy/` — fica ignorado e o restart "funciona" silenciosamente.
 
 ---
 
