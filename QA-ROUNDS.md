@@ -124,12 +124,17 @@ Marcadores: `🔴 crítico` `🟠 alta` `🟡 média/baixa`. ID = numeração do
 |---|---|---|
 | 0 | 1 | 1 |
 | 1 | 5 grupos = 22 bugs | 7 grupos |
-| 2 | 0 | 3 grupos |
-| 3 | 0 | 11 grupos |
-| 4 | 0 | 14 grupos |
-| 5 | 0 | 18 grupos |
+| 2 | 3 grupos = 8 bugs | 3 grupos |
+| 3 | 3 grupos = 14 bugs | 11 grupos |
+| 4 | 4 grupos = 7 bugs | 14 grupos |
+| 5 | 4 grupos = 11 bugs | 18 grupos |
 | 6 | 0 | 21 grupos |
 
-### Bugs fechados ate aqui (23 do QA):
+### Bugs fechados ate aqui (63 do QA):
 
-BUG-3, 15, 26, 39, 40, 51, 80, 83, 96, 97, 101, 107, 122, 131, 132, 133, 144, 180, 186, 187, 188, 201, 210
+**Round 0**: BUG-15
+**Round 1**: BUG-3, 26, 39, 40, 51, 80, 83, 96, 97, 101, 107, 122, 131, 132, 133, 144, 180, 186, 187, 188, 201, 210
+**Round 2**: BUG-10, 44, 50, 85, 86, 87, 92, 119, 126, 155
+**Round 3**: BUG-8, 43, 47, 77, 103, 127, 128, 129, 135, 138, 139, 171, 172, 173
+**Round 4**: BUG-56, 58, 70, 175, 176, 177, 203
+**Round 5**: BUG-6, 7, 35, 42, 65, 66, 158, 168, 206
