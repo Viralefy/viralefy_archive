@@ -129,9 +129,11 @@ Marcadores: `🔴 crítico` `🟠 alta` `🟡 média/baixa`. ID = numeração do
 | 4 | 4 grupos = 7 bugs | 14 grupos |
 | 5 | 4 grupos = 11 bugs | 18 grupos |
 | 6 | 5 grupos = 15 bugs | 21 grupos |
-| 7 | 4 grupos = 8 bugs (críticos) | — |
+| 7 | 4 grupos = 9 bugs (críticos) | — |
+| 8 | 5 grupos = 10 bugs | — |
+| 9 | 3 grupos = 8 bugs | — |
 
-### Bugs fechados ate aqui (86 do QA):
+### Bugs fechados ate aqui (104 do QA):
 
 **Round 0**: BUG-15
 **Round 1**: BUG-3, 26, 39, 40, 51, 80, 83, 96, 97, 101, 107, 122, 131, 132, 133, 144, 180, 186, 187, 188, 201, 210
@@ -141,3 +143,5 @@ Marcadores: `🔴 crítico` `🟠 alta` `🟡 média/baixa`. ID = numeração do
 **Round 5**: BUG-6, 7, 35, 42, 65, 66, 158, 168, 206
 **Round 6**: BUG-9, 16, 21, 24, 29 (parcial), 34, 46, 52, 55 (parcial), 100, 147, 148, 149, 167
 **Round 7**: BUG-60, 61, 62, 90, 91, 105, 109, 117, 163
+**Round 8**: BUG-49, 38, 78, 93, 116, 167 (Aguarde texto)
+**Round 9**: BUG-36, 37, 45, 97, 123, 145, 150, 152, 153, 154, 165, 181 (busca + recovery preço + meta + spelling)
