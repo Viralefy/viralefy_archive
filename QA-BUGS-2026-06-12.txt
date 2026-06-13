@@ -1,0 +1,1141 @@
+ Bugs Críticos
+1. Tela preta durante o scroll (Recorrente em todas as páginas)
+Onde: Homepage /br, página /br/seguidores-instagram, página /br/recuperacao-de-perfil
+Descrição: Ao rolar a página, aparece uma grande área completamente preta que ocupa a tela inteira por uma fração de segundo antes do conteúdo renderizar. É um bug de rendering/virtualização de lista. Ocorre de forma consistente e repetida. Provavelmente causado pelo React Error #418 no console (discrepância entre renderização no servidor e no cliente — hydration mismatch).
+Impacto: Experiência visual muito degradante para o usuário.
+2. React Hydration Error #418 no Console (Recorrente)
+Onde: Toda a aplicação Next.js
+Descrição: Error: Minified React error #418 — indica que o texto renderizado no servidor diverge do texto renderizado no cliente. Ocorreu em todas as cargas de página testadas. Este é provavelmente a causa raiz do bug da tela preta.
+Impacto: Bug de performance e estabilidade. Pode causar comportamentos imprevisíveis na UI.
+3. Página errada na URL /br/recuperacao-de-perfil
+Onde: viralefy.com/br/recuperacao-de-perfil
+Descrição: A URL é /recuperacao-de-perfil, mas o título da página exibe "Serviços premium de crescimento em Brasil" e o conteúdo é sobre gestão de contas e retainers mensais — não sobre recuperação de perfil. O título da tab é "Gestão premium para Instagram e TikTok em Brasil". A rota está renderizando o componente errado.
+Impacto: Usuário que clicar em "Recuperação de perfil" vai ver conteúdo de "Serviços premium" — confusão total de conteúdo.
+
+🟠 Bugs de Alta Severidade
+4. Logo/nome "Viralefy" invisível no modo claro (Light Mode)
+Onde: Navbar, modo claro
+Descrição: Ao ativar o tema claro com o botão ☀️, o texto "Viralefy" ao lado do logo fica com cor branca sobre fundo branco — completamente invisível. O logo ícone permanece visível, mas o texto da marca some.
+Impacto: Quebra da identidade visual no modo claro.
+5. Nenhum feedback ao aplicar código promocional
+Onde: Modal "Complete purchase" → campo "Promo code"
+Descrição: O campo já vem pré-preenchido com BLACK10. Ao clicar em "Apply", nada acontece: sem mensagem de sucesso, sem mensagem de erro, sem mudança de preço, sem indicação visual. O usuário não tem ideia se o código foi aplicado ou não.
+Impacto: Experiência de checkout confusa e sem confiança.
+6. Formulário de login aceita e-mail inválido sem feedback
+Onde: auth.viralefy.com/login
+Descrição: O campo de e-mail é do tipo email (HTML5), porém ao digitar "invalidemail" (sem @) e clicar em "Sign in", o formulário não exibe nenhuma mensagem de erro e não impede a submissão. A validação client-side não está funcionando corretamente.
+Impacto: Fluxo de autenticação com validação quebrada.
+7. Link "Esqueceu a senha?" ausente na tela de login
+Onde: auth.viralefy.com/login
+Descrição: A tela de login possui apenas os campos de email e senha e o botão "Sign in". Não há nenhum link de "Forgot password" / "Esqueceu a senha?". Esta é uma funcionalidade padrão e obrigatória em qualquer sistema de autenticação.
+Impacto: Usuários que esquecerem a senha ficam sem opção de recuperação.
+
+🟡 Bugs de Localização (i18n) — Textos em inglês na página PT-BR
+8. Múltiplos textos em inglês no mercado brasileiro
+Numa página configurada para o Brasil (pt-BR), os seguintes textos aparecem em inglês:
+
+Títulos dos cards de produto: "100 followers Instagram", "First push", "Ideal for testing", "Initial growth", "More reach", "Steady boost", "Real audience", "Scale", etc.
+Labels nos cards: "Local pricing applied" (aparece em inglês nas páginas de produto)
+Títulos de Compartilhamentos: "100 shares Instagram", "100 saves Instagram" (inglês)
+Rodapé — coluna "DISCOVER": Pricing, Cities, Compare Viralefy, Help center, Case studies, System status, Cookie preferences, Refer & earn, Subscriptions, Developer API (todos em inglês)
+Menu "Serviços": botão "Browse country" em inglês
+Busca: resultados do dropdown com texto redundante "Instagram followers Instagram & TikTok" (duplicação de "Instagram")
+Página /pricing: completamente em inglês, inclusive a navbar
+
+Impacto: Experiência inconsistente e pouco profissional para o mercado-alvo.
+9. Página de login totalmente em inglês para usuários do BR
+Onde: auth.viralefy.com/login
+Descrição: Toda a página de autenticação está em inglês ("Welcome back", "Sign in", "Track every order…", "Refill 30 days", "Delivered fast", "Don't have an account?"), mesmo quando acessada a partir do contexto do mercado Brasil.
+Impacto: Quebra de experiência localizada no ponto mais crítico do fluxo de conversão.
+10. Cookie banner reaparece no domínio auth.viralefy.com
+Onde: Página de login
+Descrição: O banner de cookies que foi dispensado em www.viralefy.com reaparece ao navegar para auth.viralefy.com. Os cookies são salvos por domínio, mas isso deveria ser tratado com um domínio de cookie compartilhado (.viralefy.com).
+Impacto: Experiência duplicada e irritante para o usuário.
+
+🔵 Problemas de UX / Melhorias
+11. Preferência de moeda não persiste entre navegações
+Ao navegar de /br para /pricing e voltar, a moeda selecionada (BRL) não foi mantida inicialmente, exigindo que o usuário selecione novamente.
+12. Preço de "Account Recovery" potencialmente confuso
+O produto "Account recovery" exibe R$ 54.100,00 na listagem principal (equivalente a $10.000 USD). Não há nenhuma justificativa ou aviso de preço especial na listagem — o usuário só descobre o preço ao acessar a página separada. Considerar exibir o valor em USD diretamente ou adicionar um texto explicativo.
+13. Navbar fixa duplicada durante scroll
+Durante o scroll, a navbar aparece tanto no topo quanto no meio da tela (versão "sticky" e a original), criando um efeito visual estranho antes do layout se estabilizar.
+14. Descrições de planos não traduzidas
+Subtítulos descritivos como "First push", "Ideal for testing", "Initial growth", "Steady boost", "Community", "Traction", "Micro-influencer" permanecem em inglês mesmo na versão PT-BR.
+
+Novos Bugs Críticos
+BUG-15: Sistema de preços com status "Degraded" — dado confirmado pelo próprio site
+Onde: /status
+Descrição: A página de System Status da Viralefy exibe status geral "Degraded" com a nota: "Plan prices → Degraded — stale rows in plan_prices". Isso significa que há dados desatualizados na tabela de preços do banco de dados. Isso explica possíveis inconsistências de preço no site.
+Impacto: Os preços exibidos podem estar desatualizados ou incorretos para os usuários neste momento.
+BUG-16: Formulário de compra avança com handle do Instagram totalmente inválido
+Onde: Modal "Complete purchase" → campo "@ on Instagram"
+Descrição: Ao preencher o handle com "usuario invalido! @#$%" (espaços e caracteres especiais proibidos pelo Instagram), o formulário avança normalmente para o passo 2 de pagamento. Só na confirmação final retorna a mensagem genérica "invalid input". Handles do Instagram só permitem letras, números, underscores e pontos.
+Impacto: O usuário pode chegar até o pagamento com um handle inválido, e ao tentar confirmar, perde todos os dados digitados (bug adicional: formulário reseta ao voltar).
+BUG-17: Formulário de compra reseta dados ao retornar após erro
+Onde: Modal de compra — passos 1→2→confirmar→erro→volta ao passo 1
+Descrição: Quando o backend rejeita os dados (retorna "invalid input"), o modal volta ao Passo 1 com todos os campos completamente vazios. O usuário perde o nome, email e handle que havia digitado.
+Impacto: Péssima experiência de checkout. Pode levar ao abandono da compra.
+BUG-18: Link "System status" no rodapé aponta para URL errada (404)
+Onde: Rodapé da página /br — link "System status"
+Descrição: O link aponta para /system-status que retorna 404. A URL correta é /status. O sistema existe e funciona, mas o link está errado.
+Impacto: Usuários com problemas não conseguem verificar o status da plataforma.
+BUG-19: Botão "Suporte" na navbar leva ao login, não ao suporte
+Onde: Navbar → botão "Suporte"
+Descrição: Clicar em "Suporte" redireciona para auth.viralefy.com/login em vez de abrir uma página ou chat de suporte. Usuários sem conta ficam sem acesso a nenhuma forma de suporte direta.
+Impacto: Usuários que precisam de ajuda (especialmente antes de comprar) não conseguem acessar o suporte.
+
+🟠 Novos Bugs de Alta Severidade
+BUG-20: Slider de quantidade com comportamento não-linear incorreto
+Onde: Página /br/curtidas-instagram → seção "Quantos?"
+Descrição: Ao arrastar o slider da posição mínima (100) até o meio da barra, o valor salta direto para o máximo (100.000) em vez de mostrar um valor intermediário (~50.000). O slider não responde proporcionalmente ao arrastar.
+Impacto: O usuário não consegue selecionar quantidades intermediárias visualmente.
+BUG-21: "Outros pacotes da mesma categoria" exibe somente 1 produto
+Onde: Página de detalhe do produto (ex: /br/curtidas-instagram/100-curtidas-instagram)
+Descrição: A seção "Outros pacotes da mesma categoria" exibe apenas 1 item ("250 likes Instagram") quando deveria mostrar todos os outros planos da categoria (há mais de 10 planos de curtidas disponíveis).
+Impacto: Usuário não consegue navegar facilmente entre produtos relacionados.
+BUG-22: Link "Sobre a Viralefy" (/legal/about?lang=pt) redireciona para Help Center
+Onde: Rodapé → "Sobre a Viralefy"
+Descrição: O link https://www.viralefy.com/legal/about?lang=pt não leva à página "Sobre a Viralefy" em português — redireciona para o Help Center em inglês. A URL sem o parâmetro /legal/about funciona, mas em inglês.
+Impacto: Link completamente quebrado para o contexto PT-BR.
+BUG-23: Links do rodapé com prefixo /br/ quebrados (404)
+Onde: Rodapé da versão PT-BR
+Descrição: Os seguintes links no rodapé geram 404 porque usam o prefixo /br/ incorretamente:
+
+Cities → /br/cities (404) — URL correta é /cities
+Compare Viralefy → /vs (404) — página não existe
+System status → /system-status (404) — URL correta é /status
+Impacto: 3+ links do rodapé quebrados.
+
+BUG-24: Todo o fluxo de autenticação (login e registro) está em inglês no contexto PT-BR
+Onde: auth.viralefy.com/login e auth.viralefy.com/register
+Descrição: Além do já reportado login em inglês, a página de registro também está completamente em inglês: "Create account", "Get started in 30 seconds", "Full name", "Password (min. 8 characters)", "Phone (with country code)", "Fill ONE of the two above. Either field is enough."
+Impacto: Toda a jornada de autenticação ignora a localização PT-BR.
+BUG-25: Página de registro sem link "Já tenho conta" / login sem link "Criar conta"
+Onde: auth.viralefy.com/register e auth.viralefy.com/login
+Descrição: A tela de registro não possui link para login e a tela de login possui apenas "Don't have an account? →" sem texto descritivo. Não há navegação clara entre os dois fluxos.
+Impacto: Usuários que chegam na página errada ficam sem orientação.
+
+🟡 Novos Bugs de Localização / Conteúdo
+BUG-26: Página 404 completamente em inglês em rotas /br/
+Onde: Qualquer URL inválida no contexto /br/
+Descrição: A página 404 exibe "This page doesn't exist — but your next follower does.", "Browse all services", "My account", "Sign in", "Create account", "Popular markets" — tudo em inglês, sem localização.
+Impacto: Usuário que erra uma URL no contexto BR recebe resposta em inglês.
+BUG-27: Seção "Outros mercados" na homepage sem bandeiras para países europeus da 2ª linha
+Onde: Homepage /br → seção "Outros mercados"
+Descrição: Os países na segunda linha de "Europe / SEPA" (Luxembourg, Magyarország, Malta, Monaco, Nederland, etc.) aparecem sem bandeiras emoji, enquanto os da primeira linha têm bandeiras. Inconsistência visual.
+Impacto: Visual incompleto e não profissional.
+BUG-28: Países asiáticos no modal "Mercados" sem bandeiras
+Onde: Modal "Mercados" → coluna Ásia
+Descrição: Brunei, Cambodia, Indonesia, Laos, Malaysia etc. aparecem sem emoji de bandeira ao lado do nome, diferentemente dos países das Américas que todos têm bandeiras.
+Impacto: Inconsistência visual no seletor de mercados.
+BUG-29: Erro de mensagem genérica "invalid input" sem indicação do campo
+Onde: Modal de compra — ao submeter handle inválido
+Descrição: Ao receber erro do backend, o modal exibe apenas "invalid input" (em inglês) sem indicar qual campo está errado (nome, e-mail ou handle), sem highlight do campo problemático, e sem tradução para português.
+Impacto: Usuário não sabe o que corrigir.
+BUG-30: Página de Contato com "Other languages:" em inglês
+Onde: /legal/contact?lang=pt
+Descrição: Apesar do conteúdo da página estar em português, o seletor de idiomas na parte inferior exibe "Other languages:" em inglês.
+Impacto: Pequena inconsistência de localização.
+BUG-31: E-mail de suporte sem link mailto: clicável
+Onde: /legal/contact?lang=pt
+Descrição: O e-mail support@viralefy.com aparece como texto puro, sem ser um link clicável mailto:. Usuários em mobile especialmente esperam poder clicar no e-mail.
+Impacto: UX pobre para contato via e-mail.
+BUG-32: Título inconsistente na página de produto — mix PT/EN
+Onde: /br/curtidas-instagram/100-curtidas-instagram
+Descrição: O título da página é "100 likes Instagram — Brasil" (em inglês), enquanto a URL usa "100-curtidas-instagram" (em português). O subtítulo diz "100 curtidas instagram entregues" mas o título principal usa "likes".
+Impacto: Inconsistência de idioma na mesma página.
+
+🔵 Novos Problemas de UX / Funcionalidade
+BUG-33: Formulário de compra — campos sem rótulo de obrigatoriedade (*)
+Onde: Modal de compra — campos Full name, Email, @ on Instagram
+Descrição: Nenhum campo obrigatório tem asterisco * ou qualquer indicação visual de que é obrigatório. Ao tentar avançar com campos vazios, o campo "Full name" apenas fica com borda colorida, sem mensagem explicativa.
+Impacto: Usuário não sabe quais campos são obrigatórios.
+BUG-34: Modal de checkout inteiramente em inglês
+Onde: Modal "Complete purchase" — passos 1, 2, 3 e 4
+Descrição: Todos os textos do checkout estão em inglês: "Complete purchase", "30-day refill guarantee", "No password required", "Delivery starts from 1 hour", "Full name", "@ on Instagram", "Promo code (optional)", "Continue → choose method", "Choose payment method", "Pick how you want to pay", "Confirm — pay", "Pick a method first".
+Impacto: O ponto mais crítico da conversão (checkout) não está localizado para o mercado BR.
+BUG-35: Página de registro sem Termos de Serviço / checkbox de consentimento
+Onde: auth.viralefy.com/register
+Descrição: O formulário de registro não exibe nenhum checkbox de concordância com Termos de Serviço ou Política de Privacidade antes de criar a conta. Em muitas jurisdições (incluindo o Brasil com a LGPD) isso é uma exigência legal.
+Impacto: Potencial problema de conformidade legal com LGPD.
+
+📊 Resumo Total Atualizado
+CategoriaQuantidade🔴 Crítico5 (novos) + 3 (anterior) = 8 total🟠 Alta Severidade6 (novos) + 4 (anterior) = 10 total🟡 Localização/Conteúdo7 (novos) + 3 (anterior) = 10 total🔵 UX/Funcionalidade3 (novos) + 4 (anterior) = 7 totalTOTAL35 bugs identificados
+
+🚨 Descoberta Mais Urgente
+O sistema de preços está marcado como "Degraded" no status page (/status) com "stale rows in plan_prices". Isso é um incidente ativo que pode estar afetando todos os preços exibidos no site agora mesmo e deve ser tratado com prioridade máxima.
+
+BUG-36 — Busca envia usuário para página errada ao pressionar Enter
+
+Página: /br (e qualquer página PT-BR)
+Reprodução: Digite "seguidores" na barra de busca → pressione Enter
+Resultado: Usuário é redirecionado para /us/instagram-followers (Estados Unidos, em inglês!) — completamente fora do contexto Brasil
+Impacto: Usuário perde totalmente o contexto de mercado. O site inteiro muda para inglês/EUA.
+
+
+BUG-37 — Navegação para /br após sair do contexto não restaura o mercado
+
+Reprodução: Após ser redirecionado para /us/... pelo bug da busca, clique no logo ou navegue para /br
+Resultado: A página permanece em inglês e no contexto EUA. O contexto de mercado fica corrompido na sessão.
+Impacto: Usuário pode ficar preso no contexto errado sem perceber.
+
+
+BUG-38 — /br/servicos-premium retorna 404
+
+Reprodução: Navegue para viralefy.com/br/servicos-premium
+Resultado: Página 404 (a URL correta é /br/servicos)
+Impacto: Qualquer link externo ou bookmark apontando para /br/servicos-premium quebra. Apenas links internos usam a URL correta.
+
+
+BUG-39 — <html lang="en"> em todas as páginas PT-BR
+
+Reprodução: Inspecione document.documentElement.lang em qualquer página /br
+Resultado: Retorna "en" — o atributo de idioma HTML está errado
+Impacto: Leitores de tela leem o conteúdo português com pronúncia inglesa (acessibilidade). Google classifica as páginas como inglesas (SEO). Viola WCAG 3.1.1.
+
+
+🟠 ALTA SEVERIDADE
+
+BUG-40 — Conteúdo da hero section errado em 5 páginas de categoria
+
+Páginas afetadas: /br/comentarios-instagram, /br/comentarios-tiktok, /br/compartilhamentos-instagram, /br/compartilhamentos-tiktok, /br/seguidores-tiktok
+Resultado: Todas exibem o texto de hero da página de Curtidas — "Comprar curtidas e engajamento em Brasil" e a descrição sobre curtidas
+Impacto: SEO gravemente prejudicado (conteúdo duplicado), usuário confuso sobre o que está comprando.
+
+
+BUG-41 — Título da página incorreto para categorias específicas
+
+Páginas afetadas: /br/seguidores-tiktok (tab title: "Comprar seguidores para Instagram e TikTok em Brasil"), /br/curtidas-tiktok (title: "Comprar curtidas para Instagram e TikTok")
+Resultado: Títulos genéricos, não específicos para a plataforma selecionada
+Impacto: SEO fraco — a página de TikTok inclui "Instagram" no título.
+
+
+BUG-42 — Formulário de cadastro aceita e-mail inválido sem mostrar erro
+
+Reprodução: Em /register, preencha: nome="A", email="notanemail", senha="123" → clique em "Create account"
+Resultado: Nenhuma mensagem de erro visível. O formulário fica estático sem feedback ao usuário.
+Impacto: O usuário não sabe o que há de errado. A validação existe no servidor mas não é comunicada claramente.
+
+
+BUG-43 — Contradição: "Sem precisar de senha" vs campo "Senha" obrigatório no cadastro
+
+Página: auth.viralefy.com/register
+Resultado: O painel esquerdo afirma "No password required" como feature, mas o formulário exige uma senha (mín. 8 caracteres)
+Impacto: Promessa falsa ao usuário — messaging contraditório.
+
+
+BUG-44 — "Preferences" cookies ativos mesmo após escolher "Apenas essenciais"
+
+Reprodução: Aceite apenas cookies essenciais → visite /legal/cookie-preferences
+Resultado: "Preferences: Enabled" aparece no status atual
+Impacto: Possível violação da LGPD — cookies não-essenciais sendo ativados sem consentimento explícito.
+
+
+BUG-45 — Busca não prioriza o mercado atual do usuário
+
+Reprodução: Na página /br, busque "seguidores"
+Resultado: Resultados começam com EUA (🇺🇸), depois Canadá (🇨🇦), depois México (🇲🇽) — Brasil nunca aparece na lista de resultados
+Impacto: Usuário brasileiro vê resultados completamente irrelevantes no topo. UX muito ruim.
+
+
+BUG-46 — OG image (social share thumbnail) em inglês para páginas PT-BR
+
+URL testada: viralefy.com/og/br/seguidores-instagram
+Resultado: Imagem mostra "Instagram followers in Brazil", "Real followers · engagement · views", "from $2.50" — tudo em inglês
+Impacto: Quando usuários brasileiros compartilham no WhatsApp/Twitter, a preview aparece em inglês — inconsistência com a experiência localizada.
+
+
+🟡 LOCALIZAÇÃO / CONTEÚDO
+
+BUG-47 — Títulos de produtos em inglês em todas as páginas de categoria
+
+Páginas: Todas as /br/*
+Exemplos: "100 followers Instagram", "Ideal for testing", "First push", "Takeoff", "Growing presence", "Traction", "100 likes TikTok", "Initial boost", "25 comments Instagram", "Light conversation", "100 shares Instagram", "Spread the word"
+Impacto: Experiência localizada quebrada para usuários brasileiros.
+
+
+BUG-48 — Meta keywords em inglês nas páginas PT-BR
+
+Resultado: <meta name="keywords" content="instagram followers,tiktok followers,instagram engagement,social media growth,buy followers,buy views,real engagement">
+Impacto: SEO em inglês para páginas em português — as páginas não serão encontradas por buscas em PT-BR no Google.
+
+
+BUG-49 — Página "Cookie preferences" inteiramente em inglês
+
+URL: /legal/cookie-preferences
+Impacto: Página de privacidade que deve cumprir LGPD está em inglês para usuários brasileiros.
+
+
+BUG-50 — Página "Case studies" inteiramente em inglês (sem versão PT-BR)
+
+URL: /case-studies
+Resultado: Conteúdo 100% em inglês, sem localização
+Impacto: Oportunidade de conversão perdida para o mercado brasileiro.
+
+
+BUG-51 — Seção DISCOVER do rodapé em inglês nas páginas /br
+
+Itens: "Pricing", "Cities", "Compare Viralefy", "Help center", "Case studies", "System status", "Cookie preferences", "Refer & earn", "Subscriptions", "Developer API"
+Impacto: Rodapé mesclado (JURÍDICO em PT, DISCOVER em EN) — inconsistente.
+
+
+BUG-52 — Página de login tem texto misto PT/EN
+
+Resultado: "Sign in", "Welcome back", "Don't have an account?" em inglês — mas "Aguarde 2-3s para a verificação anti-bot" em português
+Impacto: Localização inconsistente no mesmo componente.
+
+
+🔵 UX / MELHORIA
+
+BUG-53 — Tela preta durante scroll é reproduzível e consistente
+
+Reprodução: Qualquer página /br/* — scroll rápido de 5+ ticks
+Resultado: Flash de tela completamente preta (duração ~0.3s) antes do conteúdo aparecer
+Confirmado em: /br/seguidores-instagram, /br/servicos, /br/visualizacoes-instagram, /br/curtidas-tiktok — pelo menos 6 vezes nesta sessão de testes
+Causa raiz: React Error #418 (hydration mismatch) confirmado no console.
+
+BUG-54 — Cupom "BLACK10" não funciona — "coupon not found"
+
+Reprodução: Modal de compra → campo "Promo code" → digitar BLACK10 → clicar "Apply"
+Resultado: Mensagem "coupon not found" em vermelho
+Impacto: O cupom estava pré-preenchido na interface em rounds anteriores — agora confirma que não existe/está desativado. Usuários que viram o código em anúncios ou e-mails não conseguirão aplicar desconto. Impacto direto em conversão.
+
+
+BUG-55 — Modal de compra 100% em inglês para usuários PT-BR
+
+Páginas: Todo modal de checkout em /br/*
+Itens não traduzidos: "Complete purchase", "Full name", "Email", "@ on Instagram", "yourhandle", "Promo code (optional)", "Apply", "Continue → choose method", "Cancel", "Choose payment method", "Pick how you want to pay", "Instant Brazilian transfer", "Crypto, auto-confirmed on chain", "Credit/debit card via Stripe", "Pick a method first", "Complete your payment", "Pay with card", "Open Stripe checkout →", "Already paid? Upload your proof", "Receipt file (image or PDF, max 5 MB)", "Note (TX hash, time, etc.)", "Skip — I'll upload later", "30-day refill guarantee", "No password required", "Delivery starts from 1 hour"
+Impacto: Todo o fluxo crítico de conversão (checkout) está em inglês. Máximo impacto em taxa de abandono de carrinho.
+
+
+BUG-56 — robots.txt bloqueia IA (Claude, Anthropic, GPT) mas usa mesmo Allow: /
+
+Detalhes: O robots.txt declara User-Agent: ClaudeBot, User-Agent: anthropic-ai, User-Agent: GPTBot, etc. com Allow: / — contradição lógica. A intenção parece bloquear AI crawlers mas o Allow: / efetivamente os permite. Simultaneamente, Disallow: /og/ bloqueia geração de imagens sociais para todos (inclusive Google)
+Impacto: Configuração incorreta do robots.txt pode impactar SEO e indexação.
+
+
+BUG-57 — JSON-LD duplicado: BreadcrumbList e Service aparecem duas vezes
+
+Evidência: document.querySelectorAll('script[type="application/ld+json"]') retorna 4 scripts — BreadcrumbList duplicado e Service duplicado
+Impacto: Google pode penalizar por dados estruturados duplicados; pode causar erros no Rich Results Test.
+
+
+BUG-58 — FAQ no JSON-LD menciona "boleto" mas boleto não existe no checkout
+
+FAQ JSON-LD: "Cartão, Pix, boleto e cripto (USDT e BTC)"
+Checkout real: Apenas PIX (Abacate pay), Heleket (cripto), Stripe (cartão) — sem boleto
+Impacto: Informação falsa aos usuários e ao Google. Violação de dados estruturados.
+
+
+🟠 ALTA SEVERIDADE
+
+BUG-59 — Sitemap sem hreflang — ausente em sitemap.xml
+
+Evidência: sitemap/en.xml não contém <xhtml:link rel="alternate" hreflang> nas entradas
+Resultado: Google não consegue mapear as versões de idioma/mercado entre si via sitemap
+Impacto: SEO internacional gravemente prejudicado — hreflang existe nas páginas mas não no sitemap, causando inconsistência.
+
+
+BUG-60 — Escape não fecha o modal no Step 3 do checkout
+
+Reprodução: Abrir modal → avançar até Step 3 "Complete payment" → pressionar Escape
+Resultado: Modal permanece aberto — Escape não funciona neste step
+Comportamento nos outros steps: Step 1 fecha com Cancel; Step 2 tem ← Back
+Impacto: Usuário preso no modal sem botão de fechar visível ou atalho de teclado. Viola acessibilidade (WCAG 2.1 - Crit. 2.1.2).
+
+
+BUG-61 — Step 3 (Stripe) mostra seção de upload de comprovante PIX/cripto
+
+Reprodução: Selecionar Stripe → Confirm → Step 3
+Resultado: Aparece "Already paid? Upload your proof" com campo para upload de screenshot e hash de transação — irrelevante para pagamento por cartão
+Impacto: Confusão severa para usuário de cartão de crédito que vê instruções de PIX/cripto.
+
+
+BUG-62 — Step 3 sem botão "Voltar" (Back)
+
+Resultado: No step 2 havia "← Back", no step 3 não há forma de retornar
+Impacto: Usuário que mudou de ideia sobre o método de pagamento não consegue voltar sem fechar o modal inteiro.
+
+
+BUG-63 — Título H1 da página de produto individual em inglês
+
+URL: /br/seguidores-instagram/100-seguidores-instagram
+H1: "100 followers Instagram — Brasil" (deveria ser "100 seguidores Instagram — Brasil")
+Browser tab title: "100 seguidores instagram em Brasil" (PT-BR correto)
+Breadcrumb: "100 followers Instagram" (inglês)
+Impacto: Inconsistência entre título SEO (correto) e heading visual (inglês). Afeta experiência e reforça percepção de produto não localizado.
+
+
+BUG-64 — Stripe info note confusa: "platform receives 2.50 USDT after auto-conversion"
+
+Texto: "You pay $ 2.50 USD; platform settles in USDT (2.50 USDT)"
+Impacto: Usuário pagando USD via cartão fica confuso ao ler que a plataforma recebe USDT. Levanta suspeita sobre destinação do dinheiro.
+
+
+🟡 SEO / ACESSIBILIDADE / CONTEÚDO
+
+BUG-65 — Slider range sem aria-label (acessibilidade)
+
+Evidência: input[type="range"] não tem aria-label, aria-valuenow, aria-valuemin, aria-valuemax, id ou name
+Impacto: Leitores de tela (NVDA, JAWS, VoiceOver) não conseguem descrever nem operar o seletor de quantidade. Viola WCAG 1.3.1 e 4.1.2.
+
+
+BUG-66 — Todas as flags/bandeiras de países sem alt text
+
+Evidência: <img src="br.png" alt=""> — todas as 50+ imagens de bandeiras têm alt="" vazio
+Impacto: Leitores de tela ignoram as flags; usuários cegos não sabem qual país é qual no seletor de mercados. Viola WCAG 1.1.1.
+
+
+BUG-67 — Sitemap indexado apenas como "en" mesmo para páginas PT
+
+Evidência: O sitemap.xml lista primeiro 32 arquivos en-*.xml antes de listar pt.xml
+Resultado: Estrutura confusa que não reflete a organização por idioma
+Impacto: Google pode não priorizar indexação das páginas PT-BR corretamente.
+
+
+BUG-68 — Promo code pré-preenchido com "BLACK10" mesmo inválido
+
+Evidência: Campo de promo code já vem com "BLACK10" mas o cupom não existe no sistema
+Impacto: Cria falsa expectativa de desconto; usuário tenta aplicar e recebe erro. Dark pattern acidental.
+
+
+🔵 UX / MELHORIA
+
+BUG-69 — Checkout: dados do step 1 não são confirmados antes de prosseguir ao pagamento
+
+Resultado: Modal avança do step 1 ao step 2 sem mostrar resumo dos dados (nome, email, handle)
+Impacto: Usuário pode não perceber erro de digitação no @ do Instagram antes de pagar.
+
+
+BUG-70 — FAQ no JSON-LD responde "Quais pagamentos vocês aceitam?" com "boleto" que não existe
+
+Já listado como BUG-58 no contexto de dados estruturados — também é falsa informação para o usuário final que vê o FAQ na página.
+
+
+📊 Resumo Total Final da Sessão
+RoundBugsFoco PrincipalRound 114 (BUG-01–14)Navegação, modal inicial, i18n básicoRound 221 (BUG-15–35)Validação, links, checkout, status do sistemaRound 318 (BUG-36–53)Páginas de categoria, busca, SEO, OG imageRound 417 (BUG-54–70)Checkout completo, SEO técnico, robots.txt, acessibilidade, JSON-LDTOTAL🔴 70 bugs—
+
+🔴 BUG-71 — Sitemap PT: curtidas-tiktok fora de ordem
+Severidade: Média (SEO) | Onde: /sitemap/pt.xml
+Os pacotes de curtidas TikTok estão fora de ordem: a sequência vai 2500 → 50000 → 100000 → 5000 → 7500 → 10000, em vez de numérica crescente. Isso pode confundir bots de indexação e afetar o crawl.
+
+🔴 BUG-72 — Sitemap PT: seguidores-tiktok truncados em 10.000
+Severidade: Média (SEO) | Onde: /sitemap/pt.xml
+O Instagram seguidores vai até 1.000.000 no sitemap, mas o TikTok seguidores termina em 10.000. Se existem pacotes maiores de TikTok, eles não são indexados.
+
+🔴 BUG-73 — Sitemap PT: visualizacoes-tiktok sem pacotes menores
+Severidade: Média (SEO) | Onde: /sitemap/pt.xml
+O sitemap PT para visualizacoes-tiktok começa em 10.000, sem nenhuma entrada para 500, 1.000, 2.500 ou 5.000 visualizações TikTok — que existem na interface conforme visto na homepage.
+
+🔴 BUG-74 — Sitemap PT: páginas /br/servicos e /br/recuperacao-de-perfil ausentes
+Severidade: Média (SEO) | Onde: /sitemap/pt.xml
+Duas páginas importantes do mercado Brasil (/br/servicos e /br/recuperacao-de-perfil) não aparecem no sitemap PT — impedindo indexação dessas landing pages.
+
+🟠 BUG-75 — /vs e /vs/* completamente em inglês
+Severidade: Alta (Localização) | Onde: viralefy.com/vs, viralefy.com/vs/socialplug
+A página de comparação de concorrentes está totalmente em inglês, mesmo quando acessada via link do rodapé da página em PT-BR. Não há versão /br/vs ou parâmetro ?lang=pt. Usuários brasileiros veem conteúdo completamente em inglês.
+
+🟡 BUG-76 — Política de Reembolso sem versão localizada via URL limpa
+Severidade: Baixa | Onde: /legal/refund vs /legal/refund?lang=pt
+A versão padrão de /legal/refund está em inglês. A versão PT existe via ?lang=pt, mas não há redirecionamento automático para usuários brasileiros nem URL clean como /br/legal/reembolso.
+
+🔴 BUG-77 — TODOS os nomes de produtos em inglês na homepage /br
+Severidade: Alta (Localização) | Onde: viralefy.com/br
+Todos os 100+ cards de produto na homepage do Brasil têm nomes em inglês: "100 followers Instagram", "100 likes Instagram", "25 comments Instagram", "100 shares Instagram", "500 Story views Instagram", etc. As descrições também estão em inglês ("Ideal for testing", "First push", "Real audience", "Spread the word", etc.). Apenas os botões "Comprar agora" e contagens estão em português.
+
+🔴 BUG-78 — Produtos "saves Instagram" sem página de categoria
+Severidade: Alta (Funcionalidade) | Onde: Homepage /br, URLs testadas
+Os cards "100 saves Instagram", "250 saves Instagram", etc. aparecem na homepage, mas /br/salvamentos-instagram e /br/saves-instagram resultam em 404. Os produtos existem e podem ser comprados, mas não têm landing page de categoria, o que é ruim para SEO e para usuários que naveguem por tipo de serviço.
+
+🔴 BUG-79 — Tema (claro/escuro) não persiste ao navegar fora do /br
+Severidade: Alta (UX) | Onde: Global
+viralefy_theme: "light" é salvo em localStorage, mas ao navegar para páginas fora do contexto /br (ex.: 404, /vs, /legal/*) e depois voltar para /br, o tema reverte para escuro — ignorando a preferência salva. O tema só persiste dentro do fluxo SPA enquanto a sessão não navega para um contexto diferente.
+
+🟠 BUG-80 — "Cookie preferences" em inglês no rodapé do /br
+Severidade: Média (Localização) | Onde: Footer de viralefy.com/br
+Todos os links do rodapé DISCOVER estão em inglês ("Pricing", "Cities", "Compare Viralefy", etc.), mas especificamente o item "Cookie preferences" permanece em inglês enquanto os links jurídicos do lado direito estão em português. Inconsistência dentro do mesmo componente.
+
+🟠 BUG-81 — auth.viralefy.com/tickets retorna "Not Found" raw
+Severidade: Alta (Funcionalidade) | Onde: auth.viralefy.com/tickets
+O link "Support" na navbar da página de login (auth.viralefy.com) aponta para auth.viralefy.com/tickets, que retorna uma página bruta "Not Found" sem estilo — nenhuma UI, apenas texto numa tela preta. Usuários que buscam suporte no login ficam sem saída.
+
+🟠 BUG-82 — Modal de compra com promo code pre-preenchido da sessão anterior
+Severidade: Média (UX) | Onde: Modal de compra /br
+O campo de código promocional no modal de compra vinha pre-preenchido com "BLACK10" de uma sessão anterior de teste. O valor do cupom está sendo persistido indevidamente via localStorage/estado React entre sessões.
+
+🔴 BUG-83 — /br/compartilhamentos-instagram: H1 e meta title errados ("curtidas")
+Severidade: Alta (SEO + Conteúdo) | Onde: viralefy.com/br/compartilhamentos-instagram
+A página de Compartilhamentos Instagram exibe:
+
+H1: "Comprar curtidas e engajamento em Brasil" (diz "curtidas", não "compartilhamentos")
+Meta title: "Comprar curtidas para Instagram e TikTok em Brasil" — completamente errado
+Parágrafo descritivo fala exclusivamente sobre curtidas
+
+Esta é uma regressão grave de SEO e UX — a página de "compartilhamentos" está usando o conteúdo de "curtidas".
+
+🟠 BUG-84 — "Shares" e "Saves" misturados sem separação na categoria /br/compartilhamentos-instagram
+Severidade: Média (UX) | Onde: viralefy.com/br/compartilhamentos-instagram
+A página exibe alternadamente "100 shares Instagram" e "100 saves Instagram" (dois produtos diferentes) sem nenhuma separação visual, título de seção ou explicação. Um usuário brasileiro não consegue distinguir claramente o que está comprando nem entende a diferença entre "shares" e "saves" — que nem sequer foram traduzidos.
+
+🟡 BUG-85 — Política de Privacidade não menciona LGPD
+Severidade: Média (Conformidade Legal) | Onde: /legal/privacy?lang=pt
+A Política de Privacidade em português não menciona a LGPD (Lei Geral de Proteção de Dados — Lei 13.709/2018), que é obrigatória para empresas que processam dados de usuários brasileiros. A ausência da LGPD é um risco legal para operação no Brasil.
+
+🟡 BUG-86 — Stripe não listado como subprocessador na Política de Privacidade
+Severidade: Média (Conformidade Legal) | Onde: /legal/privacy?lang=pt
+A Política menciona "Woovi para BRL" e "Heleket para cripto" como processadores de pagamento, mas Stripe (opção exibida no checkout) não aparece como subprocessador. Se Stripe processa dados do usuário, deve estar listado.
+
+🟡 BUG-87 — Política de Privacidade menciona "Woovi" mas checkout mostra "PIX" (sem marca Woovi)
+Severidade: Baixa (Consistência) | Onde: Checkout Step 2 vs /legal/privacy?lang=pt
+No checkout, a opção PIX aparece sem menção à Woovi. A política de privacidade menciona "Woovi para BRL" como processador — essa discrepância cria confusão para o usuário que quer entender com quem seus dados são compartilhados.
+
+🟡 BUG-88 — Portugal (/pt) usa "você" (BR-PT) em vez de "tu" (PT-PT)
+Severidade: Baixa (Localização Regional) | Onde: viralefy.com/pt/seguidores-instagram
+O mercado Portugal usa pronome "você" e conjugações no estilo BR-PT ao invés do PT-PT padrão europeu ("tu", "vosso", etc.). Embora inteligível, isso pode soar informal ou estrangeiro para utilizadores portugueses.
+
+BUG-89 — Páginas de cidade (/cities/sao-paulo, /cities/rio-de-janeiro) totalmente em inglês
+Severidade: Alta (Localização) | Onde: viralefy.com/cities/sao-paulo, viralefy.com/cities/rio-de-janeiro
+As páginas de cidade para São Paulo e Rio de Janeiro — duas das maiores cidades do Brasil — estão 100% em inglês. Não existe versão /br/cities/sao-paulo nem parâmetro ?lang=pt. O usuário brasileiro que encontrar essas páginas via busca orgânica verá conteúdo em inglês. As páginas não têm hreflang para pt-BR.
+
+🔴 BUG-90 — CTA das cidades linkam para /br/instagram-followers (alias sem redirect)
+Severidade: Alta (SEO + Funcionalidade) | Onde: /cities/sao-paulo, /cities/rio-de-janeiro
+O botão "See [Cidade] plans" aponta para viralefy.com/br/instagram-followers — uma URL em inglês que carrega o conteúdo correto mas não redireciona para /br/seguidores-instagram. A canonical aponta para o URL correto, mas a página fica acessível nos dois endereços, criando conteúdo duplicado sem redirect 301.
+
+🔴 BUG-91 — PIX: sem QR code nem Chave Pix exibidos na etapa de pagamento
+Severidade: Crítica (Funcionalidade) | Onde: Modal de checkout, Step 3 (PIX)
+Ao selecionar PIX e confirmar, o usuário vai para uma etapa de "upload de comprovante" mas nunca recebe as instruções de pagamento — sem QR code, sem Chave Pix, sem valor formatado para cópia. O usuário não tem como pagar: a tela pede comprovante antes de fornecer o destino do pagamento. Fluxo quebrado para o principal método de pagamento no Brasil.
+
+🔴 BUG-92 — PIX: processador é "Abacate pay" mas Privacy Policy cita "Woovi"
+Severidade: Alta (Conformidade Legal) | Onde: Checkout Step 2 vs /legal/privacy?lang=pt
+O gateway PIX exibido no checkout é "PIX · Abacate pay", mas a Política de Privacidade lista "Woovi para BRL" como subprocessador de pagamento. Ou o gateway mudou sem atualizar a política, ou a divulgação está incorreta — ambos são problemas de conformidade com a LGPD/GDPR.
+
+🟠 BUG-93 — Botão "Confirm — pay 13.53 BRL": símbolo R$ ausente e texto misto PT/EN
+Severidade: Média (UX + Localização) | Onde: Modal de checkout, Step 2 (BRL selecionado)
+Quando a moeda é BRL, o botão de confirmação exibe "Confirm — pay 13.53 BRL" — sem o símbolo "R$", com texto em inglês ("Confirm — pay") e o montante sem formatação brasileira. Deveria ser algo como "Confirmar — pagar R$ 13,53".
+
+🟠 BUG-94 — Preço TikTok Curtidas 50K: $549,90 no /pricing (valor suspeito)
+Severidade: Alta (Dados) | Onde: viralefy.com/pricing — tabela TikTok Likes
+Todas as linhas da tabela de preços usam valores redondos (ex: $2, $6, $10, $40, $70, $160), mas o preço de 50K curtidas TikTok é $549,90 — um valor não-redondo, inconsistente com todos os outros. Pode ser um valor BRL não convertido que vazou para a tabela USD, ou um erro de entrada de dados.
+
+🟠 BUG-95 — TikTok Seguidores: 25K e 50K mostram "—" no /pricing (sem aviso no site)
+Severidade: Média (Conteúdo) | Onde: viralefy.com/pricing — tabela TikTok Followers
+A tabela de preços mostra "—" para TikTok seguidores 25K e 50K (indisponível), mas as páginas de produto /br/seguidores-tiktok e a homepage /br não exibem nenhum aviso de "indisponível" — usuários podem tentar comprar quantidades inexistentes sem feedback.
+
+🟠 BUG-96 — /br/recuperacao-de-perfil: H1 e meta title errados ("Serviços premium")
+Severidade: Alta (SEO + Conteúdo) | Onde: viralefy.com/br/recuperacao-de-perfil
+A página de Recuperação de Perfil exibe:
+
+H1: "Serviços premium de crescimento em Brasil" — completamente errado para recuperação de perfil
+Meta title: "Gestão premium para Instagram e TikTok em Brasil" — também errado
+O conteúdo abaixo dos cards de recuperação inclui texto sobre "retainers" e "gestão mensal" — conteúdo da página /br/servicos misturado incorretamente
+
+
+🔴 BUG-97 — Botão de recuperação de perfil mostra preço em USD ($10.000) mesmo com BRL selecionado
+Severidade: Alta (UX + Confiança) | Onde: viralefy.com/br/recuperacao-de-perfil
+Com a moeda definida como BRL, o botão de submissão do formulário exibe "Continuar para pagamento ($10.000)" — usando símbolo de dólar ()emvezdeReal(R) em vez de Real (R
+)emvezdeReal(R). O preço também usa a formatação brasileira de milhar com ponto ("$10.000") mas o símbolo monetário errado, criando confusão grave sobre o valor real em reais que seria cobrado.
+
+🟠 BUG-98 — PIX Step 3: placeholder do campo "Note" menciona hash de cripto (confuso para PIX)
+Severidade: Média (UX) | Onde: Modal PIX Step 3
+O campo de observação no upload de comprovante PIX tem placeholder: ex.: 0x1234abcd... at 14:32 BRT — claramente um placeholder de transação cripto (hash hexadecimal), mostrado no contexto de pagamento PIX. Isso confunde o usuário que deve inserir dados de comprovante PIX, não hash de blockchain.
+
+🟡 BUG-99 — Pricing page: menciona "ETH" e "50+ assets" mas checkout só mostra 3 opções
+Severidade: Baixa (Inconsistência de Marketing) | Onde: /pricing vs checkout modal
+A página de pricing promove: "Pay in USDT, BTC, ETH or 50+ assets. Stable USD pricing across the catalog." Mas o checkout só exibe 3 métodos: PIX, Heleket (USDT), e Stripe (cartão). ETH e outros 48+ ativos não aparecem em lugar nenhum no fluxo de compra.
+
+🟡 BUG-100 — OG images de todos os produtos /br estão em inglês
+Severidade: Média (SEO/Social) | Onde: /og/br/seguidores-tiktok, /og/br/seguidores-instagram (e provavelmente todos)
+As Open Graph images geradas para o mercado Brasil contêm texto em inglês: "TikTok followers in Brazil", "Instagram followers in Brazil". Quando o link é compartilhado no WhatsApp, Facebook ou Twitter por um usuário brasileiro, a preview aparece em inglês — prejudicando a taxa de clique e credibilidade da marca.
+
+🟡 BUG-101 — /br/recuperacao-de-perfil: conteúdo de "Serviços Premium" misturado na página
+Severidade: Média (Conteúdo) | Onde: viralefy.com/br/recuperacao-de-perfil
+Abaixo do formulário de recuperação aparecem 3 parágrafos longos sobre "retainers", "gestão 1-a-1", "relatório mensal" — todo o bloco de marketing da página /br/servicos está sendo renderizado incorretamente dentro da página de recuperação de perfil. A página tem dois propósitos misturados: formulário de recuperação + marketing de premium services.
+
+🟡 BUG-102 — Checkout: "Escolher arquivo / Nenhum arquivo escolhido" mistura PT com UI em inglês
+Severidade: Baixa (Localização) | Onde: Modal PIX Step 3
+O file picker nativo do browser aparece em português ("Escolher arquivo / Nenhum arquivo escolhido") — vindo do SO do usuário — enquanto todo o resto da UI do modal está em inglês. Embora tecnicamente seja comportamento do sistema operacional, o label acima ("Receipt file (image or PDF, max 5 MB)") deveria estar em português também para manter coerência.
+
+🟡 BUG-103 — Nomes de serviços premium em inglês na página /br/servicos
+Severidade: Média (Localização) | Onde: viralefy.com/br/servicos
+Os nomes dos pacotes premium não são traduzidos: "Profile audit", "Monthly management", "Product launch", "New account setup", "Anti-shadowban package", "Competitor analysis", "Verification support". As descrições também são em inglês ("Diagnosis + recommendations", "Shadowban diagnosis and removal plan", etc.), enquanto o texto do corpo da página está em português.
+
+🟡 BUG-104 — Página /pricing: não localizada para /br e não responde à seleção de moeda BRL
+Severidade: Média (UX) | Onde: viralefy.com/pricing
+A tabela de preços mostra somente valores em USD mesmo após o usuário ter selecionado BRL como moeda. Não há opção de visualizar preços em BRL na tabela. Além disso, /pricing não tem versão /br/pricing e não respeita a preferência de idioma — exibe sempre em inglês independente do mercado.
+
+BUG-105 — React Error #418 tem DOIS tipos distintos de mismatch de hidratação
+Severidade: Crítica (Performance/Estabilidade) | Onde: Toda a aplicação (console do browser)
+O erro #418 do React aparece em duas variantes: args[]=text (mismatch de nó de texto) e args[]=HTML (mismatch de nó HTML). Isso significa que a discrepância entre SSR e CSR é dupla — tanto em conteúdo de texto quanto em estrutura HTML. Ambas foram capturadas ocorrendo múltiplas vezes em menos de 3 minutos de navegação, confirmando que é um problema sistêmico e contínuo que afeta toda a aplicação.
+
+🔴 BUG-106 — Comentários Instagram sub-página: H1 e breadcrumb em inglês
+Severidade: Alta (Localização/SEO) | Onde: /br/comentarios-instagram/25-comentarios-instagram
+H1: "25 comments Instagram — Brasil" — em inglês. Breadcrumb: "25 comments Instagram" — em inglês. Padrão idêntico ao encontrado nas sub-páginas de seguidores e TikTok.
+
+🔴 BUG-107 — Comentários sub-página: descrição menciona "curtidas" (conteúdo errado)
+Severidade: Alta (Conteúdo) | Onde: /br/comentarios-instagram/25-comentarios-instagram
+O primeiro bullet de "O que vem nesse pacote" diz: "Empurrão na primeira hora. As curtidas caem na curva inicial onde o algoritmo dá mais peso." — Esta descrição fala de curtidas (likes) em uma página de comentários (comments). É texto copiado incorretamente do template de curtidas.
+
+🔴 BUG-108 — Comentários sub-página: descrição menciona "TikTok" (produto Instagram-específico)
+Severidade: Alta (Conteúdo) | Onde: /br/comentarios-instagram/25-comentarios-instagram
+A descrição diz "25 comentários instagram entregues na sua conta de Instagram ou TikTok em Brasil" — Comentários Instagram são específicos para Instagram; TikTok não deveria ser mencionado aqui. Erro de template genérico aplicado a produto específico.
+
+🟠 BUG-109 — React Error #418 HTML variant: indica mismatch estrutural no SSR
+Severidade: Alta (Técnica) | Onde: Console — todas as páginas
+A variante args[]=HTML do React Error #418 indica que não é apenas um mismatch de texto mas de elemento HTML inteiro. Isso é mais grave pois pode causar re-renderização completa de componentes e é a causa do "black screen flash" documentado nos rounds anteriores. Sugere que elementos inteiros (provavelmente com conteúdo de moeda/localização) são diferentes entre SSR e CSR.
+
+🟠 BUG-110 — Símbolo Bitcoin "Ⓑ" em vez do padrão "₿"
+Severidade: Média (UX/Apresentação) | Onde: Toda a aplicação quando BTC selecionado
+O símbolo de Bitcoin usado é "Ⓑ" (B circulado) em vez do símbolo padrão universal "₿" (Unicode U+20BF). Isso pode causar confusão para usuários que esperam o símbolo padrão de Bitcoin.
+
+🟠 BUG-111 — Moeda/tema NÃO persiste entre navegações para contexto diferente
+Severidade: Alta (UX) | Onde: Global
+Confirmado neste round: a seleção de BTC é perdida ao navegar para /legal/terms (contexto não-/br). O BTC foi selecionado na página /br/seguidores-instagram, mas ao ir para /legal/terms o navbar mostrou $ USD. Isso confirma o padrão de perda de preferência documentado no Round 5 para o tema (BUG-79) — o mesmo acontece com a moeda.
+
+🟠 BUG-112 — /legal/terms e /legal/privacy sem parâmetro ?lang=pt servem em inglês
+Severidade: Média (Localização) | Onde: /legal/terms, /legal/privacy
+As versões padrão (sem ?lang=pt) dos documentos legais estão completamente em inglês. Um usuário brasileiro que acesse via busca orgânica ou link direto verá "Terms of Service" em inglês, sem redirecionamento automático para a versão PT.
+
+🟡 BUG-113 — Recuperação de Perfil: campo de data é <input type="date"> com placeholder PT-BR
+Severidade: Baixa (UX) | Onde: /br/recuperacao-de-perfil
+O campo "Data do banimento / restrição" usa <input type="date"> que é controlado pelo browser e exibido no formato do locale do browser (DD/MM/YYYY, YYYY-MM-DD, etc.), mas tem placeholder "dd/mm/aaaa". O placeholder não aparece porque o tipo date sobrescreve o placeholder. Usuários podem ficar confusos com o formato esperado.
+
+🟡 BUG-114 — Países asiáticos no modal Mercados exibidos no idioma nativo, não em PT
+Severidade: Média (Localização) | Onde: Modal Mercados (todas as páginas /br)
+Os países asiáticos no modal Mercados são exibidos em seus scripts nativos: Árabe (الأردن, الإمارات, البحرين, etc.), Hebraico (ישראל), Kazakh cirílico (Кыргызстан, Қазақстан), Devanagari (भारत), Bengali (বাংলাদেশ), etc. Enquanto isso, os países das Américas têm nomes em português/espanhol. A inconsistência no mesmo componente é confusa para o usuário brasileiro.
+
+🟡 BUG-115 — Mercados modal: país "Brunei" aparece antes de "Cambodia" — ordem alfabética
+Severidade: Baixa | Onde: Modal Mercados → ÁSIA
+Na seção ÁSIA do modal Mercados, os países começam com "Brunei, Cambodia" mas depois continuam com "Кыргызстан" (Kyrgyzstan em cirílico) e "Қазақстан" (Kazakhstan em Cazaque) — ordenação misturada entre alfabético PT e scripts nativos, resultando em uma lista sem ordem lógica para o usuário.
+
+🟡 BUG-116 — Formulário de Recuperação de Perfil: botão permite envio com campos "@ do perfil" vazio
+Severidade: Média (Funcionalidade) | Onde: /br/recuperacao-de-perfil
+Testado ao clicar no botão com apenas "@ do perfil" vazio — o browser mostrou validação nativa do campo obrigatório. Porém, outros campos (email, nome) não têm required attribute, então seria possível submeter o formulário sem e-mail de contato, potencialmente criando pedidos sem meio de retorno ao cliente.
+
+🟡 BUG-117 — Currency selector modal: cabeçalho "Moeda" mas itens sem tradução
+Severidade: Baixa (Localização) | Onde: Modal seletor de moeda
+O título do modal de moeda está em português ("Moeda") mas os nomes das moedas são em inglês/abreviações: "USDT", "USD", "EUR", "BRL", "GBP", "BTC". Para consistência, as moedas poderiam ter labels em português: "Dólar americano", "Euro", "Real brasileiro", etc.
+
+🟡 BUG-118 — /legal/terms (EN) não tem link para versão PT; nenhum language switcher em páginas legais
+Severidade: Baixa (UX) | Onde: /legal/terms, /legal/privacy, /legal/refund
+As páginas legais em inglês não têm nenhum link ou botão para trocar para a versão em português. O usuário brasileiro que acessar a versão EN não tem como facilmente chegar à versão PT sem saber do parâmetro ?lang=pt. Apenas a /legal/refund?lang=pt mostrou "Other languages:" (em inglês!) com links.
+
+🟡 BUG-119 — Navbar perde contexto de mercado ao navegar para páginas fora de /br
+Severidade: Média (UX) | Onde: Global
+Quando o usuário navega de /br/seguidores-instagram para /legal/terms, o navbar muda de "Serviços/Mercados/Suporte" (PT) para "Services/Markets/Support" (EN). O contexto de mercado brasileiro é completamente perdido, e o usuário precisaria navegar de volta para /br manualmente.
+
+🟡 BUG-120 — Formulário de recuperação: Turnstile invisível sem feedback visual
+Severidade: Baixa (UX) | Onde: /br/recuperacao-de-perfil
+O Cloudflare Turnstile está em modo "invisível" — o usuário não vê nenhum captcha, mas há um campo hidden cf-turnstile-response. Se o Turnstile falhar (por exemplo, em navegadores com adblockers agressivos), o formulário simplesmente não funciona sem nenhuma mensagem de erro explicando o motivo. Não há fallback ou mensagem de erro para o usuário.
+
+🟡 BUG-121 — BTC "Ⓑ" símbolo: inconsistente — alguns lugares usam "₿"
+Severidade: Baixa | Onde: Toda a aplicação com BTC selecionado
+O símbolo BTC exibido é "Ⓑ" nos cards de produto, mas na tabela de preços /pricing o símbolo também foi "Ⓑ". Verificação necessária: se algum lugar usa "₿" vs "Ⓑ" — a inconsistência pode existir entre diferentes componentes.
+
+
+ CRÍTICO / HIGH
+BUG-122 — <html lang="en"> em todas as páginas localizadas
+
+Afeta: /br, /mx e provavelmente todos os 130 mercados
+Problema: O atributo lang do elemento <html> é sempre "en" mesmo em páginas PT-BR e ES-MX. O og:locale está correto (pt_BR / es_MX), mas o lang do HTML não.
+Impacto: Screen readers leem a página no idioma errado; penalidade de SEO técnico; Google pode classificar como conteúdo duplicado em inglês.
+
+BUG-123 — Busca prioriza mercados errados (US e CA antes do BR)
+
+Página: /br — campo de busca
+Problema: Ao digitar "seguidores" ou "curtidas" em /br, os primeiros resultados são de United States e Canada, não Brasil. O contexto de mercado atual é ignorado na ordenação.
+Impacto: UX gravemente prejudicada — usuário brasileiro vê links de /us e /ca primeiro.
+
+BUG-124 — /vs comparison afirma "WhatsApp support" inexistente
+
+Páginas: /vs/stormlikes, /vs/mediamister e todos os /vs/*
+Problema: Tabela afirma "24/7 human support: Yes — WhatsApp + ticket" — mas nenhum link de WhatsApp existe em lugar nenhum do site (nem no header, footer, chat widget, help center). Apenas o link /tickets existe (e está quebrado — BUG anterior).
+Impacto: Propaganda enganosa; pode gerar reclamações de consumidores.
+
+BUG-125 — /vs comparison afirma "Trial tier from 1 USDT" mas preço mínimo real é $2.50
+
+Páginas: /vs/* (todas)
+Problema: Claim de "Starting price (USDT): 1.00 USDT" e "Trial tier from 1 USDT" mas o produto mais barato no /pricing é 100 followers por $2.50.
+Impacto: Promessa de preço não cumprida; pode ser considerado propaganda enganosa.
+
+BUG-126 — Cookie Policy afirma "não exibimos banner" mas banner existe
+
+Página: /legal/cookies?lang=pt
+Problema: A política diz: "Os cookies que usamos são estritamente funcionais e dispensados do banner de consentimento da UE/Reino Unido. Por isso não exibimos banner." — mas o site EXIBE um banner de consentimento de cookies com categorias Essential/Preferences/Marketing.
+Impacto: Informação factualmente errada em documento legal.
+
+
+🟠 MÉDIO / HIGH-MEDIUM
+BUG-127 — H1 em inglês em todas as sub-páginas de produto (/br)
+
+Afeta: /br/curtidas-instagram/100-curtidas-instagram ("100 likes Instagram — Brasil"), /br/curtidas-tiktok/100-curtidas-tiktok ("100 likes TikTok — Brasil"), /br/compartilhamentos-instagram/100-compartilhamentos-instagram ("100 shares Instagram — Brasil"), /br/seguidores-tiktok/100-seguidores-tiktok ("100 followers TikTok — Brasil")
+Problema: Todos os H1 das sub-páginas de produto usam termos em inglês (likes, followers, shares, comments) em vez de PT-BR (curtidas, seguidores, compartilhamentos, comentários).
+Impacto: SEO em português e credibilidade comprometidos.
+
+BUG-128 — Breadcrumb em inglês em sub-páginas de produto (/br)
+
+Afeta: Todos os sub-produtos; ex: "100 likes Instagram" em vez de "100 curtidas Instagram"
+Problema: Mesmo issue do H1 — propagado para breadcrumbs visíveis ao usuário.
+
+BUG-129 — JSON-LD name do produto usa nome em inglês
+
+Página: /br/curtidas-tiktok/100-curtidas-tiktok
+Problema: {"@type": "Product", "name": "100 likes TikTok — Brasil"} — o nome em inglês é indexado pelo Google como dado estruturado.
+Impacto: Rich results em PT-BR exibem nome errado.
+
+BUG-130 — Meta descrição de sub-produtos diz "Instagram ou TikTok" (plataforma errada)
+
+Afeta: /br/curtidas-tiktok/100-curtidas-tiktok, /br/seguidores-tiktok/100-seguidores-tiktok, /br/comentarios-instagram/25-comentarios-instagram
+Problema: "para Instagram ou TikTok em Brasil" — produto TikTok não deve mencionar Instagram e vice-versa.
+Impacto: Confusão de usuário e SEO incorreto.
+
+BUG-131 — Bullet points com conteúdo errado (curtidas) em páginas de compartilhamentos
+
+Página: /br/compartilhamentos-instagram/100-compartilhamentos-instagram
+Problema: Primeiro bullet: "Empurrão na primeira hora. As curtidas caem na curva inicial..." — página é de compartilhamentos, não curtidas.
+Impacto: Conteúdo enganoso; template errado aplicado.
+
+BUG-132 — H1 de Comentários TikTok mostra hero de Curtidas
+
+Página: /br/comentarios-tiktok
+Problema: H1 "Comprar curtidas e engajamento em Brasil" — página é de Comentários TikTok.
+Impacto: Mesmo bug sistêmico já reportado para outras categorias; agora confirmado em TikTok comments também.
+
+BUG-133 — H1 de Compartilhamentos TikTok mostra hero de Curtidas
+
+Página: /br/compartilhamentos-tiktok — confirmado: mesmo H1 errado de curtidas.
+
+BUG-134 — H1 de Visualizações TikTok menciona Reels e Stories (Instagram)
+
+Página: /br/visualizacoes-tiktok
+Problema: H1: "Comprar visualizações de Reels, TikTok e Stories em Brasil" — Reels e Stories são formatos do Instagram, não do TikTok.
+Impacto: Conteúdo impreciso; confunde produto TikTok com Instagram.
+
+BUG-135 — Nomes de produtos em inglês no mercado /mx
+
+Páginas: /mx, /mx/seguidores-instagram, /mx/likes-instagram
+Problema: Cards de produto: "100 followers Instagram", "250 followers Instagram", subtítulos "Ideal for testing", "First push" etc. — em inglês em páginas espanholas.
+Impacto: Mesmo bug sistêmico do /br, confirmado também no /mx.
+
+BUG-136 — /mx usa "Likes Instagram" em vez de "Me gusta Instagram"
+
+Páginas: /mx, /mx/likes-instagram, barra de navegação de categorias
+Problema: O termo espanhol correto para "likes" no contexto de Instagram é "Me gusta". Usar "Likes" é anglicismo; a URL também usa /mx/likes-instagram.
+Impacto: Localização inadequada para mercado mexicano.
+
+BUG-137 — H1 de /mx/likes-instagram mistura inglês e espanhol
+
+Problema: "Comprar likes e interacciones para Instagram y TikTok en México" — "likes" é inglês embutido em frase espanhola.
+
+BUG-138 — Subtítulos de produtos em inglês no /br/servicos (Serviços premium)
+
+Página: /br/servicos
+Problema: "Profile audit", "Monthly management", "Product launch", "New account setup", "Anti-shadowban package", "Competitor analysis", "Verification support" — todos em inglês.
+Nota: Os feature cards abaixo ("Estratégia mensal", "Relatório mensal") estão em português — inconsistência na mesma página.
+
+BUG-139 — "Local pricing applied" em inglês em /br/servicos
+
+Página: /br/servicos
+Problema: Label "Local pricing applied" aparece em inglês sob os preços BTC na página de Serviços premium em português.
+Deveria ser: "Preço local aplicado"
+
+BUG-140 — Nomes de produtos em inglês em /br/visualizacoes-tiktok
+
+Página: /br/visualizacoes-tiktok
+Problema: "10,000 video views TikTok", "25,000 video views TikTok" etc. — em inglês.
+
+BUG-141 — "views" e "self-serve" em inglês dentro de texto PT-BR
+
+Página: /br/servicos
+Problema: "...pacotes self-serve de seguidores, curtidas e views já cobrem as necessidades..." — termos ingleses em parágrafo português.
+
+BUG-142 — Cookie Policy badges em inglês na versão PT
+
+Página: /legal/cookies?lang=pt
+Problema: Badges das categorias mostram "NECESSARY" e "PREFERENCES" em inglês, e "12 meses (re-prompt)" tem "re-prompt" em inglês, tudo dentro do texto português.
+
+BUG-143 — Tabela de cookies com overflow horizontal (coluna T cortada)
+
+Página: /legal/cookies?lang=pt
+Problema: Última coluna da tabela fica cortada ("T" visível) — overflow sem scroll horizontal acessível.
+Impacto: Informação legal incompleta visível ao usuário.
+
+
+🟡 BAIXO / LOCALIZATION / UX
+BUG-144 — Footer do /br com 10 links em inglês
+
+Página: /br e todo o contexto /br
+Problema: "Pricing", "Cities", "Compare Viralefy", "Help center", "Case studies", "System status", "Cookie preferences", "Refer & earn", "Subscriptions", "Developer API" — todos em inglês no rodapé de uma página em português.
+Deveria ser: "Preços", "Cidades", "Comparar Viralefy", "Central de ajuda", "Estudos de caso", "Status do sistema", "Preferências de cookies", "Indique e ganhe", "Assinaturas", "API para desenvolvedor"
+
+BUG-145 — Busca mostra "Instagram likes" para query "curtidas"
+
+Problema: Ao digitar "curtidas" (PT-BR para likes), resultado aparece como "Instagram likes" (em inglês) para o mercado US — o serviço não usa o termo buscado nas labels.
+
+BUG-146 — Página de registro (auth) usa placeholder de telefone brasileiro (+55)
+
+Página: auth.viralefy.com/register
+Problema: placeholder="+55 11 98765-4321" em campo global de telefone — sugere Brasil especificamente em uma página global sem localização.
+
+BUG-147 — Campo de telefone sem validação de formato
+
+Página: auth.viralefy.com/register
+Problema: type="tel" sem pattern — qualquer texto é aceito no campo de telefone.
+
+BUG-148 — Campo Telegram sem validação de formato
+
+Página: auth.viralefy.com/register
+Problema: Aceita qualquer texto. Não valida se começa com @ ou é URL t.me/.
+
+BUG-149 — UX: "Fill ONE of the two above" mas nenhum dos dois é required
+
+Página: auth.viralefy.com/register
+Problema: Instrução pede preencher ao menos um (phone ou telegram), mas ambos são required: false — usuário pode submeter sem nenhum contato alternativo.
+
+BUG-150 — Busca no /br exibe resultados de /mx como "Likes Instagram" (inconsistente com /br/curtidas)
+
+Problema: Mexico usa URL /mx/likes-instagram com label "Likes Instagram" em inglês/espanhol misto, enquanto /br usa /br/curtidas-instagram.
+
+BUG-151 — /br/visualizacoes-tiktok body usa "Comprar views" (inglês)
+
+Problema: Texto: "Comprar views é a forma mais barata..." — "views" em inglês em parágrafo PT-BR.
+
+BUG-152 — Case study detail breadcrumb mostra categoria, não título
+
+Página: /case-studies/small-business-instagram-growth
+Problema: Breadcrumb final é "Small business" (tag de categoria) em vez do título da página.
+Impacto: Navegação confusa — usuário não sabe onde está exatamente.
+
+BUG-153 — Meta description truncada em case study
+
+Página: /case-studies/small-business-instagram-growth
+Problema: Meta description cortada abruptamente: "...Posts averaged 40 likes and engagement had been flat for six months. The ow" — termina no meio da frase.
+Impacto: Google exibirá meta incompleta nos resultados de busca.
+
+BUG-154 — "standardised" (British English) em /case-studies
+
+Página: /case-studies
+Problema: Título "Boutique agency standardised engagement delivery" — British spelling; o resto do site usa American English (standardized).
+
+BUG-155 — Cookie Policy menciona "Woovi" mas checkout usa "Abacate Pay"
+
+Página: /legal/cookies?lang=pt
+Problema: "Os gateways de pagamento (Woovi, Heleket)" — mas o checkout BRL mostra "PIX · Abacate pay", não Woovi. Inconsistência entre documentação legal e implementação real.
+Nota: Também presente na Privacy Policy (já reportado como BUG anterior).
+
+BUG-156 — "re-prompt" em inglês dentro de texto PT
+
+Página: /legal/cookies?lang=pt
+Problema: Coluna Duração: "12 meses (re-prompt)" — "re-prompt" não foi traduzido.
+
+BUG-157 — /vs comparison não tem versão PT-BR
+
+Páginas: /vs e todas as sub-páginas /vs/*
+Problema: Não existe /br/vs ou versão localizada. Usuários brasileiros acessando comparações veem conteúdo 100% em inglês sem opção de idioma.
+Nota: Mesma situação para /case-studies, /help, /pricing, /cities, etc.
+
+ CRÍTICO / HIGH
+BUG-158 — Login aceita email inválido sem nenhum feedback visual
+
+Página: auth.viralefy.com/login
+Problema: Ao submeter com notanemail (sem @), o formulário processa silenciosamente — nenhum erro inline, nenhum toast, nenhum aria-invalid setado, nenhuma borda vermelha. O browser detecta typeMismatch: true mas o React ignora e não exibe mensagem.
+Impacto: UX crítico — usuário não sabe por que não consegue entrar; pode abandonar.
+
+BUG-159 — Help Center contradiz checkout: "não aceitamos provas manuais" vs botão de upload existente
+
+Página: /help/paying-with-pix-brl vs comportamento real do checkout
+Problema: O artigo diz explicitamente: "There is no need to send a screenshot of the receipt — we do not accept manual proofs." — mas o step 3 do checkout PIX mostra "Already paid? Upload your proof" com input de arquivo.
+Impacto: Contradição direta entre documentação e produto; causa confusão pós-pagamento.
+
+BUG-160 — "WhatsApp support" prometido em /cities/ não existe no site*
+
+Páginas: /cities/london, /cities/paris (e provavelmente todas as ~50+ cidades)
+Problema: Corpo do texto afirma: "our team answers on WhatsApp in English and the city's main language" — mas não há link, widget, número ou QR code de WhatsApp em nenhum lugar do site.
+Impacto: Promessa de suporte enganosa; repetida em todas as páginas de cidade.
+
+BUG-161 — FCP de 2480ms — Performance ruim (abaixo do limite "Good" do Google)
+
+Medido em: /br homepage
+Problema: First Contentful Paint de 2.48s (Google classifica >1.8s como "Needs Improvement", >3s como "Poor"). TTFB de 399ms (Google recomenda <200ms para "Good").
+Impacto: Core Web Vitals impactados; afeta ranking de SEO.
+
+BUG-162 — 859 KB de JavaScript total na homepage
+
+Medido em: /br
+Problema: Total de JS decodificado: 859 KB. Valor elevado para uma página de categorias.
+Impacto: Contribui para FCP lento e TTI (Time to Interactive) alto, especialmente em dispositivos móveis.
+
+
+🟠 MÉDIO
+BUG-163 — Todas as páginas /cities/ linkam para alias /xx/instagram-followers em vez de rota localizada*
+
+Afeta: /cities/london → /gb/instagram-followers, /cities/paris → /fr/instagram-followers, /cities/sao-paulo → /br/instagram-followers
+Problema: Esses aliases ficam acessíveis e têm canonical próprio — geram conteúdo duplicado sem redirect. Confirmado que o padrão se repete em todas as cidades testadas.
+
+BUG-164 — Páginas de cidade sem breadcrumb
+
+Páginas: /cities/london, /cities/paris
+Problema: Nenhum elemento de breadcrumb presente (ex: "Início > Cidades > Londres"). A navegação fica perdida.
+Impacto: UX e SEO (Google valoriza breadcrumbs para páginas profundas).
+
+BUG-165 — Meta description truncada em /cities/london
+
+Problema: Meta description: "Grow your Instagram and TikTok in London. Real followers, likes and views with delivery tuned to local time zones. Pay i" — termina em "Pay i".
+Impacto: Google exibirá resultado cortado no meio da frase.
+
+BUG-166 — Texto boilerplate idêntico em todas as páginas de cidade (thin content)
+
+Afeta: /cities/london e /cities/paris (confirmado com 4 frases template idênticas)
+Problema: Apenas nomes de cidade e pontos turísticos são trocados; todo o argumento de vendas, estrutura de parágrafos e frases são verbatim. Isso caracteriza thin/duplicate content pelo Google.
+Impacto: Penalização de SEO por conteúdo duplicado/ralo em massa.
+
+BUG-167 — Login page mistura português e inglês
+
+Página: auth.viralefy.com/login
+Problema: Texto anti-bot "Aguarde 2-3s para a verificação anti-bot." em português, mas todo o resto da página em inglês ("Welcome back", "Sign in", "Refill 30 days", "Delivered fast", "No password required", "Don't have an account?").
+Impacto: Inconsistência de idioma em página de alta visibilidade.
+
+BUG-168 — Sem link "Esqueci minha senha" no login
+
+Página: auth.viralefy.com/login
+Problema: Não há "Forgot password?" / "Esqueci minha senha" link.
+Impacto: Usuários que esquecem a senha não têm caminho de recuperação visível (além de /br/recuperacao-de-perfil que é para recuperação de conta social, não de acesso à plataforma).
+
+BUG-169 — Artigo PIX do Help Center omite nome do provedor (Abacate Pay)
+
+Página: /help/paying-with-pix-brl
+Problema: O artigo não menciona o processador PIX real (Abacate Pay / Woovi) pelo nome. Usuários que veem "Abacate Pay" no extrato bancário não conseguem identificar a cobrança.
+Impacto: Risco de chargebacks por desconhecimento do merchant name.
+
+BUG-170 — Artigo de Métodos de Pagamento não menciona Heleket nem Stripe por nome
+
+Página: /help/payment-methods-overview
+Problema: Nenhuma menção a "Heleket" ou "Stripe" — os dois processadores reais vistos no checkout. O artigo fala genericamente de "cards" e "USDT" sem nomear os provedores.
+Impacto: Falta de transparência; usuários não sabem com quem estão transacionando.
+
+BUG-171 — "PLANO SUGERIDO" no slider mostra nome em inglês
+
+Página: /br/seguidores-instagram (slider widget)
+Problema: "PLANO SUGERIDO: 100 followers Instagram" — mistura label PT-BR ("PLANO SUGERIDO") com nome de produto em inglês.
+
+BUG-172 — Botão CTA do slider mistura PT e EN
+
+Página: /br/seguidores-instagram
+Problema: "Comprar agora — 100 followers Instagram" — começa em português, termina com nome de produto em inglês.
+
+BUG-173 — Tabela "Compare todos os planos" com nomes e subtítulos em inglês
+
+Página: /br/seguidores-instagram
+Problema: Cabeçalhos da tabela ("PLANO", "QUANTIDADE", "PREÇO") em PT-BR, mas todas as linhas: "100 followers Instagram / Ideal for testing", "250 followers Instagram / First push", etc. — em inglês.
+
+BUG-174 — Formato numérico inconsistente nos product cards (/br)
+
+Página: /br/seguidores-instagram e outras categorias
+Problema: Nome do card usa notação americana: "1,000 followers Instagram" (vírgula como separador de milhar). Quantidade exibida usa notação BR: "1.000 seguidores" (ponto como separador). Dentro do mesmo card, dois padrões opostos.
+Impacto: Confuso para usuário brasileiro; pode parecer erro de preço.
+
+BUG-175 — og:type = "website" em páginas de produto/categoria
+
+Afeta: /br/seguidores-instagram e provavelmente todas as páginas de categoria
+Problema: Open Graph type é "website" para páginas de produto/serviço. Deveria ser "product" ou pelo menos "article".
+Impacto: Compartilhamento social incorretamente categorizado.
+
+BUG-176 — og:image:alt ausente em todos os meta OG
+
+Afeta: Todo o site
+Problema: Nenhuma <meta property="og:image:alt"> encontrada. A imagem OG carece de texto alternativo.
+Impacto: Acessibilidade em leitores de tela ao compartilhar; compliance WCAG 2.1.
+
+BUG-177 — og:site_name ausente em todas as páginas
+
+Afeta: Todo o site
+Problema: Nenhuma <meta property="og:site_name" content="Viralefy"> encontrada.
+Impacto: Compartilhamentos sociais mostram URL em vez de nome do site.
+
+BUG-178 — Pré-fetch ativo para /tickets (página quebrada)
+
+Medido em: /br via Performance API
+Problema: O Next.js pre-fetches a rota /tickets que retorna "Not Found" (BUG anterior). Esse pre-fetch desperdiça recursos de rede em cada visita à homepage.
+Impacto: Rede desperdiçada; aumenta carga no servidor para uma rota morta.
+
+BUG-179 — FAQ da categoria seguidores menciona TikTok em pergunta Instagram-específica
+
+Página: /br/seguidores-instagram
+Problema: 1ª FAQ: "É seguro comprar seguidores para o meu Instagram ou TikTok?" — na categoria exclusiva de seguidores Instagram. Deveria ser apenas Instagram.
+
+BUG-180 — /ar mercado: mesmos bugs sistêmicos de /br e /mx confirmados
+
+Página: /ar, /ar/seguidores-instagram
+Problema: <html lang="en">, product cards em inglês ("100 followers Instagram"), subtítulos em inglês ("Ideal for testing"), "Local pricing applied" em inglês. Padrão idêntico ao /br e /mx.
+Impacto: Confirma que o problema afeta potencialmente todos os 130 mercados não-ingleses.
+
+BUG-181 — "behaviour" (British English) no Help Center
+
+Página: /help/tiktok-followers-buying-guide (preview no índice)
+Problema: "the platform behaviour is different" — British spelling; o resto do site usa American English.
+Impacto: Inconsistência editorial.
+
+BUG-182 — Sem fetchpriority="high" na imagem principal (LCP)
+
+Página: /br (homepage)
+Problema: A imagem do logo (loading="auto") e potenciais imagens LCP não têm fetchpriority="high" nem rel="preload" no <head>.
+Impacto: LCP adiado; afeta CWV Score.
+
+
+🟡 BAIXO / UX
+BUG-183 — Cidade Paris: conteúdo do corpo idêntico ao London (thin content)
+
+Página: /cities/paris vs /cities/london
+Problema: 4 frases-chave idênticas palavra por palavra, só com nome da cidade substituído. Mesmo template.
+
+BUG-184 — "behaviour" British spelling no /case-studies (já "standardised" foi reportado)
+
+Confirmado como padrão de inconsistência editorial no Help Center e Case Studies.
+
+BUG-185 — Sem preload para fontes ou recursos críticos na homepage
+
+Página: /br
+Problema: Array.from(document.querySelectorAll('link[rel="preload"]')) retornou vazio — nenhum preload hint para fontes, CSS crítico ou imagens above-the-fold.
+Impacto: Contribui para FCP elevado (2.48s).
+
+CRÍTICO / HIGH
+BUG-186 — 404 page tem robots: index, follow — deve ser noindex
+
+Página: Qualquer URL inválida (ex: /br/seguidores-instagram/999999-seguidores-instagram)
+Problema: A página 404 tem <meta name="robots" content="index, follow">. O Google pode indexar URLs inválidas como se fossem páginas válidas.
+Impacto: Centenas de URLs inválidas potencialmente indexadas; crawl budget desperdiçado.
+
+BUG-187 — 404 page inteiramente em inglês mesmo em contexto /br
+
+Problema: Acessada de /br/seguidores-instagram/999999-seguidores-instagram, a 404 mostra: "This page doesn't exist", "Browse all services", "My account", "Sign in", "Create account", "Popular markets", "View all markets" — tudo em inglês. Nenhuma localização para PT-BR.
+
+BUG-188 — CTA "Browse all services" na 404 leva à raiz / e não ao mercado /br
+
+Problema: Usuário que estava em /br, ao ver 404, clica "Browse all services" e vai para https://www.viralefy.com/ (raiz em inglês). Perde o contexto de mercado.
+
+BUG-189 — Help Center contradiz: diz "tickets diretamente da página de pedido" mas /tickets está quebrado
+
+Página: /help/how-to-buy
+Problema: "You can open a support ticket directly from that page" — mas /tickets retorna "Not Found". O suporte via ticket é uma promessa não cumprida no fluxo de pedido.
+
+BUG-190 — Help Center descreve "magic link por email" — sistema real usa senha
+
+Página: /help/how-to-buy
+Problema: "There is no signup gate. You receive a magic link by email so you can come back later" — mas o site tem cadastro completo com senha (auth.viralefy.com/register) com campo password obrigatório. A documentação descreve um fluxo diferente do que foi implementado.
+
+BUG-191 — JSON-LD raiz duplicado — mesmo bloco aparece duas vezes
+
+Página: viralefy.com/ (raiz)
+Problema: Dois <script type="application/ld+json"> com conteúdo @graph idêntico (Organization + WebSite + Service). Parece ser um bug de hidratação do Next.js que insere o bloco duas vezes.
+Impacto: Parsers de structured data podem gerar erros; Google pode descartar ambos.
+
+BUG-192 — JSON-LD lowPrice: "1.00" contradiz preço mínimo real de $2.50
+
+Página: viralefy.com/ (raiz)
+Problema: AggregateOffer.lowPrice = "1.00" no schema, mas o produto mais barato na loja é $2.50 (100 followers). Rich snippets podem mostrar preço falso "$1.00".
+Impacto: Propaganda enganosa via dados estruturados; potencial ação do Google contra rich results.
+
+BUG-193 — /jp: 109 botões "Buy now" em inglês em página japonesa
+
+Página: /jp (Japan)
+Problema: A página /jp tem H1, subtítulo e categorias em japonês, mas todos os 109+ botões de produto dizem "Buy now" em inglês. Badge "30-day refill guarantee", "No password required", "Delivery starts from 1 hour" também em inglês.
+Impacto: Usuário japonês vê UI mista — metade japonesa, metade inglesa.
+
+BUG-194 — /kr: mesmos 109 botões "Buy now" e badges em inglês em página coreana
+
+Página: /kr (Korea) — confirmado mesmo padrão que /jp.
+
+
+🟠 MÉDIO
+BUG-195 — /de: "Services" nav button e H2 em inglês em página alemã
+
+Página: /de (Germany)
+Problema: Nav button "Services" e H2 "Services" em inglês; "Märkte" no mesmo nav está em alemão. Inconsistência direta dentro da mesma barra de navegação.
+
+BUG-196 — /de: badge "Lieferung startet in 30 Minuten" — diferente dos outros mercados ("1 hora")
+
+Página: /de
+Problema: Badge de entrega diz "30 Minutos" para Alemanha enquanto /br, /es, /fr, /jp dizem "1 hora"/"1 hour". Não está claro se isso é intencional ou um erro de template.
+
+BUG-197 — /fr: "Services" nav button em inglês em página francesa
+
+Página: /fr (France)
+Problema: Nav "Services" em inglês; H2 "Services" em inglês. O resto da página tem H1 e CTAs em francês ("Acheter maintenant"). Inconsistência.
+
+BUG-198 — /fr: subtítulos de produto em inglês ("Ideal for testing", "First push")
+
+Página: /fr — confirmado mesmo padrão sistêmico de /br, /de, /jp, /kr, /ar, /mx.
+
+BUG-199 — /jp: "Services" H2 em inglês; "他の市場" H2 em japonês — inconsistência na mesma página
+
+Página: /jp
+Problema: H2 "Services" em inglês; H2 "他の市場" (Other Markets) em japonês — dois H2s na mesma página com idiomas diferentes.
+
+BUG-200 — Nenhum geo-redirect na raiz do domínio
+
+Página: viralefy.com/
+Problema: Usuário brasileiro acessando a raiz vê página genérica em inglês sem redirect automático para /br. Nenhum cookie de locale ou detecção de IP implementada (confirmado via document.cookie e ausência de <meta http-equiv="refresh">).
+Impacto: Usuários internacionais sem acesso direto ao mercado local; experiência degradada.
+
+BUG-201 — 404 page: canonical aponta para / (homepage)
+
+Problema: <link rel="canonical" href="https://www.viralefy.com/"> em página 404. O canonical deveria ser a própria URL ou ausente — não apontar para a homepage.
+
+BUG-202 — Help Center: recovery form descrita é diferente da real
+
+Página: /help/how-to-buy
+Problema: "the recovery form on the login page sends a new link in seconds" — mas /br/recuperacao-de-perfil é para recuperação de conta do Instagram/TikTok, não de magic link de acesso. E auth.viralefy.com/login não tem formulário de recuperação visível.
+
+BUG-203 — JSON-LD WebSite.inLanguage: "en" em site multilingue
+
+Página: viralefy.com/ (raiz)
+Problema: O schema WebSite afirma inLanguage: "en" mas o site serve 130 mercados em português, espanhol, alemão, japonês, coreano, francês, árabe, etc.
+Recomendação: Usar inLanguage: ["en", "pt", "es", "de", "ja", "ko", "fr", ...]
+
+BUG-204 — /jp e /kr: produto categorias sem tradução completa — "Premium services" em inglês
+
+Páginas: /jp, /kr
+Problema: No nav de categorias, a tab "Premium services" fica em inglês enquanto as outras usam caracteres japoneses/coreanos.
+
+BUG-205 — Localization inconsistente entre mercados — /es e /fr têm níveis diferentes
+
+Problema: /es tem "Servicios" ✓, /fr tem "Services" ✗, /de tem "Services" ✗, /jp tem "Services" ✗. A profundidade de localização varia por mercado sem critério aparente — sugere tradução manual parcial e não sistemática.
+
+
+🟡 BAIXO / ACESSIBILIDADE / UX
+BUG-206 — Sem link "Skip to content" (pular para conteúdo) — falha de acessibilidade WCAG 2.4.1
+
+Páginas: Todas (confirmado em /br)
+Problema: Nenhum elemento <a href="#main"> ou similar. Usuários de teclado precisam Tab por todos os itens de navegação antes de chegar ao conteúdo principal.
+Padrão violado: WCAG 2.1, critério 2.4.1 (Bypass Blocks) — Nível A.
+
+BUG-207 — Logo link sem texto acessível
+
+Páginas: Todas
+Problema: <a href="/"> (logo) tem textContent: "" e nenhum aria-label. Screen readers anunciam apenas "link" sem destino.
+Padrão violado: WCAG 2.4.4 (Link Purpose) — Nível A.
+
+BUG-208 — Dark mode button sem aria-label
+
+Confirmado via: inputValidity check — 5º elemento focável é button com texto vazio.
+Padrão violado: WCAG 4.1.2 (Name, Role, Value) — Nível A.
+
+BUG-209 — /jp: "View details →" em inglês em 12+ links de categoria (todos)
+
+Página: /jp
+Problema: Todos os 12+ links "View details →" em inglês em página japonesa.
+
+BUG-210 — 404 page: "Popular markets" em inglês — sem localização por contexto
+
+Complementar ao BUG-187 — os market links estão em seus nomes nativos (Brasil, Portugal, España, México) mas o heading "Popular markets" é inglês.
+
+BUG-211 — /fr: subtítulos de produto não traduzidos
+
+Página: /fr — "Ideal for testing", "First push", "Initial growth", "Steady boost" — confirmado em inglês.
+
+BUG-212 — Help Center article link "open a support ticket" leva para /tickets (quebrado)
+
+Afeta: /help/how-to-buy e potencialmente outros artigos que referenciam tickets.
+
+BUG-213 — /vs/ pages: "Starting price 1 USDT" / "Trial tier from 1 USDT" — preço fictício em TODAS as páginas de comparação*
+
+Confirmado em /vs/twicsy além dos já testados /vs/stormlikes e /vs/mediamister. O claim é sistematicamente falso em toda a seção /vs.
