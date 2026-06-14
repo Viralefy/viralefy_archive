@@ -134,8 +134,9 @@ Marcadores: `🔴 crítico` `🟠 alta` `🟡 média/baixa`. ID = numeração do
 | 9 | 3 grupos = 8 bugs | — |
 | 10 | 3 grupos = 10 bugs | — |
 | 11 | 4 grupos = 6 bugs | — |
+| 12 | 5 grupos = 10 bugs | — |
 
-### Bugs fechados ate aqui (120 do QA):
+### Bugs fechados ate aqui (130 do QA):
 
 **Round 0**: BUG-15
 **Round 1**: BUG-3, 26, 39, 40, 51, 80, 83, 96, 97, 101, 107, 122, 131, 132, 133, 144, 180, 186, 187, 188, 201, 210
@@ -149,3 +150,4 @@ Marcadores: `🔴 crítico` `🟠 alta` `🟡 média/baixa`. ID = numeração do
 **Round 9**: BUG-36, 37, 45, 97, 123, 145, 150, 152, 153, 154, 165, 181 (busca + recovery preço + meta + spelling)
 **Round 10**: BUG-98, 142, 156, 195, 196, 197, 198, 199, 200, 204, 205 (nav 11 idiomas + checkout sub-helpers + cookie badges PT)
 **Round 11**: BUG-25, 30, 31, 136, 137, 141, 174 (mailto + Outros idiomas + Sign up text + formato numérico PT + Me gusta ES + self-service PT)
+**Round 12**: BUG-59, 124, 125, 130, 159, 160, 164, 189, 190, 202, 213 (sitemap hreflang + /vs claims verificáveis + Help Center vs produto real + breadcrumb cities + meta description plataforma-específica)
