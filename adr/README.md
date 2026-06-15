@@ -25,6 +25,10 @@ Formato: [MADR](https://adr.github.io/madr/) — Markdown Any Decision Record.
 | [ADR-0008](0008-frontend-nextjs-stack.md) | Next.js 14 + React + Tailwind como stack frontend padrão | accepted |
 | [ADR-0009](0009-multi-repo-vs-monorepo.md) | Multi-repo (10 repos) em vez de monorepo | accepted |
 | [ADR-0010](0010-payment-providers-acl.md) | Stripe + Heleket + AbacatePay com ACL parcial | accepted |
+| [ADR-0011](0011-cookies-cross-subdomain.md) | Cookies cross-subdomain para persistência de theme/currency | accepted |
+| [ADR-0012](0012-json-ld-graph-canonical.md) | JSON-LD via `@graph` canonical com Org + WebSite globais | accepted |
+| [ADR-0013](0013-rtl-logical-properties.md) | RTL via CSS logical properties | accepted |
+| [ADR-0014](0014-i18n-accept-language.md) | i18n por `Accept-Language` em rotas globais (sem country prefix) | accepted |
 
 ## Quando criar uma nova ADR
 
