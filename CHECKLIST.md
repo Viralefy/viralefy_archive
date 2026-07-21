@@ -52,6 +52,13 @@ nem executava). Dois BUGS DE PRODUTO achados pelos testes:
       passo "Review"; banner LGPD interceptava cliques; `/login` faz handoff SSO;
       corridas reais (waitForRequest tardio, batch de 10s, rota 404)
 
+- [x] **Contraste do tema claro reprovava WCAG AA** — `--accent: #00b89a` dava
+      **2.52:1** sobre branco (mínimo 4.5:1 pra texto normal). Só apareceu no CI
+      porque o Chrome headless roda com `prefers-color-scheme: light`, e o tema
+      segue essa preferência — ou seja, atingia todo usuário com SO em claro.
+      Agora `#00806b` (4.88:1 sobre branco, 4.61:1 sobre o `--bg`) e hover
+      `#00604f` (7.54:1).
+
 **Lighthouse do front: 53 asserções falhando → 20.** best-practices 0.93 → 0.96,
 a11y 1.0, performance 1.0.
 - [x] `metadata.icons` apontava pra 2 arquivos inexistentes (404 por página)
