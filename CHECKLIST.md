@@ -65,6 +65,13 @@ nem executava). Dois BUGS DE PRODUTO achados pelos testes:
       `--on-accent`; e o `LiveCounter` (pill fixo bottom-right) tinha fundo
       escuro FIXO com `color: var(--text)`, que no tema claro vira quase-preto —
       **1.27:1, texto invisível**. Agora cor clara fixa pareada com o fundo fixo.
+- [x] **Duas camadas a mais, achadas pelo CI depois:** o `<span>` aninhado e o
+      botão de fechar do `LiveCounter` ainda usavam `--muted` sobre o fundo fixo
+      (2.59:1), e a tabela de planos reprovava em `td-has-header` — a coluna do
+      botão era `<th />` vazio. `scope="col"` sozinho NÃO resolveu (medido); o
+      axe exige nome acessível, então o cabeçalho leva `cta.buy` oculto via
+      `.sr-only` (utilitário que não existia). Página de categoria fechou em
+      **a11y 1.0, contrast 1, td-has-header 1**.
 - [ ] **Suspeita não confirmada — Footer.** `background: rgba(20,20,31,0.5)` sobre
       o `--bg` claro compõe um cinza médio (#84868e); por cálculo, o texto
       `--muted` (#5a6878) fica em **1.57:1**. O axe não flagrou (talvez não
