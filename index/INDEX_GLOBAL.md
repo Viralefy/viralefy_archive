@@ -17,7 +17,7 @@
 | `viralefy_api` | Go | legado | 134 | 1077 | 1077 | ✅ | 635 |
 | `viralefy_front` | TypeScript (Next.js) | frontend | 145 | 583 | 583 | ✅ | 450 |
 | `viralefy_backoffice` | TypeScript (Next.js) | frontend | 46 | 181 | 181 | ✅ | 152 |
-| `viralefy_ops` | Shell | control plane | 74 | 234 | 234 | ✅ | 113 |
+| `viralefy_ops` | Shell | control plane | 74 | 234 | 234 | ✅ | 112 |
 | `viralefy_archive` | Markdown + Shell/Python | archive | 2 | 25 | 25 | ✅ | 20 |
 | **TOTAL** | — | 10 repos | — | **3728** | **3728** | ✅ | — |
 

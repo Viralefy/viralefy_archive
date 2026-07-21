@@ -5,7 +5,7 @@
 
 | Métrica | Valor |
 |---|---|
-| Arquivos com função indexada | 134 (de 160 varridos) |
+| Arquivos com função indexada | 134 (de 161 varridos) |
 | **N — funções declaradas no código** | **1077** |
 | **M — entradas neste índice** | **1077** |
 | Invariante `M == N` | ✅ OK |

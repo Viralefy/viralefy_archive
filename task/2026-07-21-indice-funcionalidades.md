@@ -44,14 +44,14 @@ apodrece em uma semana: o índice tinha que ser **gerado**.
 | viralefy_core | 1206 | 1206 | ✅ | 690 |
 | viralefy_api (legado) | 1077 | 1077 | ✅ | 635 |
 | viralefy_front | 583 | 583 | ✅ | 450 |
-| viralefy_ops | 234 | 234 | ✅ | 119 |
+| viralefy_ops | 234 | 234 | ✅ | 112 |
 | viralefy_backoffice | 181 | 181 | ✅ | 152 |
 | viralefy_auth | 169 | 169 | ✅ | 98 |
 | viralefy_payments | 151 | 151 | ✅ | 96 |
 | viralefy_sender | 63 | 63 | ✅ | 17 |
 | viralefy_api_rust | 39 | 39 | ✅ | 16 |
 | viralefy_archive | 25 | 25 | ✅ | 20 |
-| **TOTAL** | **3728** | **3728** | ✅ | **2287** |
+| **TOTAL** | **3728** | **3728** | ✅ | **2286** |
 
 Grafo de serviços: 10 nós, 18 arestas com contrato nomeado.
 
@@ -70,10 +70,10 @@ exatamente o "índice de 90 linhas para 100+ funções" que a §39 reprova.
 
 ## Dívida registrada (não silenciada)
 
-- **2287 de 3728 funções (61,3%) sem doc-comment de contexto (§3/§6).** Concentração:
+- **2286 de 3728 funções (61,3%) sem doc-comment de contexto (§3/§6).** Concentração:
   `front` 77%, `backoffice` 84%, `core` 57%, `api` 59%. O gate existe e está ligado:
   `viralefy-index --strict-doc` reprova. Não foi corrigido nesta task porque a
-  correção é **na origem** (2287 funções), não no índice — precisa de plano próprio.
+  correção é **na origem** (2286 funções), não no índice — precisa de plano próprio.
 - O `viralefy_api` legado (1077 funções) está no índice como `legado`. Regra dos
   30/50% (§3.1) continua valendo: ele não cresce.
 
@@ -99,9 +99,29 @@ não tinham doc. Corrigido: o gerador fecha com **0 função sem doc-comment**.
    índice do git na raiz e adicionado ao `.gitignore` — estava *staged* pra commit
    (§37 item 3). Nunca chegou a entrar em nenhum commit.
 
+## Segunda parte da sessão — CI verde nos 10 repos
+
+O gate de índice entrou num CI que já estava **vermelho em todos os repos**. Verde
+de mentira não serve de gate, então a campanha foi até o fim:
+
+| Falha | Causa | Correção |
+|---|---|---|
+| `gitleaks` (9 repos) | a action v2 passou a exigir **licença paga para organizações**; falhava com "missing gitleaks license" | binário oficial v8.30.1, mesmo scanner, histórico completo |
+| `govulncheck` (auth, payments, sender) | **GO-2026-5004: SQL injection no pgx v5.7.4** (confusão de placeholder com dollar-quoted literals), alcançável a partir das queries | pgx → v5.9.2 nos 5 repos Go |
+| idem | **GO-2026-5856**: privacy leak no ECH do `crypto/tls`, via `ListenAndServe` | Go 1.26.4 → **1.26.5**; CI subiu de "1.25" (mentia sobre a versão testada) |
+| `cargo-audit` (dispatcher) | RUSTSEC-2023-0071 (Marvin Attack no `rsa`), sem correção upstream | `rsa` vinha do `sqlx-mysql`, puxado pela feature `macros` — que o código não usa (`query_as()`, não `query_as!`). Feature removida; ignore documentado no `.cargo/audit.toml` |
+| `build-test` (backoffice) | teste `no-pt-regression`: "Cancelar" em `app/admins/page.tsx` | modal de criar admin traduzido (4 strings, não só a que o teste lista) |
+| `lhci` (front) | `Cannot find module 'typescript'` — `NODE_ENV=production` no job faz o `npm ci` pular devDependencies, e o `next.config.ts` precisa do tsc | `--include=dev` em lighthouse e e2e; Node 20 → 24 |
+| `shellcheck` (ops) | SC2015 em `viralefy-update` (`A && B \|\| C` engolia falha de cópia) e SC2317/SC2329 em `viralefy-restore-drill` | if-then explícito; disable local com justificativa |
+
+Achados de gitleaks triados um a um: `api`/`core` são **falso-positivo** (a regra
+casa com o nome do parâmetro `legacyHS256Secret`, sem valor); `ops` e `archive`
+são históricos com HEAD limpo, registrados em `.gitleaksignore` com o motivo —
+escopo `no-secret-rotation-nag` (HML/POC).
+
 ## Em aberto
 
-1. **Dívida de doc-comment: 2287 funções.** Precisa de plano próprio, por serviço,
+1. **Dívida de doc-comment: 2286 funções.** Precisa de plano próprio, por serviço,
    começando pelo `core` (domínio). Gerar comentário em massa por IA seria
    exatamente o "comentário que repete a assinatura" que a §3 rejeita.
 2. **Mapa de endpoints (§39, superfície de ataque)** — peça que falta ao lado deste

@@ -5,3 +5,11 @@ b6178a0965a9b58f1f49b82f849a1bd479d4a1fe:CONTEXT.md:generic-api-key:58
 ce7af3f68e418d88fecd9ed0f66c227ced7a9ea1:CONTEXT.md:generic-api-key:96
 ce7af3f68e418d88fecd9ed0f66c227ced7a9ea1:CONTEXT.md:generic-api-key:102
 f9694d258bdf234ba2fed975587603666b76f7c6:CONTEXT.md:generic-api-key:78
+
+# Novos achados do scan por binário (mesma política acima: HML/POC).
+ecf756de1090fac52ebde44881c2097eaa69b38d:context/2026-06-13-23-26-45-context.md:generic-api-key:141
+ecf756de1090fac52ebde44881c2097eaa69b38d:context/2026-06-13-23-26-45-context.md:generic-api-key:142
+213daca57ccf8ad139f28f9877227b8444c19bf4:CONTEXT.md:generic-api-key:161
+213daca57ccf8ad139f28f9877227b8444c19bf4:CONTEXT.md:generic-api-key:162
+213daca57ccf8ad139f28f9877227b8444c19bf4:CONTEXT.md:generic-api-key:164
+b3e6bd6c197552407996e41a8805f1b9ab8f8eee:PHASE-9-ARCHITECTURE.md:generic-api-key:937

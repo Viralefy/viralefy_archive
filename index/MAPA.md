@@ -363,7 +363,7 @@ Painel admin: CRUD de planos, gateways de pagamento e pedidos.
 Interface única de operação: instala em /viralefy/*, sobe via systemd com isolamento por usuário, expõe via Caddy com TLS, mantém segredo em /etc/viralefy/.env e roda o test kit.
 
 - **Funções indexadas:** 234 (N=234, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_ops.md)
-- **Sem doc-comment (§3):** 113
+- **Sem doc-comment (§3):** 112
 - **Pontos de entrada (camada `interface`/`cmd`):** 48
   - `now` — bin/viralefy-critical-flows:62
   - `emit_json` — bin/viralefy-critical-flows:64
@@ -386,7 +386,7 @@ Interface única de operação: instala em /viralefy/*, sobe via systemd com iso
   - `ensure_ops_in_place` — bin/viralefy-install:78
   - `mapper` — bin/viralefy-logs:9
   - `pick_free_port` — bin/viralefy-restore-drill:51
-  - `cleanup` — bin/viralefy-restore-drill:65
+  - `cleanup` — bin/viralefy-restore-drill:68
   - `ok` — bin/viralefy-smoke:68
   - `bad` — bin/viralefy-smoke:69
   - `note` — bin/viralefy-smoke:70

@@ -5,11 +5,11 @@
 
 | Métrica | Valor |
 |---|---|
-| Arquivos com função indexada | 74 (de 153 varridos) |
+| Arquivos com função indexada | 74 (de 154 varridos) |
 | **N — funções declaradas no código** | **234** |
 | **M — entradas neste índice** | **234** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 113 (48.3%) |
+| Funções sem doc-comment (§3) | 112 (47.9%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -93,7 +93,7 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `pick_free_port` | func | Porta livre acima de 15433 (evita 15432 que pode estar em uso por dev). | — → retorno | — | — | — | 51 |
-| `cleanup` | func | ⚠ SEM DOC | test+cmd → db | now, cleanup | cleanup, list_scripts_for_category | db | 65 |
+| `cleanup` | func | Invocada indiretamente pelo `trap` abaixo — o shellcheck não enxerga essa chamada e marca o corpo como inalcançável (SC2317). shellcheck disable=SC2317,SC2329 | test+cmd → db | now, cleanup | cleanup, list_scripts_for_category | db | 68 |
 
 ### `bin/viralefy-smoke` — camada `cmd`
 
@@ -674,8 +674,8 @@ flow_db_invariant_softdelete_reuse -> check   (bin/viralefy-critical-flows:335 -
 main -> main   (bin/viralefy-install:48 -> tests/full-route-suite.py:458)
 main -> main   (bin/viralefy-install:48 -> tests/simulated/run.py:551)
 main -> main   (bin/viralefy-install:48 -> lib/index/build-index.mjs:38)
-cleanup -> now   (bin/viralefy-restore-drill:65 -> bin/viralefy-critical-flows:62)
-cleanup -> cleanup   (bin/viralefy-restore-drill:65 -> tests/chaos/partition-test.sh:36)
+cleanup -> now   (bin/viralefy-restore-drill:68 -> bin/viralefy-critical-flows:62)
+cleanup -> cleanup   (bin/viralefy-restore-drill:68 -> tests/chaos/partition-test.sh:36)
 ok -> ok   (bin/viralefy-smoke:68 -> bin/viralefy-critical-flows:71)
 ok -> ok   (bin/viralefy-smoke:68 -> bin/viralefy-status:10)
 bad -> bad   (bin/viralefy-smoke:69 -> bin/viralefy-critical-flows:77)
@@ -689,7 +689,7 @@ note -> note   (bin/viralefy-test:131 -> bin/viralefy-smoke:70)
 note -> note   (bin/viralefy-test:131 -> bin/viralefy-critical-flows:83)
 err -> err   (bin/viralefy-test:132 -> installer/lib.sh:56)
 list_scripts_for_category -> cleanup   (bin/viralefy-test:139 -> tests/chaos/partition-test.sh:36)
-list_scripts_for_category -> cleanup   (bin/viralefy-test:139 -> bin/viralefy-restore-drill:65)
+list_scripts_for_category -> cleanup   (bin/viralefy-test:139 -> bin/viralefy-restore-drill:68)
 run_one -> run_one   (bin/viralefy-test:210 -> tests/simulated/run.py:191)
 log -> log   (bin/viralefy-update:81 -> installer/lib.sh:53)
 build_api -> build_api   (bin/viralefy-update:199 -> installer/50-build.sh:24)
@@ -730,7 +730,7 @@ renderServiceIndex -> renderCallMermaid   (lib/index/render-service-index.mjs:64
 renderServiceIndex -> cell   (lib/index/render-service-index.mjs:64 -> lib/index/render-service-index.mjs:15)
 renderServiceIndex -> flowOf   (lib/index/render-service-index.mjs:64 -> lib/index/render-service-index.mjs:28)
 renderServiceIndex -> adjacencyNames   (lib/index/render-service-index.mjs:64 -> lib/index/render-service-index.mjs:45)
-cleanup -> cleanup   (tests/chaos/partition-test.sh:36 -> bin/viralefy-restore-drill:65)
+cleanup -> cleanup   (tests/chaos/partition-test.sh:36 -> bin/viralefy-restore-drill:68)
 hit -> http   (tests/full-route-suite.py:119 -> tests/full-route-suite.py:97)
 hit_v2 -> record   (tests/full-route-suite.py:159 -> tests/full-route-suite.py:83)
 hit_v2 -> http   (tests/full-route-suite.py:159 -> tests/full-route-suite.py:97)
