@@ -18,6 +18,18 @@ Mapa completo de todos os documentos do `viralefy_archive`. Para começar: leia 
 
 ---
 
+## 🗺️ Índice de funcionalidades (§39) — fonte da verdade viva
+
+Gerado por `viralefy_ops/bin/viralefy-index`. Consulte **antes** de criar algo, pra não duplicar.
+
+| Doc | Conteúdo |
+|---|---|
+| **[index/MAPA.md](index/MAPA.md)** | Mapa da aplicação: grafo de serviços, pontos de entrada e saídas por repo |
+| **[index/INDEX_GLOBAL.md](index/INDEX_GLOBAL.md)** | Repos, pastas top-level, contratos entre serviços e cobertura (N/M por serviço) |
+| **index/INDEX_FUNCTIONS_&lt;serviço&gt;.md** | Uma linha por função (3703 no total): o quê, fluxo, chama/é chamada, efeitos, arquivo:linha |
+
+---
+
 ## 🏗️ Arquitetura e fases
 
 | Doc | Conteúdo |

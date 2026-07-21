@@ -19,3 +19,43 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # §39: índice desatualizado trava o merge. Regenera a partir do código de todos
+  # os repos e exige que o resultado seja idêntico ao commitado em index/.
+  index-atualizado:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: workspace/viralefy_archive
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: clonar os repos irmãos do workspace
+        working-directory: workspace
+        run: |
+          set -euo pipefail
+          clone() { git clone --quiet --depth 1 "https://github.com/Viralefy/$1.git" "$2"; }
+          clone viralefy_dispatcher viralefy_api_rust
+          clone viralefy_core       viralefy_core
+          clone viralefy_auth       viralefy_auth
+          clone viralefy_payments   viralefy_payments
+          clone viralefy_sender     viralefy_sender
+          clone viralefy_api        viralefy_api
+          clone viralefy_front      viralefy_front
+          clone viralefy_backoffice viralefy_backoffice
+          clone viralefy_ops        viralefy_ops
+
+      - name: regenerar o índice
+        working-directory: workspace
+        run: viralefy_ops/bin/viralefy-index "$PWD"
+
+      - name: o índice commitado tem que bater com o gerado
+        working-directory: workspace/viralefy_archive
+        run: |
+          if ! git diff --exit-code -- index/; then
+            echo "::error::index/ está desatualizado — rode 'viralefy_ops/bin/viralefy-index' e commite (§39)."
+            exit 1
+          fi
