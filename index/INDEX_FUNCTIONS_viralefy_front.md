@@ -5,11 +5,11 @@
 
 | Métrica | Valor |
 |---|---|
-| Arquivos com função indexada | 146 (de 182 varridos) |
-| **N — funções declaradas no código** | **587** |
-| **M — entradas neste índice** | **587** |
+| Arquivos com função indexada | 147 (de 183 varridos) |
+| **N — funções declaradas no código** | **588** |
+| **M — entradas neste índice** | **588** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 450 (76.7%) |
+| Funções sem doc-comment (§3) | 451 (76.7%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -105,7 +105,7 @@ flowchart LR
   m23 -->|7| m9
 ```
 
-> Grafo por módulo: 532 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 472 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
+> Grafo por módulo: 536 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 476 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
 
 ## Funções
 
@@ -145,6 +145,12 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `main` | func | ⚠ SEM DOC | — → http-out+log | fetch | — | http-out, log | 13 |
 
+### `scripts/test-api-stub.mjs` — camada `ops`
+
+| Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
+|---|---|---|---|---|---|---|---|
+| `body` | func | ⚠ SEM DOC | test → interno | write, get, get | fire_auth_garbage | — | 50 |
+
 ### `sentry.server.config.ts` — camada `outro`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
@@ -155,18 +161,18 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub +39 | — | 37 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, generateMetadata, GET, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 41 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 37 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, GET, generateMetadata, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 41 |
 | `getReviews` | func | Server-side reviews fetch. | interface → http-out | fetch | PlanPage | http-out | 55 |
-| `qtyFromSlug` | func | Extrai a qty do slug (`1000-seguidores` → 1000). | interface → interno | qtyFromSlug | generateMetadata, qtyFromSlug, GET, PlanPage | — | 69 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, getPlans +37 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 74 |
+| `qtyFromSlug` | func | Extrai a qty do slug (`1000-seguidores` → 1000). | interface → interno | qtyFromSlug | qtyFromSlug, GET, generateMetadata, PlanPage | — | 69 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +37 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 74 |
 | `planNarrative` | func | Bloco descritivo do pacote por idioma — interpola qty, categoria, país. | interface → interno | describeSize, describeSizePt, describeSizeEs, windowFor, windowForPt | PlanPage | — | 143 |
 | `describeSize` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 169 |
 | `describeSizePt` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 176 |
 | `describeSizeEs` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 183 |
 | `windowFor` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 190 |
 | `windowForPt` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 195 |
-| `PlanPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getReviews, qtyFromSlug, getPlans +30 | — | evento | 201 |
+| `PlanPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getReviews, qtyFromSlug, getPlans +30 | — | evento | 201 |
 | `ReviewStars` | func | ReviewStars renderiza o badge agregado abaixo do H1: ★★★★★ 4.7 (12 reviews) Server-component puro, sem JS no cliente. | externo (borda) → retorno | — | — | — | 372 |
 | `ReviewsSection` | func | ReviewsSection — social proof na página do plano. | externo (borda) → retorno | — | — | — | 403 |
 | `ReviewCard` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 429 |
@@ -175,20 +181,20 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 45 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 49 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, generateMetadata, GET, getPlans, HomePage, getPlans, PricingPage, PlanPage, CategoryPage +2 | http-out | 86 |
-| `CategoryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, siteUrl, getPlans +26 | — | — | 97 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 45 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 49 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, GET, generateMetadata, getPlans, HomePage, getPlans, PricingPage, PlanPage, CategoryPage +2 | http-out | 86 |
+| `CategoryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl, getPlans +26 | — | — | 97 |
 
 ### `src/app/[country]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 25 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 31 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 35 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, generateMetadata, GET, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans +2 | http-out | 74 |
-| `CountryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, siteUrl, getPlans +24 | — | — | 85 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 31 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 35 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, GET, generateMetadata, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans +2 | http-out | 74 |
+| `CountryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl, getPlans +24 | — | — | 85 |
 
 ### `src/app/account/api-keys/page.tsx` — camada `interface`
 
@@ -197,8 +203,8 @@ flowchart LR
 | `formatDate` | func | Página "Developer API" — gerenciamento de credenciais B2B. | interface → interno | formatDate | closeModal, formatDate, handleCancel | — | 18 |
 | `APIKeysPage` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 27 |
 | `load` | func | ⚠ SEM DOC | interface+test → interno | load, fetchMyAPIKeys, getToken, load, load, load | load, onReply, handleCreate, handleRevoke, load, onRecharge, load, load, onAdd, onDelete | — | 38 |
-| `handleCreate` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, createMyAPIKey, getToken, load, load, load | — | — | 57 |
-| `handleRevoke` | func | ⚠ SEM DOC | interface → interno | load, load, revokeMyAPIKey, getToken, load, load, load | closeModal | — | 79 |
+| `handleCreate` | func | ⚠ SEM DOC | externo (borda) → interno | load, createMyAPIKey, load, getToken, load, load, load | — | — | 57 |
+| `handleRevoke` | func | ⚠ SEM DOC | interface → interno | load, revokeMyAPIKey, load, getToken, load, load, load | closeModal | — | 79 |
 | `copyPlain` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 97 |
 | `closeModal` | func | ⚠ SEM DOC | externo (borda) → interno | formatDate, handleRevoke, formatDate | — | — | 108 |
 
@@ -331,29 +337,29 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `smartTrim` | func | BUG-153/165 do QA 2026-06-12: meta description cortada no meio da frase (slice(0, 150)) terminava em "Pay i". | interface → retorno | — | generateMetadata, CaseStudyDetailPage | — | 13 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, generateStaticParams, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +12 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 22 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, generateStaticParams, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +12 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 22 |
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams | — | 30 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → evento | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | evento | 34 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → evento | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | evento | 34 |
 | `CaseStudyDetailPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +11 | — | evento | 72 |
 
 ### `src/app/case-studies/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 23 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 27 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 23 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 27 |
 | `CaseStudiesHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +9 | — | — | 57 |
 
 ### `src/app/cities/[city]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers | CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage +7 | — | 24 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers | generateMetadata, CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata +7 | — | 24 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | CityPage, schemaLang, PricingPage, schemaLang, VsCompetitorPage | — | 55 |
-| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | ogLocale, generateMetadata, ogLocale, generateMetadata, generateMetadata | — | 85 |
-| `siteUrl` | func | Programmatic SEO city LP. 50 rotas estáticas; cada uma fala da cidade com bairros/landmarks reais antes de redirecionar pro funnel do país. | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 1059 |
+| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | generateMetadata, ogLocale, generateMetadata, ogLocale, generateMetadata | — | 85 |
+| `siteUrl` | func | Programmatic SEO city LP. 50 rotas estáticas; cada uma fala da cidade com bairros/landmarks reais antes de redirecionar pro funnel do país. | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 1059 |
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams | — | 1123 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1127 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1127 |
 | `neighborhoodsText` | func | "central <city>" fallback varia por idioma — quando uma cidade não tem LOCAL_FLAVOR específica, queremos uma frase idiomática em cada língua (BUG city-fallback: antes só dizia "central <city>" e fi… | interface → retorno | — | CityPage | — | 1191 |
 | `CityPage` | func | ⚠ SEM DOC | externo (borda) → interno | neighborhoodsText, resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl +21 | — | — | 1267 |
 
@@ -361,26 +367,26 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | CityPage, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang +7 | — | 25 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata, HelpHub +39 | — | 33 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 100 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | generateMetadata, CityPage, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage +7 | — | 25 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub +39 | — | 33 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, resolveLang, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 100 |
 | `CitiesHub` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl +16 | — | — | 126 |
 
 ### `src/app/help/[slug]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata, HelpHub +39 | — | 14 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub +39 | — | 14 |
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, helpAllSlugs, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 21 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +24 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl +24 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
 | `HelpTopicPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | evento | 53 |
 
 ### `src/app/help/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub +39 | — | 16 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 20 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, generateMetadata, HelpHub +39 | — | 16 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 20 |
 | `HelpHub` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | — | 46 |
 
 ### `src/app/layout.tsx` — camada `interface`
@@ -394,10 +400,10 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 17 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 17 |
 | `isSlug` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, LegalPage | — | 21 |
 | `otherLanguagesLabel` | func | ⚠ SEM DOC | interface → interno | otherLanguagesLabel | LegalPage, otherLanguagesLabel, CookiesLegalPage | — | 25 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, generateMetadata, generateMetadata, isSlug, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +7 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 41 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, generateMetadata, generateMetadata, generateMetadata, isSlug, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +7 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 41 |
 | `LegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | isSlug, otherLanguagesLabel, otherLanguagesLabel, tr, tr, legalDoc, renderLegalBody | — | — | 79 |
 
 ### `src/app/legal/cookie-preferences/CookiePreferencesClient.tsx` — camada `ui`
@@ -420,14 +426,14 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 47 |
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | CityPage, resolveLang, generateMetadata, CitiesHub, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang +7 | — | 51 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 47 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CityPage, resolveLang, generateMetadata, CitiesHub, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage +7 | — | 51 |
 | `otherLanguagesLabel` | func | Localiza "Other languages:" — espelha o helper do dynamic [doc]/page.tsx (BUG-30/118 do QA: rótulo ficava em EN mesmo em /legal/cookies?lang=fr). | interface → interno | otherLanguagesLabel, tr, tr | otherLanguagesLabel, LegalPage, CookiesLegalPage | — | 58 |
 | `backToHomeLabel` | func | "Voltar ao início" — espelha o tr().cta.backToHome do pack i18n mas evitamos importar tr() inteiro pra manter este arquivo standalone. | interface → retorno | — | CookiesLegalPage | — | 76 |
 | `updatedLabel` | func | "Updated" label — mecânico, mesmo padrão. | interface → retorno | — | CookiesLegalPage | — | 93 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +31 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 109 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +31 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 109 |
 | `CategoryBadge` | func | BUG-142 do QA 2026-06-12: badges da tabela de cookies estavam fixas em EN ("NECESSARY", "PREFERENCES"…) mesmo no documento PT. | externo (borda) → retorno | — | — | — | 274 |
-| `CookiesLegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, otherLanguagesLabel, siteUrl, resolveLang, otherLanguagesLabel +22 | — | — | 314 |
+| `CookiesLegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, otherLanguagesLabel, siteUrl, siteUrl, resolveLang, otherLanguagesLabel +22 | — | — | 314 |
 
 ### `src/app/login/layout.tsx` — camada `interface`
 
@@ -463,12 +469,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `isOgSafeLang` | func | ⚠ SEM DOC | interface → retorno | — | GET | — | 29 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, generateMetadata, GET, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 38 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, GET, generateMetadata, getPlans, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 38 |
 | `fromPriceLabel` | func | Formata o menor preço da lista em USD (a moeda de display global). | interface → retorno | — | GET | — | 50 |
 | `exactPriceLabel` | func | Para plano específico, devolve `$X.XX`. | interface → retorno | — | GET | — | 60 |
-| `qtyFromSlug` | func | ⚠ SEM DOC | interface → interno | qtyFromSlug | qtyFromSlug, generateMetadata, GET, PlanPage | — | 67 |
+| `qtyFromSlug` | func | ⚠ SEM DOC | interface → interno | qtyFromSlug | qtyFromSlug, GET, generateMetadata, PlanPage | — | 67 |
 | `englishCountryName` | func | Resolve um country code ISO 3166 para o nome em inglês. | interface → retorno | — | GET | — | 80 |
-| `GET` | func | ⚠ SEM DOC | interface → interno | getPlans, qtyFromSlug, isOgSafeLang, getPlans, fromPriceLabel, exactPriceLabel, qtyFromSlug, englishCountryName, getPlans, getPlans +11 | GET, GET, GET, GET, GET | — | 89 |
+| `GET` | func | ⚠ SEM DOC | interface → interno | getPlans, isOgSafeLang, qtyFromSlug, getPlans, fromPriceLabel, exactPriceLabel, qtyFromSlug, englishCountryName, getPlans, getPlans +11 | GET, GET, GET, GET, GET | — | 89 |
 
 ### `src/app/orders/[id]/review/page.tsx` — camada `interface`
 
@@ -483,26 +489,26 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 31 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, generateMetadata, GET, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 62 |
-| `HomePage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, siteUrl, getPlans +18 | — | — | 73 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 31 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, GET, generateMetadata, HomePage, getPlans, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 62 |
+| `HomePage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl, getPlans +18 | — | — | 73 |
 
 ### `src/app/pricing/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 25 |
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, generateMetadata, PricingPage, resolveLang +7 | — | 35 |
-| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | generateMetadata, ogLocale, generateMetadata, ogLocale, generateMetadata | — | 746 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 25 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | generateMetadata, CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, generateMetadata, PricingPage +7 | — | 35 |
+| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | generateMetadata, generateMetadata, ogLocale, generateMetadata, ogLocale | — | 746 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | CityPage, PricingPage, schemaLang, VsCompetitorPage, schemaLang | — | 777 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +32 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 808 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, generateMetadata, GET, getPlans, HomePage, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 882 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +32 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 808 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | getPlans, getPlans, GET, generateMetadata, getPlans, HomePage, PricingPage, PlanPage, getPlans, CategoryPage +2 | http-out | 882 |
 | `priceUSD` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 893 |
 | `findPlan` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 897 |
 | `fmtQty` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable | — | 910 |
 | `PricingTable` | func | ⚠ SEM DOC | externo (borda) → interno | priceUSD, findPlan, fmtQty | — | — | 915 |
 | `uspsFor` | func | ⚠ SEM DOC | interface → retorno | — | PricingPage | — | 976 |
-| `PricingPage` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, resolveLang, getPlans +27 | — | — | 985 |
+| `PricingPage` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, getPlans, getPlans +27 | — | — | 985 |
 
 ### `src/app/register/layout.tsx` — camada `interface`
 
@@ -544,7 +550,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 15 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 15 |
 | `xmlEscape` | func | ⚠ SEM DOC | interface+test → interno | xmlEscape | GET, xmlEscape, buildSitemapIndexXml | — | 19 |
 | `GET` | func | ⚠ SEM DOC | interface → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, GET, siteUrl, siteUrl, siteUrl +17 | GET, GET, GET, GET, GET | — | 23 |
 
@@ -559,8 +565,8 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 21 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 21 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
 | `fetchStatus` | func | ⚠ SEM DOC | interface → http-out | fetch | StatusPage | http-out | 51 |
 | `StatusPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | — | 69 |
 
@@ -595,12 +601,12 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 21 |
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage +7 | — | 27 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 21 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | generateMetadata, CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata +7 | — | 27 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | CityPage, schemaLang, PricingPage, VsCompetitorPage, schemaLang | — | 58 |
-| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, headers, ogLocale | ogLocale, generateMetadata, generateMetadata, ogLocale, generateMetadata | — | 88 |
+| `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, headers, ogLocale | generateMetadata, ogLocale, generateMetadata, generateMetadata, ogLocale | — | 88 |
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 1233 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1237 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1237 |
 | `buildRows` | func | ⚠ SEM DOC | interface → retorno | — | VsCompetitorPage | — | 1302 |
 | `VsCompetitorPage` | func | ⚠ SEM DOC | externo (borda) → evento | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl +21 | — | evento | 1381 |
 
@@ -608,9 +614,9 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage +7 | — | 24 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 32 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 112 |
+| `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, get, get, headers, resolveLang | generateMetadata, CityPage, resolveLang, generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata +7 | — | 24 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 32 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, resolveLang, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 112 |
 | `VsHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | resolveLang, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl +15 | — | — | 138 |
 
 ### `src/components/ABExperiment.stories.tsx` — camada `ui`
@@ -823,7 +829,7 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `recoveryPriceLabel` | func | ⚠ SEM DOC | ui → retorno | — | onSubmit | — | 50 |
-| `tr` | func | ⚠ SEM DOC | interface+ui+test → interno | tr | LegalPage, otherLanguagesLabel, langFromLocale, NotFound, HomePage, PlanPage, BuyPlanCta, CategoryCardGrid, CategoryGroupedGrid, CheckoutModal +15 | — | 130 |
+| `tr` | func | ⚠ SEM DOC | interface+ui+test → interno | tr | LegalPage, otherLanguagesLabel, langFromLocale, NotFound, HomePage, BuyPlanCta, CategoryCardGrid, CategoryGroupedGrid, PlanPage, CheckoutModal +15 | — | 130 |
 | `RecoveryForm` | func | ⚠ SEM DOC | — → interno | useApp, tr, tr | — | — | 134 |
 | `update` | func | ⚠ SEM DOC | ui → retorno | — | onSubmit | — | 143 |
 | `onSubmit` | func | ⚠ SEM DOC | interface → http-out | onSubmit, onSubmit, onSubmit, onSubmit, recoveryPriceLabel, update, getTracking, fetch, onSubmit | onSubmit, onSubmit, onSubmit, onSubmit, CustomAmount, onSubmit | http-out | 147 |
@@ -886,9 +892,9 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `categoryFromSlug` | func | Resolve um slug recebido na URL → CategoryCode + idioma esperado. | interface+ui+test → retorno | — | generateMetadata, GET, baseLanguages, PlanPage, generateMetadata, CategoryPage, sortKey, countCyrillic, search, search | — | 290 |
-| `categorySlug` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | CityPage, generateMetadata, PlanPage, onSubscribeClick, CategoryGroupedGrid, generateMetadata, MegaMenuServices, CategoryPage, buildIndex, CountryPage +7 | — | 300 |
-| `categoryLabel` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateMetadata, GET, PlanPage, CategoryGroupedGrid, MegaMenuServices, CategoryPage, buildIndex, CountryPage, countCyrillic, buildIndex +1 | — | 304 |
+| `categoryFromSlug` | func | Resolve um slug recebido na URL → CategoryCode + idioma esperado. | interface+ui+test → retorno | — | GET, generateMetadata, baseLanguages, PlanPage, generateMetadata, CategoryPage, sortKey, countCyrillic, search, search | — | 290 |
+| `categorySlug` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | CityPage, generateMetadata, onSubscribeClick, CategoryGroupedGrid, PlanPage, generateMetadata, MegaMenuServices, CategoryPage, buildIndex, CountryPage +7 | — | 300 |
+| `categoryLabel` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | GET, generateMetadata, CategoryGroupedGrid, PlanPage, MegaMenuServices, CategoryPage, buildIndex, CountryPage, countCyrillic, buildIndex +1 | — | 304 |
 | `primitiveOf` | func | ⚠ SEM DOC | ui → retorno | — | categoryUnit | — | 317 |
 | `categoryUnit` | func | Unit label curto, sem plataforma — vira o sufixo na frase "1,000 <unit>" no card de plano. | ui+interface → interno | primitiveOf | CategoryGroupedGrid, CategoryPage | — | 372 |
 | `copyFor` | func | ⚠ SEM DOC | interface+test → retorno | — | PlanPage, generateMetadata, CategoryPage, countCyrillic | — | 1805 |
@@ -897,7 +903,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `getCountry` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateMetadata, GET, alternatesFor, PlanPage, readLastCountry, langFromPath, countryFromPath, Header, generateMetadata, CategoryPage +6 | — | 1444 |
+| `getCountry` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | GET, generateMetadata, alternatesFor, PlanPage, readLastCountry, langFromPath, countryFromPath, Header, generateMetadata, CategoryPage +6 | — | 1444 |
 | `countryDisplayName` | func | countryDisplayName devolve nome em script latin para PT/EN/ES quando disponível, senão cai no `name` original (que já é latin pra Américas e Europa). | ui → retorno | — | match, RegionBlock, countriesByRegionLocalized | — | 1505 |
 | `countriesByRegion` | func | ⚠ SEM DOC | ui+interface → retorno | — | NotFound, HomePage, Footer, CountryPage | — | 1511 |
 | `countriesByRegionLocalized` | func | BUG-115 (QA round 22): ordem alfabética dentro da região Ásia ficava quebrada porque `localeCompare` agrupava por codepoint Unicode (latin → árabe → cirílico → CJK). | ui → interno | countryDisplayName | RegionBlock | — | 1519 |
@@ -906,8 +912,8 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `langOfCountry` | func | ⚠ SEM DOC | interface+ui+test → interno | tr, tr, checkout | generateMetadata, GET, PlanPage, langFromPath, generateMetadata, CategoryPage, buildIndex, WhatsAppButton, CountryPage, categoryAlternates +5 | — | 89 |
-| `tr` | func | ⚠ SEM DOC | interface+ui+test → interno | tr | LegalPage, otherLanguagesLabel, langFromLocale, NotFound, HomePage, PlanPage, BuyPlanCta, CategoryCardGrid, CategoryGroupedGrid, CheckoutModal +15 | — | 1329 |
+| `langOfCountry` | func | ⚠ SEM DOC | interface+ui+test → interno | tr, tr, checkout | GET, generateMetadata, PlanPage, langFromPath, generateMetadata, CategoryPage, buildIndex, WhatsAppButton, CountryPage, categoryAlternates +5 | — | 89 |
+| `tr` | func | ⚠ SEM DOC | interface+ui+test → interno | tr | LegalPage, otherLanguagesLabel, langFromLocale, NotFound, HomePage, BuyPlanCta, CategoryCardGrid, CategoryGroupedGrid, PlanPage, CheckoutModal +15 | — | 1329 |
 
 ### `src/i18n/legal.ts` — camada `ui`
 
@@ -993,7 +999,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `getCity` | func | ⚠ SEM DOC | interface → retorno | — | CityPage, generateMetadata | — | 88 |
+| `getCity` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, CityPage | — | 88 |
 | `citiesByRegion` | func | ⚠ SEM DOC | interface → retorno | — | CitiesHub | — | 92 |
 
 ### `src/lib/competitors.ts` — camada `ui`
@@ -1110,7 +1116,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `formatQty` | func | Formato numérico por idioma — pt usa "1.000", en "1,000". | ui+test → retorno | — | onSubscribeClick, CategoryGroupedGrid, renderPrice, localizedPlanName, detectAcceptLanguage | — | 20 |
 | `unitMap` | func | ⚠ SEM DOC | ui → retorno | — | localizedPlanName | — | 125 |
-| `localizedPlanName` | func | ⚠ SEM DOC | interface+ui+test → interno | formatQty, unitMap | PlanPage, onSubscribeClick, CategoryGroupedGrid, onKey, ReviewStep, renderPrice, mkPlan | — | 137 |
+| `localizedPlanName` | func | ⚠ SEM DOC | ui+interface+test → interno | formatQty, unitMap | onSubscribeClick, CategoryGroupedGrid, PlanPage, onKey, ReviewStep, renderPrice, mkPlan | — | 137 |
 | `pickTier` | func | ⚠ SEM DOC | ui → retorno | — | localizedPlanDescription | — | 202 |
 | `localizedPlanDescription` | func | ⚠ SEM DOC | ui+test → interno | pickTier | onSubscribeClick, CategoryGroupedGrid, renderPrice, mkPlan | — | 218 |
 
@@ -1132,7 +1138,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, siteUrl, generateMetadata +39 | — | 29 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CityPage, siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata +39 | — | 29 |
 | `fetchPlans` | func | ⚠ SEM DOC | ui+interface → http-out | request, fetchPlans, fetch | allSiteUrls, SubscriptionsPage | http-out | 33 |
 | `allSiteUrls` | func | ⚠ SEM DOC | ui+interface → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +13 | generateSitemaps, sitemap, GET, POST, GET | — | 47 |
 | `sortKey` | func | ⚠ SEM DOC | ui → interno | categoryFromSlug, langOfCountry | sortStableForSitemap | — | 165 |
@@ -1181,7 +1187,7 @@ flowchart LR
 | `captureReferrerFromURL` | func | captureReferrerFromURL lê ?ref=<code> e persiste em localStorage por 30 dias. | ui → interno | get, setItem, get | initTracking | — | 99 |
 | `getStickyReferrerCode` | func | getStickyReferrerCode devolve o referral code ainda válido (TTL 30d). | ui → interno | getItem, removeItem | initTracking, getTracking | — | 115 |
 | `read` | func | ⚠ SEM DOC | ui+test → interno | getItem | initTracking, getTracking, fire_auth_garbage | — | 134 |
-| `write` | func | ⚠ SEM DOC | ui → interno | setItem | initTracking | — | 144 |
+| `write` | func | ⚠ SEM DOC | ops+ui → interno | setItem | body, initTracking | — | 144 |
 | `initTracking` | func | initTracking deve rodar uma vez por carregamento de página (no Providers useEffect). | ui → interno | readCookie, readCookie, readCookie, getOrCreateClientId, captureReferrerFromURL, getStickyReferrerCode, read, write, readCookie, get +1 | Providers | — | 156 |
 | `getTracking` | func | getTracking devolve o snapshot atual (sem alterar). | interface+ui → interno | getOrCreateClientId, getStickyReferrerCode, read | onSubmit, submitCheckout, onSubmit, trackEvent | — | 210 |
 
@@ -1210,7 +1216,7 @@ flowchart LR
 | `ok` | arrow | ⚠ SEM DOC | test → log | — | check, fetchJson, makeResponse, offersOf, buildCountryJsonLd, buildCountryJsonLd, lineNumberOf, detectAcceptLanguage, countCyrillic, search +4 | log | 20 |
 | `ko` | arrow | ⚠ SEM DOC | test → log | — | check, fetchJson | log | 21 |
 | `note` | arrow | ⚠ SEM DOC | test → log | — | check, fetchJson, note | log | 22 |
-| `get` | func | ⚠ SEM DOC | interface+ui+test → http-out | fetch, get | resolveLang, RootLayout, LoginPageInner, onSubmit, onSubmitCode, NotFound, resolveLang, RegisterPageInner, onSubmit, SSOCallbackPage +25 | http-out | 24 |
+| `get` | func | ⚠ SEM DOC | ops+interface+ui+test → http-out | fetch, get | body, resolveLang, RootLayout, LoginPageInner, onSubmit, onSubmitCode, NotFound, resolveLang, RegisterPageInner, onSubmit +26 | http-out | 24 |
 | `countTags` | func | ⚠ SEM DOC | test → retorno | — | check | — | 36 |
 | `imgsWithoutAlt` | func | ⚠ SEM DOC | test → retorno | — | check | — | 41 |
 | `buttonsMissingLabel` | func | ⚠ SEM DOC | test → retorno | — | check | — | 48 |
@@ -1272,7 +1278,7 @@ flowchart LR
 | `assert_no_echo` | func | assert_no_echo "desc" "payload_substring" Garante que o vetor enviado NÃO foi refletido cru no HTTP_BODY (anti-XSS). | — → retorno | — | — | — | 150 |
 | `assert_no_leak` | func | assert_no_leak "desc" Garante que a resposta não vaze stack trace, nome de tabela/coluna, paths, nem placeholders de template não renderizados. | — → db | — | — | db | 164 |
 | `fire_unauth` | func | fire METHOD URL JSON_BODY [extra curl args...] Wrapper que injeta Content-Type e (quando faz sentido) Bearer garbage. | — → retorno | — | — | — | 177 |
-| `fire_auth_garbage` | func | ⚠ SEM DOC | — → interno | checkout, read, check | — | — | 184 |
+| `fire_auth_garbage` | func | ⚠ SEM DOC | — → interno | body, checkout, read, check | — | — | 184 |
 
 ### `tests/pentest/probes.sh` — camada `test`
 
@@ -1293,7 +1299,7 @@ flowchart LR
 | `mark_fail` | func | ⚠ SEM DOC | test → interno | mark_fail | mark_fail | — | 32 |
 | `mark_info` | func | ⚠ SEM DOC | test → interno | mark_info | mark_info | — | 33 |
 | `note` | func | ⚠ SEM DOC | test → interno | note, note | check, fetchJson | — | 34 |
-| `fetch` | func | ⚠ SEM DOC | interface+ui+test+ops → http-out | — | getPlans, getReviews, getPlans, getPlans, getPlans, fetchStatus, CheckoutModal, tick, getPlans, Providers +21 | http-out | 36 |
+| `fetch` | func | ⚠ SEM DOC | interface+ui+test+ops → http-out | — | getPlans, getReviews, getPlans, getPlans, getPlans, fetchStatus, CheckoutModal, tick, Providers, getPlans +21 | http-out | 36 |
 | `require_status_200_min_size` | func | ⚠ SEM DOC | — → retorno | — | — | — | 52 |
 | `require_contains` | func | ⚠ SEM DOC | — → retorno | — | — | — | 64 |
 | `info_if_missing` | func | ⚠ SEM DOC | — → retorno | — | — | — | 76 |
@@ -1371,7 +1377,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `detectAcceptLanguage` | func | NOTE on detectAcceptLanguage: src/middleware.ts imports "next/server" (NextRequest), which Node's ESM resolver can't load outside the Next bundler. | interface+test → interno | toJsonLdGraph, buildAggregateOffer, formatQty, detectAcceptLanguage, ok, get, ok, get | detectAcceptLanguage, middleware, get | — | 35 |
 | `mockReq` | func | ─── detectAcceptLanguage (round 13 — i18n SSR via Accept-Language) ─────── | test → retorno | — | get | — | 210 |
-| `get` | method | ⚠ SEM DOC | interface+ui+test → interno | detectAcceptLanguage, get, detectAcceptLanguage, mockReq | resolveLang, RootLayout, LoginPageInner, onSubmit, onSubmitCode, NotFound, resolveLang, RegisterPageInner, onSubmit, SSOCallbackPage +25 | — | 213 |
+| `get` | method | ⚠ SEM DOC | ops+interface+ui+test → interno | detectAcceptLanguage, get, detectAcceptLanguage, mockReq | body, resolveLang, RootLayout, LoginPageInner, onSubmit, onSubmitCode, NotFound, resolveLang, RegisterPageInner, onSubmit +26 | — | 213 |
 
 ### `tests/unit/round-18-helpers.test.mjs` — camada `test`
 
@@ -1442,6 +1448,9 @@ fillStepOne -> confirmReview   (e2e/checkout-modal.spec.ts:182 -> src/components
 fillStepOne -> openCheckoutModal   (e2e/checkout-modal.spec.ts:182 -> e2e/checkout-modal.spec.ts:171)
 seedCookieConsent -> setItem   (e2e/helpers/consent.ts:24 -> tests/unit/gdpr.test.mjs:18)
 main -> fetch   (scripts/indexnow.mjs:13 -> tests/smoke/run.sh:36)
+body -> write   (scripts/test-api-stub.mjs:50 -> src/lib/tracking.ts:144)
+body -> get   (scripts/test-api-stub.mjs:50 -> tests/emulated/accessibility.mjs:24)
+body -> get   (scripts/test-api-stub.mjs:50 -> tests/unit/round-13-17-fixes.test.mjs:213)
 siteUrl -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:37 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:37 -> src/app/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:37 -> src/app/help/page.tsx:16)
@@ -1467,17 +1476,18 @@ getPlans -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:41 -> src/a
 getPlans -> fetch   (src/app/[country]/[category]/[slug]/page.tsx:41 -> tests/smoke/run.sh:36)
 getReviews -> fetch   (src/app/[country]/[category]/[slug]/page.tsx:55 -> tests/smoke/run.sh:36)
 qtyFromSlug -> qtyFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:69 -> src/app/og/[...slug]/route.tsx:67)
+generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/legal/[doc]/page.tsx:41)
-generateMetadata -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/legal/cookies/page.tsx:47)
+generateMetadata -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> qtyFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:69)
 generateMetadata -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/og/[...slug]/route.tsx:38)
@@ -1497,13 +1507,13 @@ generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/page.tsx:45)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/page.tsx:49)
 generateMetadata -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/[category]/page.tsx:86)
-generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/page.tsx:31)
 generateMetadata -> categoryFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/i18n/categories.ts:290)
 generateMetadata -> categorySlug   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/i18n/categories.ts:300)
+generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/page.tsx:31)
 generateMetadata -> categoryLabel   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/i18n/categories.ts:304)
-generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/page.tsx:35)
 generateMetadata -> getCountry   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/i18n/countries.ts:1444)
 generateMetadata -> langOfCountry   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/i18n/languages.ts:89)
+generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/page.tsx:35)
 generateMetadata -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/[country]/page.tsx:74)
 generateMetadata -> slugAlternates   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/lib/hreflang.ts:94)
 generateMetadata -> indexableMeta   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/lib/seo-meta.ts:45)
@@ -1513,7 +1523,6 @@ generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/[country]/[category]/[slug]/page.tsx:74 -> src/app/cities/[city]/page.tsx:1127)
 planNarrative -> describeSize   (src/app/[country]/[category]/[slug]/page.tsx:143 -> src/app/[country]/[category]/[slug]/page.tsx:169)
 planNarrative -> describeSizePt   (src/app/[country]/[category]/[slug]/page.tsx:143 -> src/app/[country]/[category]/[slug]/page.tsx:176)
 planNarrative -> describeSizeEs   (src/app/[country]/[category]/[slug]/page.tsx:143 -> src/app/[country]/[category]/[slug]/page.tsx:183)
@@ -1521,20 +1530,20 @@ planNarrative -> windowFor   (src/app/[country]/[category]/[slug]/page.tsx:143 -
 planNarrative -> windowForPt   (src/app/[country]/[category]/[slug]/page.tsx:143 -> src/app/[country]/[category]/[slug]/page.tsx:195)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/cities/page.tsx:33)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/help/[slug]/page.tsx:14)
-PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/help/page.tsx:16)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/legal/[doc]/page.tsx:17)
-PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/legal/cookies/page.tsx:47)
+PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 PlanPage -> getReviews   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:55)
 PlanPage -> qtyFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:69)
 PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/og/[...slug]/route.tsx:38)
 PlanPage -> qtyFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/og/[...slug]/route.tsx:67)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/page.tsx:31)
-PlanPage -> planNarrative   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:143)
 PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/page.tsx:62)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/pricing/page.tsx:25)
 PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/pricing/page.tsx:882)
+PlanPage -> planNarrative   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/[slug]/page.tsx:143)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/sitemap.xml/route.ts:15)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/status/page.tsx:21)
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/vs/[competitor]/page.tsx:21)
@@ -1542,9 +1551,9 @@ PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/a
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/page.tsx:45)
 PlanPage -> getPlans   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/[category]/page.tsx:86)
 PlanPage -> tr   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/components/RecoveryForm.tsx:130)
-PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/page.tsx:31)
 PlanPage -> categoryFromSlug   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/i18n/categories.ts:290)
 PlanPage -> categorySlug   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/i18n/categories.ts:300)
+PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/[country]/page.tsx:31)
 PlanPage -> categoryLabel   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/i18n/categories.ts:304)
 PlanPage -> copyFor   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/i18n/categories.ts:1805)
 PlanPage -> getCountry   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/i18n/countries.ts:1444)
@@ -1561,9 +1570,9 @@ PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/a
 PlanPage -> siteUrl   (src/app/[country]/[category]/[slug]/page.tsx:201 -> src/app/cities/[city]/page.tsx:1059)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/pricing/page.tsx:25)
@@ -1576,15 +1585,16 @@ siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/lib/site-u
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[country]/[category]/page.tsx:45 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -1599,13 +1609,13 @@ generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/vs/page.tsx:32)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/vs/page.tsx:112)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/[category]/page.tsx:45)
-generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/page.tsx:31)
 generateMetadata -> categoryFromSlug   (src/app/[country]/[category]/page.tsx:49 -> src/i18n/categories.ts:290)
 generateMetadata -> categorySlug   (src/app/[country]/[category]/page.tsx:49 -> src/i18n/categories.ts:300)
-generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/page.tsx:35)
+generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/page.tsx:31)
 generateMetadata -> copyFor   (src/app/[country]/[category]/page.tsx:49 -> src/i18n/categories.ts:1805)
 generateMetadata -> getCountry   (src/app/[country]/[category]/page.tsx:49 -> src/i18n/countries.ts:1444)
 generateMetadata -> langOfCountry   (src/app/[country]/[category]/page.tsx:49 -> src/i18n/languages.ts:89)
+generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/[country]/page.tsx:35)
 generateMetadata -> categoryAlternates   (src/app/[country]/[category]/page.tsx:49 -> src/lib/hreflang.ts:74)
 generateMetadata -> indexableMeta   (src/app/[country]/[category]/page.tsx:49 -> src/lib/seo-meta.ts:45)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/lib/site-urls.ts:29)
@@ -1614,7 +1624,6 @@ generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[country]/[category]/page.tsx:49 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/[country]/[category]/page.tsx:49 -> src/app/cities/[city]/page.tsx:1127)
 getPlans -> getPlans   (src/app/[country]/[category]/page.tsx:86 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 getPlans -> getPlans   (src/app/[country]/[category]/page.tsx:86 -> src/app/og/[...slug]/route.tsx:38)
 getPlans -> getPlans   (src/app/[country]/[category]/page.tsx:86 -> src/app/page.tsx:62)
@@ -1623,11 +1632,11 @@ getPlans -> getPlans   (src/app/[country]/[category]/page.tsx:86 -> src/app/[cou
 getPlans -> fetch   (src/app/[country]/[category]/page.tsx:86 -> tests/smoke/run.sh:36)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/cities/page.tsx:33)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/help/[slug]/page.tsx:14)
-CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/help/page.tsx:16)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/legal/[doc]/page.tsx:17)
-CategoryPage -> getPlans   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/legal/cookies/page.tsx:47)
+CategoryPage -> getPlans   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 CategoryPage -> getPlans   (src/app/[country]/[category]/page.tsx:97 -> src/app/og/[...slug]/route.tsx:38)
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/page.tsx:31)
 CategoryPage -> getPlans   (src/app/[country]/[category]/page.tsx:97 -> src/app/page.tsx:62)
@@ -1640,9 +1649,9 @@ CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/v
 CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/page.tsx:45)
 CategoryPage -> getPlans   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/[category]/page.tsx:86)
 CategoryPage -> tr   (src/app/[country]/[category]/page.tsx:97 -> src/components/RecoveryForm.tsx:130)
-CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/page.tsx:31)
 CategoryPage -> categoryFromSlug   (src/app/[country]/[category]/page.tsx:97 -> src/i18n/categories.ts:290)
 CategoryPage -> categorySlug   (src/app/[country]/[category]/page.tsx:97 -> src/i18n/categories.ts:300)
+CategoryPage -> siteUrl   (src/app/[country]/[category]/page.tsx:97 -> src/app/[country]/page.tsx:31)
 CategoryPage -> categoryLabel   (src/app/[country]/[category]/page.tsx:97 -> src/i18n/categories.ts:304)
 CategoryPage -> categoryUnit   (src/app/[country]/[category]/page.tsx:97 -> src/i18n/categories.ts:372)
 CategoryPage -> copyFor   (src/app/[country]/[category]/page.tsx:97 -> src/i18n/categories.ts:1805)
@@ -1663,9 +1672,9 @@ generateStaticParams -> generateStaticParams   (src/app/[country]/page.tsx:25 ->
 generateStaticParams -> generateStaticParams   (src/app/[country]/page.tsx:25 -> src/app/cities/[city]/page.tsx:1123)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/pricing/page.tsx:25)
@@ -1678,15 +1687,16 @@ siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[country]/page.tsx:31 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -1712,7 +1722,6 @@ generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[country]/page.tsx:35 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/[country]/page.tsx:35 -> src/app/cities/[city]/page.tsx:1127)
 getPlans -> getPlans   (src/app/[country]/page.tsx:74 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 getPlans -> getPlans   (src/app/[country]/page.tsx:74 -> src/app/og/[...slug]/route.tsx:38)
 getPlans -> getPlans   (src/app/[country]/page.tsx:74 -> src/app/page.tsx:62)
@@ -1721,11 +1730,11 @@ getPlans -> getPlans   (src/app/[country]/page.tsx:74 -> src/app/[country]/[cate
 getPlans -> fetch   (src/app/[country]/page.tsx:74 -> tests/smoke/run.sh:36)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/cities/page.tsx:33)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/help/[slug]/page.tsx:14)
-CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/help/page.tsx:16)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/legal/[doc]/page.tsx:17)
-CountryPage -> getPlans   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/legal/cookies/page.tsx:47)
+CountryPage -> getPlans   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 CountryPage -> getPlans   (src/app/[country]/page.tsx:85 -> src/app/og/[...slug]/route.tsx:38)
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/page.tsx:31)
 CountryPage -> getPlans   (src/app/[country]/page.tsx:85 -> src/app/page.tsx:62)
@@ -1738,8 +1747,8 @@ CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/vs/page.tsx:3
 CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/page.tsx:45)
 CountryPage -> getPlans   (src/app/[country]/page.tsx:85 -> src/app/[country]/[category]/page.tsx:86)
 CountryPage -> tr   (src/app/[country]/page.tsx:85 -> src/components/RecoveryForm.tsx:130)
-CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/[country]/page.tsx:31)
 CountryPage -> categorySlug   (src/app/[country]/page.tsx:85 -> src/i18n/categories.ts:300)
+CountryPage -> siteUrl   (src/app/[country]/page.tsx:85 -> src/app/[country]/page.tsx:31)
 CountryPage -> categoryLabel   (src/app/[country]/page.tsx:85 -> src/i18n/categories.ts:304)
 CountryPage -> getCountry   (src/app/[country]/page.tsx:85 -> src/i18n/countries.ts:1444)
 CountryPage -> countriesByRegion   (src/app/[country]/page.tsx:85 -> src/i18n/countries.ts:1511)
@@ -1761,15 +1770,15 @@ load -> load   (src/app/account/api-keys/page.tsx:38 -> src/app/account/credits/
 load -> load   (src/app/account/api-keys/page.tsx:38 -> tests/ts-loader-hooks.mjs:64)
 load -> load   (src/app/account/api-keys/page.tsx:38 -> src/app/account/profiles/page.tsx:23)
 handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> src/app/tickets/[id]/page.tsx:26)
-handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> src/app/account/api-keys/page.tsx:38)
 handleCreate -> createMyAPIKey   (src/app/account/api-keys/page.tsx:57 -> src/lib/api.ts:904)
+handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> src/app/account/api-keys/page.tsx:38)
 handleCreate -> getToken   (src/app/account/api-keys/page.tsx:57 -> src/lib/auth.ts:31)
 handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> src/app/account/credits/page.tsx:35)
 handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> tests/ts-loader-hooks.mjs:64)
 handleCreate -> load   (src/app/account/api-keys/page.tsx:57 -> src/app/account/profiles/page.tsx:23)
 handleRevoke -> load   (src/app/account/api-keys/page.tsx:79 -> src/app/tickets/[id]/page.tsx:26)
-handleRevoke -> load   (src/app/account/api-keys/page.tsx:79 -> src/app/account/api-keys/page.tsx:38)
 handleRevoke -> revokeMyAPIKey   (src/app/account/api-keys/page.tsx:79 -> src/lib/api.ts:911)
+handleRevoke -> load   (src/app/account/api-keys/page.tsx:79 -> src/app/account/api-keys/page.tsx:38)
 handleRevoke -> getToken   (src/app/account/api-keys/page.tsx:79 -> src/lib/auth.ts:31)
 handleRevoke -> load   (src/app/account/api-keys/page.tsx:79 -> src/app/account/credits/page.tsx:35)
 handleRevoke -> load   (src/app/account/api-keys/page.tsx:79 -> tests/ts-loader-hooks.mjs:64)
@@ -1918,9 +1927,9 @@ Handoff -> get   (src/app/auth/handoff/page.tsx:28 -> tests/unit/round-13-17-fix
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/help/[slug]/page.tsx:14)
 siteUrl -> generateStaticParams   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/help/[slug]/page.tsx:21)
-siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/case-studies/[slug]/page.tsx:22 -> src/app/pricing/page.tsx:25)
@@ -1941,15 +1950,16 @@ generateStaticParams -> generateStaticParams   (src/app/case-studies/[slug]/page
 generateStaticParams -> generateStaticParams   (src/app/case-studies/[slug]/page.tsx:30 -> src/app/vs/[competitor]/page.tsx:1233)
 generateStaticParams -> generateStaticParams   (src/app/case-studies/[slug]/page.tsx:30 -> src/app/[country]/page.tsx:25)
 generateStaticParams -> generateStaticParams   (src/app/case-studies/[slug]/page.tsx:30 -> src/app/cities/[city]/page.tsx:1123)
+generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -1975,12 +1985,11 @@ generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/ap
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/case-studies/[slug]/page.tsx:34 -> src/app/cities/[city]/page.tsx:1127)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/cities/page.tsx:33)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/help/[slug]/page.tsx:14)
-CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/help/page.tsx:16)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/legal/[doc]/page.tsx:17)
+CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/legal/cookies/page.tsx:47)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/page.tsx:31)
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/pricing/page.tsx:25)
@@ -1999,9 +2008,9 @@ CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src
 CaseStudyDetailPage -> siteUrl   (src/app/case-studies/[slug]/page.tsx:72 -> src/app/cities/[city]/page.tsx:1059)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/pricing/page.tsx:25)
@@ -2014,15 +2023,16 @@ siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/[country]/page
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/case-studies/page.tsx:23 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -2046,12 +2056,11 @@ generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/case-
 generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/case-studies/[slug]/page.tsx:34)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> siteUrl   (src/app/case-studies/page.tsx:27 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/case-studies/page.tsx:27 -> src/app/cities/[city]/page.tsx:1127)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/cities/page.tsx:33)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/help/[slug]/page.tsx:14)
-CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/help/page.tsx:16)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/legal/[doc]/page.tsx:17)
+CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/legal/cookies/page.tsx:47)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/page.tsx:31)
 CaseStudiesHubPage -> siteUrl   (src/app/case-studies/page.tsx:57 -> src/app/pricing/page.tsx:25)
@@ -2080,9 +2089,9 @@ ogLocale -> ogLocale   (src/app/cities/[city]/page.tsx:85 -> src/app/pricing/pag
 ogLocale -> ogLocale   (src/app/cities/[city]/page.tsx:85 -> src/app/vs/[competitor]/page.tsx:88)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/cities/[city]/page.tsx:1059 -> src/app/pricing/page.tsx:25)
@@ -2105,11 +2114,11 @@ generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/ci
 generateMetadata -> generateMetadata   (src/app/cities/[city]/page.tsx:1127 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/cities/[city]/page.tsx:1127 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/cities/[city]/page.tsx:1127 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/cities/[city]/page.tsx:1127 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/cities/[city]/page.tsx:1127 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/cities/[city]/page.tsx:1127 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/cities/[city]/page.tsx:1127 -> src/app/legal/cookies/page.tsx:109)
@@ -2147,9 +2156,9 @@ CityPage -> neighborhoodsText   (src/app/cities/[city]/page.tsx:1267 -> src/app/
 CityPage -> resolveLang   (src/app/cities/[city]/page.tsx:1267 -> src/app/cities/page.tsx:25)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/cities/page.tsx:33)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/help/[slug]/page.tsx:14)
-CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/help/page.tsx:16)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/legal/[doc]/page.tsx:17)
+CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/legal/cookies/page.tsx:47)
 CityPage -> resolveLang   (src/app/cities/[city]/page.tsx:1267 -> src/app/legal/cookies/page.tsx:51)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/page.tsx:31)
@@ -2164,8 +2173,8 @@ CityPage -> schemaLang   (src/app/cities/[city]/page.tsx:1267 -> src/app/vs/[com
 CityPage -> resolveLang   (src/app/cities/[city]/page.tsx:1267 -> src/app/vs/page.tsx:24)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/vs/page.tsx:32)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/[country]/[category]/page.tsx:45)
-CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/[country]/page.tsx:31)
 CityPage -> categorySlug   (src/app/cities/[city]/page.tsx:1267 -> src/i18n/categories.ts:300)
+CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/app/[country]/page.tsx:31)
 CityPage -> getCity   (src/app/cities/[city]/page.tsx:1267 -> src/lib/cities.ts:88)
 CityPage -> toJsonLdGraph   (src/app/cities/[city]/page.tsx:1267 -> src/lib/jsonld.ts:137)
 CityPage -> siteUrl   (src/app/cities/[city]/page.tsx:1267 -> src/lib/site-urls.ts:29)
@@ -2183,9 +2192,9 @@ resolveLang -> get   (src/app/cities/page.tsx:25 -> tests/unit/round-13-17-fixes
 resolveLang -> headers   (src/app/cities/page.tsx:25 -> next.config.ts:29)
 resolveLang -> resolveLang   (src/app/cities/page.tsx:25 -> src/app/cities/[city]/page.tsx:24)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/pricing/page.tsx:25)
@@ -2199,15 +2208,16 @@ siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/cities/page.tsx:33 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> resolveLang   (src/app/cities/page.tsx:100 -> src/app/cities/page.tsx:25)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/cities/page.tsx:33)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/cities/page.tsx:100 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/legal/cookies/page.tsx:109)
@@ -2237,13 +2247,12 @@ generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/case-studi
 generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> resolveLang   (src/app/cities/page.tsx:100 -> src/app/cities/[city]/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/cities/page.tsx:100 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/cities/page.tsx:100 -> src/app/cities/[city]/page.tsx:1127)
 CitiesHub -> resolveLang   (src/app/cities/page.tsx:126 -> src/app/cities/page.tsx:25)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/cities/page.tsx:33)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/help/[slug]/page.tsx:14)
-CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/help/page.tsx:16)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/legal/[doc]/page.tsx:17)
+CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/legal/cookies/page.tsx:47)
 CitiesHub -> resolveLang   (src/app/cities/page.tsx:126 -> src/app/legal/cookies/page.tsx:51)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/page.tsx:31)
@@ -2265,9 +2274,9 @@ CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/case-studies/page
 CitiesHub -> resolveLang   (src/app/cities/page.tsx:126 -> src/app/cities/[city]/page.tsx:24)
 CitiesHub -> siteUrl   (src/app/cities/page.tsx:126 -> src/app/cities/[city]/page.tsx:1059)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/cities/page.tsx:33)
-siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/help/[slug]/page.tsx:14 -> src/app/pricing/page.tsx:25)
@@ -2286,14 +2295,15 @@ generateStaticParams -> generateStaticParams   (src/app/help/[slug]/page.tsx:21 
 generateStaticParams -> helpAllSlugs   (src/app/help/[slug]/page.tsx:21 -> src/lib/help.ts:338)
 generateStaticParams -> generateStaticParams   (src/app/help/[slug]/page.tsx:21 -> src/app/case-studies/[slug]/page.tsx:30)
 generateStaticParams -> generateStaticParams   (src/app/help/[slug]/page.tsx:21 -> src/app/cities/[city]/page.tsx:1123)
+generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/help/[slug]/page.tsx:14)
-generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -2319,12 +2329,11 @@ generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/a
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/help/[slug]/page.tsx:25 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/help/[slug]/page.tsx:25 -> src/app/cities/[city]/page.tsx:1127)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/cities/page.tsx:33)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/help/[slug]/page.tsx:14)
-HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/help/page.tsx:16)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/legal/[doc]/page.tsx:17)
+HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/legal/cookies/page.tsx:47)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/page.tsx:31)
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/pricing/page.tsx:25)
@@ -2342,8 +2351,8 @@ HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/case-stud
 HelpTopicPage -> siteUrl   (src/app/help/[slug]/page.tsx:53 -> src/app/cities/[city]/page.tsx:1059)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/pricing/page.tsx:25)
@@ -2357,14 +2366,15 @@ siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/help/page.tsx:16 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/help/page.tsx:16)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -2389,12 +2399,11 @@ generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/case
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/help/page.tsx:20 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/help/page.tsx:20 -> src/app/cities/[city]/page.tsx:1127)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/cities/page.tsx:33)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/help/[slug]/page.tsx:14)
-HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/help/page.tsx:16)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/legal/[doc]/page.tsx:17)
+HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/legal/cookies/page.tsx:47)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/page.tsx:31)
 HelpHub -> siteUrl   (src/app/help/page.tsx:46 -> src/app/pricing/page.tsx:25)
@@ -2418,8 +2427,8 @@ RootLayout -> get   (src/app/layout.tsx:144 -> tests/unit/round-13-17-fixes.test
 RootLayout -> headers   (src/app/layout.tsx:144 -> next.config.ts:29)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/help/page.tsx:16)
+siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/pricing/page.tsx:25)
@@ -2434,6 +2443,7 @@ siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/case-studies/[s
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/legal/[doc]/page.tsx:17 -> src/app/cities/[city]/page.tsx:1059)
 otherLanguagesLabel -> otherLanguagesLabel   (src/app/legal/[doc]/page.tsx:25 -> src/app/legal/cookies/page.tsx:58)
+generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/cities/page.tsx:100)
 generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/help/[slug]/page.tsx:25)
 generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/help/page.tsx:20)
@@ -2450,7 +2460,6 @@ generateMetadata -> legalDoc   (src/app/legal/[doc]/page.tsx:41 -> src/i18n/lega
 generateMetadata -> legalMetaDescription   (src/app/legal/[doc]/page.tsx:41 -> src/i18n/legal.ts:1101)
 generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/case-studies/[slug]/page.tsx:34)
 generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/case-studies/page.tsx:27)
-generateMetadata -> generateMetadata   (src/app/legal/[doc]/page.tsx:41 -> src/app/cities/[city]/page.tsx:1127)
 LegalPage -> isSlug   (src/app/legal/[doc]/page.tsx:79 -> src/app/legal/[doc]/page.tsx:21)
 LegalPage -> otherLanguagesLabel   (src/app/legal/[doc]/page.tsx:79 -> src/app/legal/[doc]/page.tsx:25)
 LegalPage -> otherLanguagesLabel   (src/app/legal/[doc]/page.tsx:79 -> src/app/legal/cookies/page.tsx:58)
@@ -2467,9 +2476,9 @@ reset -> resetConsent   (src/app/legal/cookie-preferences/CookiePreferencesClien
 CookiePreferencesPage -> withGlobalGraph   (src/app/legal/cookie-preferences/page.tsx:26 -> src/lib/jsonld.ts:223)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/pricing/page.tsx:25)
 siteUrl -> siteUrl   (src/app/legal/cookies/page.tsx:47 -> src/app/sitemap.xml/route.ts:15)
@@ -2490,16 +2499,17 @@ resolveLang -> resolveLang   (src/app/legal/cookies/page.tsx:51 -> src/app/citie
 otherLanguagesLabel -> otherLanguagesLabel   (src/app/legal/cookies/page.tsx:58 -> src/app/legal/[doc]/page.tsx:25)
 otherLanguagesLabel -> tr   (src/app/legal/cookies/page.tsx:58 -> src/components/RecoveryForm.tsx:130)
 otherLanguagesLabel -> tr   (src/app/legal/cookies/page.tsx:58 -> src/i18n/languages.ts:1329)
+generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> resolveLang   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/page.tsx:25)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/legal/cookies/page.tsx:109 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -2530,14 +2540,13 @@ generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/cas
 generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> resolveLang   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/[city]/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/legal/cookies/page.tsx:109 -> src/app/cities/[city]/page.tsx:1127)
 CookiesLegalPage -> resolveLang   (src/app/legal/cookies/page.tsx:314 -> src/app/cities/page.tsx:25)
 CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/cities/page.tsx:33)
 CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/help/[slug]/page.tsx:14)
-CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/help/page.tsx:16)
 CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/legal/[doc]/page.tsx:17)
 CookiesLegalPage -> otherLanguagesLabel   (src/app/legal/cookies/page.tsx:314 -> src/app/legal/[doc]/page.tsx:25)
+CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 CookiesLegalPage -> siteUrl   (src/app/legal/cookies/page.tsx:314 -> src/app/legal/cookies/page.tsx:47)
 CookiesLegalPage -> resolveLang   (src/app/legal/cookies/page.tsx:314 -> src/app/legal/cookies/page.tsx:51)
 CookiesLegalPage -> otherLanguagesLabel   (src/app/legal/cookies/page.tsx:314 -> src/app/legal/cookies/page.tsx:58)
@@ -2614,8 +2623,8 @@ getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[country]/p
 getPlans -> fetch   (src/app/og/[...slug]/route.tsx:38 -> tests/smoke/run.sh:36)
 qtyFromSlug -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:67 -> src/app/[country]/[category]/[slug]/page.tsx:69)
 GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[country]/[category]/[slug]/page.tsx:41)
-GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:89 -> src/app/[country]/[category]/[slug]/page.tsx:69)
 GET -> isOgSafeLang   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:29)
+GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:89 -> src/app/[country]/[category]/[slug]/page.tsx:69)
 GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:38)
 GET -> fromPriceLabel   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:50)
 GET -> exactPriceLabel   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:60)
@@ -2644,9 +2653,9 @@ onSubmit -> onSubmit   (src/app/orders/[id]/review/page.tsx:71 -> src/app/accoun
 StarPicker -> onChange   (src/app/orders/[id]/review/page.tsx:192 -> src/components/ThemeToggle.tsx:32)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/pricing/page.tsx:25)
 siteUrl -> siteUrl   (src/app/page.tsx:31 -> src/app/sitemap.xml/route.ts:15)
@@ -2668,11 +2677,11 @@ getPlans -> getPlans   (src/app/page.tsx:62 -> src/app/[country]/page.tsx:74)
 getPlans -> fetch   (src/app/page.tsx:62 -> tests/smoke/run.sh:36)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/cities/page.tsx:33)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/help/[slug]/page.tsx:14)
-HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/help/page.tsx:16)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/legal/[doc]/page.tsx:17)
-HomePage -> getPlans   (src/app/page.tsx:73 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/legal/cookies/page.tsx:47)
+HomePage -> getPlans   (src/app/page.tsx:73 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 HomePage -> getPlans   (src/app/page.tsx:73 -> src/app/og/[...slug]/route.tsx:38)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/page.tsx:31)
 HomePage -> getPlans   (src/app/page.tsx:73 -> src/app/page.tsx:62)
@@ -2696,9 +2705,9 @@ HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/case-studies/page.tsx:23)
 HomePage -> siteUrl   (src/app/page.tsx:73 -> src/app/cities/[city]/page.tsx:1059)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/pricing/page.tsx:25 -> src/app/sitemap.xml/route.ts:15)
@@ -2723,16 +2732,17 @@ ogLocale -> ogLocale   (src/app/pricing/page.tsx:746 -> src/app/vs/[competitor]/
 ogLocale -> ogLocale   (src/app/pricing/page.tsx:746 -> src/app/cities/[city]/page.tsx:85)
 schemaLang -> schemaLang   (src/app/pricing/page.tsx:777 -> src/app/vs/[competitor]/page.tsx:58)
 schemaLang -> schemaLang   (src/app/pricing/page.tsx:777 -> src/app/cities/[city]/page.tsx:55)
+generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> resolveLang   (src/app/pricing/page.tsx:808 -> src/app/cities/page.tsx:25)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/pricing/page.tsx:808 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/legal/cookies/page.tsx:109)
@@ -2764,7 +2774,6 @@ generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/
 generateMetadata -> resolveLang   (src/app/pricing/page.tsx:808 -> src/app/cities/[city]/page.tsx:24)
 generateMetadata -> ogLocale   (src/app/pricing/page.tsx:808 -> src/app/cities/[city]/page.tsx:85)
 generateMetadata -> siteUrl   (src/app/pricing/page.tsx:808 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/pricing/page.tsx:808 -> src/app/cities/[city]/page.tsx:1127)
 getPlans -> getPlans   (src/app/pricing/page.tsx:882 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 getPlans -> getPlans   (src/app/pricing/page.tsx:882 -> src/app/og/[...slug]/route.tsx:38)
 getPlans -> getPlans   (src/app/pricing/page.tsx:882 -> src/app/page.tsx:62)
@@ -2777,12 +2786,12 @@ PricingTable -> fmtQty   (src/app/pricing/page.tsx:915 -> src/app/pricing/page.t
 PricingPage -> resolveLang   (src/app/pricing/page.tsx:985 -> src/app/cities/page.tsx:25)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/cities/page.tsx:33)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/help/[slug]/page.tsx:14)
-PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/help/page.tsx:16)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/legal/[doc]/page.tsx:17)
-PricingPage -> getPlans   (src/app/pricing/page.tsx:985 -> src/app/[country]/[category]/[slug]/page.tsx:41)
+PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/legal/cookies/page.tsx:47)
 PricingPage -> resolveLang   (src/app/pricing/page.tsx:985 -> src/app/legal/cookies/page.tsx:51)
+PricingPage -> getPlans   (src/app/pricing/page.tsx:985 -> src/app/[country]/[category]/[slug]/page.tsx:41)
 PricingPage -> getPlans   (src/app/pricing/page.tsx:985 -> src/app/og/[...slug]/route.tsx:38)
 PricingPage -> siteUrl   (src/app/pricing/page.tsx:985 -> src/app/page.tsx:31)
 PricingPage -> getPlans   (src/app/pricing/page.tsx:985 -> src/app/page.tsx:62)
@@ -2853,9 +2862,9 @@ sitemap -> parseSitemapBucketID   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts
 sitemap -> urlsForBucket   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:263)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/pricing/page.tsx:25)
@@ -2871,9 +2880,9 @@ siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/cities/[city]/p
 xmlEscape -> xmlEscape   (src/app/sitemap.xml/route.ts:19 -> tests/unit/sitemap-xml.test.mjs:16)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/cities/page.tsx:33)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/help/[slug]/page.tsx:14)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/help/page.tsx:16)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/legal/[doc]/page.tsx:17)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/legal/cookies/page.tsx:47)
 GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/og/[...slug]/route.tsx:89)
 GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/page.tsx:31)
@@ -2903,9 +2912,9 @@ SSOCallbackPage -> get   (src/app/sso/callback/page.tsx:21 -> tests/emulated/acc
 SSOCallbackPage -> get   (src/app/sso/callback/page.tsx:21 -> tests/unit/round-13-17-fixes.test.mjs:213)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/pricing/page.tsx:25)
@@ -2918,15 +2927,16 @@ siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/status/page.tsx:21 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/legal/cookies/page.tsx:109)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/[country]/[category]/[slug]/page.tsx:74)
@@ -2950,13 +2960,12 @@ generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/ca
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/status/page.tsx:25 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/status/page.tsx:25 -> src/app/cities/[city]/page.tsx:1127)
 fetchStatus -> fetch   (src/app/status/page.tsx:51 -> tests/smoke/run.sh:36)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/cities/page.tsx:33)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/help/[slug]/page.tsx:14)
-StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/help/page.tsx:16)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/legal/[doc]/page.tsx:17)
+StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/legal/cookies/page.tsx:47)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/page.tsx:31)
 StatusPage -> siteUrl   (src/app/status/page.tsx:69 -> src/app/pricing/page.tsx:25)
@@ -3001,9 +3010,9 @@ TicketsListPage -> fetchMyTickets   (src/app/tickets/page.tsx:17 -> src/lib/api.
 TicketsListPage -> getToken   (src/app/tickets/page.tsx:17 -> src/lib/auth.ts:31)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/vs/[competitor]/page.tsx:21 -> src/app/pricing/page.tsx:25)
@@ -3033,16 +3042,17 @@ generateStaticParams -> generateStaticParams   (src/app/vs/[competitor]/page.tsx
 generateStaticParams -> generateStaticParams   (src/app/vs/[competitor]/page.tsx:1233 -> src/app/[country]/page.tsx:25)
 generateStaticParams -> generateStaticParams   (src/app/vs/[competitor]/page.tsx:1233 -> src/app/case-studies/[slug]/page.tsx:30)
 generateStaticParams -> generateStaticParams   (src/app/vs/[competitor]/page.tsx:1233 -> src/app/cities/[city]/page.tsx:1123)
+generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> resolveLang   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/page.tsx:25)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/legal/cookies/page.tsx:109)
@@ -3075,13 +3085,12 @@ generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 ->
 generateMetadata -> resolveLang   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/[city]/page.tsx:24)
 generateMetadata -> ogLocale   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/[city]/page.tsx:85)
 generateMetadata -> siteUrl   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/vs/[competitor]/page.tsx:1237 -> src/app/cities/[city]/page.tsx:1127)
 VsCompetitorPage -> resolveLang   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/cities/page.tsx:25)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/cities/page.tsx:33)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/help/[slug]/page.tsx:14)
-VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/help/page.tsx:16)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/legal/[doc]/page.tsx:17)
+VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/legal/cookies/page.tsx:47)
 VsCompetitorPage -> resolveLang   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/legal/cookies/page.tsx:51)
 VsCompetitorPage -> siteUrl   (src/app/vs/[competitor]/page.tsx:1381 -> src/app/page.tsx:31)
@@ -3117,9 +3126,9 @@ resolveLang -> headers   (src/app/vs/page.tsx:24 -> next.config.ts:29)
 resolveLang -> resolveLang   (src/app/vs/page.tsx:24 -> src/app/cities/[city]/page.tsx:24)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/pricing/page.tsx:25)
@@ -3132,16 +3141,17 @@ siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/lib/site-urls.ts:29)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/vs/page.tsx:32 -> src/app/cities/[city]/page.tsx:1059)
+generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/cities/[city]/page.tsx:1127)
 generateMetadata -> resolveLang   (src/app/vs/page.tsx:112 -> src/app/cities/page.tsx:25)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/help/[slug]/page.tsx:25)
-generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/help/page.tsx:20)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/legal/[doc]/page.tsx:17)
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/vs/page.tsx:112 -> src/app/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/legal/cookies/page.tsx:109)
@@ -3170,13 +3180,12 @@ generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/case-studies/p
 generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/case-studies/page.tsx:27)
 generateMetadata -> resolveLang   (src/app/vs/page.tsx:112 -> src/app/cities/[city]/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/vs/page.tsx:112 -> src/app/cities/[city]/page.tsx:1059)
-generateMetadata -> generateMetadata   (src/app/vs/page.tsx:112 -> src/app/cities/[city]/page.tsx:1127)
 VsHubPage -> resolveLang   (src/app/vs/page.tsx:138 -> src/app/cities/page.tsx:25)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/cities/page.tsx:33)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/help/[slug]/page.tsx:14)
-VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/help/page.tsx:16)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/legal/[doc]/page.tsx:17)
+VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/legal/cookies/page.tsx:47)
 VsHubPage -> resolveLang   (src/app/vs/page.tsx:138 -> src/app/legal/cookies/page.tsx:51)
 VsHubPage -> siteUrl   (src/app/vs/page.tsx:138 -> src/app/page.tsx:31)
@@ -3491,9 +3500,9 @@ indexableMeta -> buildTimeISO   (src/lib/seo-meta.ts:45 -> src/lib/seo-meta.ts:2
 indexableDates -> buildTimeISO   (src/lib/seo-meta.ts:58 -> src/lib/seo-meta.ts:26)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/help/page.tsx:16)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/page.tsx:31)
 siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/pricing/page.tsx:25)
@@ -3511,9 +3520,9 @@ fetchPlans -> fetchPlans   (src/lib/site-urls.ts:33 -> src/lib/api.ts:383)
 fetchPlans -> fetch   (src/lib/site-urls.ts:33 -> tests/smoke/run.sh:36)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/cities/page.tsx:33)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/help/[slug]/page.tsx:14)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/help/page.tsx:16)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/legal/[doc]/page.tsx:17)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/legal/cookies/page.tsx:47)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/page.tsx:31)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/pricing/page.tsx:25)
@@ -3522,8 +3531,8 @@ allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/status/page.tsx:21)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/vs/[competitor]/page.tsx:21)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/vs/page.tsx:32)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[country]/[category]/page.tsx:45)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[country]/page.tsx:31)
 allSiteUrls -> categorySlug   (src/lib/site-urls.ts:47 -> src/i18n/categories.ts:300)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[country]/page.tsx:31)
 allSiteUrls -> langOfCountry   (src/lib/site-urls.ts:47 -> src/i18n/languages.ts:89)
 allSiteUrls -> fetchPlans   (src/lib/site-urls.ts:47 -> src/lib/api.ts:383)
 allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/lib/site-urls.ts:29)
@@ -3536,9 +3545,9 @@ sortKey -> categoryFromSlug   (src/lib/site-urls.ts:165 -> src/i18n/categories.t
 sortKey -> langOfCountry   (src/lib/site-urls.ts:165 -> src/i18n/languages.ts:89)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/cities/page.tsx:33)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/help/[slug]/page.tsx:14)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/help/page.tsx:16)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/legal/[doc]/page.tsx:17)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[country]/[category]/[slug]/page.tsx:37)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/legal/cookies/page.tsx:47)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/page.tsx:31)
 sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/pricing/page.tsx:25)
@@ -3707,6 +3716,7 @@ checkFallbackOrLocale -> failBad   (tests/emulated/i18n-flow.mjs:56 -> tests/emu
 checkFallbackOrLocale -> infoMsg   (tests/emulated/i18n-flow.mjs:56 -> tests/emulated/i18n-flow.mjs:20)
 checkFallbackOrLocale -> fetchText   (tests/emulated/i18n-flow.mjs:56 -> tests/emulated/i18n-flow.mjs:25)
 checkFallbackOrLocale -> checkContains   (tests/emulated/i18n-flow.mjs:56 -> tests/emulated/i18n-flow.mjs:37)
+fire_auth_garbage -> body   (tests/pentest/forms.sh:184 -> scripts/test-api-stub.mjs:50)
 fire_auth_garbage -> checkout   (tests/pentest/forms.sh:184 -> src/lib/api.ts:424)
 fire_auth_garbage -> read   (tests/pentest/forms.sh:184 -> src/lib/tracking.ts:134)
 fire_auth_garbage -> check   (tests/pentest/forms.sh:184 -> tests/emulated/accessibility.mjs:83)

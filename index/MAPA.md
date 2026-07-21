@@ -262,8 +262,8 @@ Monolito Go original (planos, checkout, pedidos, gateways). Congelado: o domíni
 
 Loja pública: vitrine de planos de seguidores, i18n por país e checkout com cadastro.
 
-- **Funções indexadas:** 587 (N=587, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
-- **Sem doc-comment (§3):** 450
+- **Funções indexadas:** 588 (N=588, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
+- **Sem doc-comment (§3):** 451
 - **Pontos de entrada (camada `interface`/`cmd`):** 198
   - `register` — instrumentation.ts:4
   - `siteUrl` — src/app/[country]/[category]/[slug]/page.tsx:37

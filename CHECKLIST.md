@@ -77,6 +77,13 @@ a11y 1.0, best-practices 0.96, seo 1.0.
       é SSR a cada request, exatamente o problema que o round 23 dizia ter
       resolvido. Corrigir = tirar `headers()/cookies()` do layout raiz (middleware
       + segmento de rota). Refactor com raio grande (26 idiomas): merece ADR.
+- [ ] **Stub da API criado mas ainda não plugado no CI.** `viralefy_front/scripts/
+      test-api-stub.mjs` + `tests/fixtures/*.json` (`npm run test:api-stub`) servem
+      plans/categories/currencies/ppp/tax-rates/status/reviews. Com ele, todas as
+      páginas renderizam 200 e 16 testes passam — mas o teste mobile do checkout
+      regride ("Failed to fetch" no passo de método de pagamento) por motivo ainda
+      não isolado, então o CI segue apontando pra API de produção (que é onde a
+      suíte fecha 25/25). Isolar e plugar: tira a dependência de prod do CI.
 - [ ] **CI audita localhost contra a API de produção** → as chamadas client-side
       (`/v1/currencies`, `/v1/country-ppp`) batem em CORS e viram erro de console
       (`errors-in-console` 0). Além de sujar a métrica, faz o CI depender de prod

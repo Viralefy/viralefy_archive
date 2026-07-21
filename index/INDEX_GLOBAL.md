@@ -15,11 +15,11 @@
 | `viralefy_payments` | Go | domínio | 27 | 151 | 151 | ✅ | 96 |
 | `viralefy_sender` | Go | domínio | 20 | 63 | 63 | ✅ | 17 |
 | `viralefy_api` | Go | legado | 134 | 1077 | 1077 | ✅ | 635 |
-| `viralefy_front` | TypeScript (Next.js) | frontend | 146 | 587 | 587 | ✅ | 450 |
+| `viralefy_front` | TypeScript (Next.js) | frontend | 147 | 588 | 588 | ✅ | 451 |
 | `viralefy_backoffice` | TypeScript (Next.js) | frontend | 46 | 181 | 181 | ✅ | 152 |
 | `viralefy_ops` | Shell | control plane | 74 | 234 | 234 | ✅ | 112 |
 | `viralefy_archive` | Markdown + Shell/Python | archive | 2 | 25 | 25 | ✅ | 20 |
-| **TOTAL** | — | 10 repos | — | **3732** | **3732** | ✅ | — |
+| **TOTAL** | — | 10 repos | — | **3733** | **3733** | ✅ | — |
 
 ## Grafo de serviços
 
@@ -148,7 +148,7 @@ Monolito Go original (planos, checkout, pedidos, gateways). Congelado: o domíni
 Loja pública: vitrine de planos de seguidores, i18n por país e checkout com cadastro.
 
 - **Remote:** `github.com/Viralefy/viralefy_front`
-- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_front.md`](INDEX_FUNCTIONS_viralefy_front.md) — 587 entradas
+- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_front.md`](INDEX_FUNCTIONS_viralefy_front.md) — 588 entradas
 - **Pastas top-level:**
   - `src/` — app router, componentes, hooks e libs do site
   - `tests/` — suites emuladas (acessibilidade, contratos de API, fluxos)
