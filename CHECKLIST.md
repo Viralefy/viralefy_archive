@@ -33,7 +33,22 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] `credentials` (chave SSH root) removido do índice do git + `.gitignore`
       — estava staged; nunca entrou em commit
 
-### Em aberto
+### Em aberto — qualidade de frontend (3 workflows ainda vermelhos)
+- [ ] **front / lighthouse**: build corrigido, o Lighthouse agora RODA e reprova 14
+      asserções reais na home — `color-contrast` 0, `meta-description` 0,
+      `errors-in-console` 0, `image-aspect-ratio` 0, `image-redundant-alt` 0,
+      `label-content-name-mismatch` 0, best-practices 0.93 (<0.95), seo 0.92 (<0.95).
+      3 delas (`lcp-lazy-loaded`, `non-composited-animations`, `prioritize-lcp-image`)
+      dão NaN = auditoria não-aplicável: é o preset `lighthouse:no-pwa` do
+      `lighthouserc.json` assertando audit N/A, config a revisar.
+      **NÃO baixar threshold pra fechar** (§37 item 19).
+- [ ] **backoffice / lighthouse**: mesmo caso, build corrigido, falta o passe de qualidade
+- [ ] **front / e2e**: erro de config corrigido (a suíte não executava nada); agora
+      15 testes falham por expectativa desatualizada — `home.spec` espera plan card na
+      `/`, que virou landing global EN com lista de países na reestruturação de SEO
+      (`feat(seo): root = global EN`). Reconciliar teste × UI atual.
+
+### Em aberto — outros
 - [ ] Dívida de doc-comment: **2286 das 3728 funções** (61%) sem doc de contexto (§3/§6).
       Atacar por serviço, começando pelo `core`. Não gerar em massa por IA.
 - [ ] Mapa de endpoints (§39, superfície de ataque) — `route-registry-2026-06-15.md`

@@ -119,6 +119,23 @@ casa com o nome do parâmetro `legacyHS256Secret`, sem valor); `ops` e `archive`
 são históricos com HEAD limpo, registrados em `.gitleaksignore` com o motivo —
 escopo `no-secret-rotation-nag` (HML/POC).
 
+### Onde parou o CI
+
+11 dos 14 workflows verdes. Os 3 restantes são **qualidade de frontend**, não
+encanamento — e apareceram porque o encanamento foi consertado:
+
+- `front/lighthouse` e `backoffice/lighthouse`: o build passou a funcionar, então o
+  Lighthouse finalmente roda. Reprova 14 asserções na home do front (color-contrast,
+  meta-description, errors-in-console, image-aspect-ratio, image-redundant-alt,
+  label-content-name-mismatch, best-practices 0.93, seo 0.92). Três dão NaN
+  (auditoria não-aplicável) — isso é config do preset `lighthouse:no-pwa`, não defeito.
+- `front/e2e`: a suíte não executava NENHUM teste (erro de config no `test.use` com
+  `devices['Pixel 5']`). Corrigido; agora 15 testes falham por expectativa
+  desatualizada em relação à UI (a `/` virou landing global EN na reestruturação de SEO).
+
+Nenhum dos três se resolve mexendo em threshold ou assert — é passe de a11y/SEO
+(schematize-web) e reconciliação de teste × UI.
+
 ## Em aberto
 
 1. **Dívida de doc-comment: 2286 funções.** Precisa de plano próprio, por serviço,
