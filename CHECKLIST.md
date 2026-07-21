@@ -59,6 +59,18 @@ nem executava). Dois BUGS DE PRODUTO achados pelos testes:
       Agora `#00806b` (4.88:1 sobre branco, 4.61:1 sobre o `--bg`) e hover
       `#00604f` (7.54:1).
 
+- [x] **Três elementos com par cor/fundo travado no tema errado** (mesma família
+      do item acima): o badge de passo do checkout e o `.skip-link` usavam texto
+      escuro fixo sobre `--accent` (que virou escuro no tema claro) → token novo
+      `--on-accent`; e o `LiveCounter` (pill fixo bottom-right) tinha fundo
+      escuro FIXO com `color: var(--text)`, que no tema claro vira quase-preto —
+      **1.27:1, texto invisível**. Agora cor clara fixa pareada com o fundo fixo.
+- [ ] **Suspeita não confirmada — Footer.** `background: rgba(20,20,31,0.5)` sobre
+      o `--bg` claro compõe um cinza médio (#84868e); por cálculo, o texto
+      `--muted` (#5a6878) fica em **1.57:1**. O axe não flagrou (talvez não
+      resolva o alpha sobre o gradiente do body), então não mexi — precisa de
+      confirmação visual no tema claro antes de tocar.
+
 **Lighthouse do front: 53 asserções falhando → 20.** best-practices 0.93 → 0.96,
 a11y 1.0, performance 1.0.
 - [x] `metadata.icons` apontava pra 2 arquivos inexistentes (404 por página)
