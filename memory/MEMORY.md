@@ -8,3 +8,4 @@
 - [Manter CONTEXT.md + CHECKLIST.md ao fechar task](maintain-context-md.md) — atualizar/criar os 2 MDs no viralefy_archive após cada task; commit+push; compacta contexto entre sessões
 - [Índice §39 é gerado](viralefy-index-generator.md) — viralefy_ops/bin/viralefy-index escreve viralefy_archive/index/; regenerar e commitar junto, senão o CI trava
 - [Dívida de doc-comment](viralefy-doc-comment-debt.md) — 61% das funções sem doc de contexto; corrigir na origem por serviço, nunca em massa por IA
+- [Layout raiz dinâmico no front](viralefy-front-dynamic-layout.md) — headers()/cookies() anulam o ISR da home, jogam a metadata pro body e forçam no-store
