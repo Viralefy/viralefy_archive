@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot atual)
 
-**Última atualização:** 2026-06-12 (sessão prévia: 2026-06-11 — auth UI / tracking / soft-delete / honeypot, ver `SESSION-2026-06-11.md`)
+**Última atualização:** 2026-07-21 (índice de funcionalidades §39 + CI verde nos 10 repos — ver `task/2026-07-21-indice-funcionalidades.md`)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Estado
 factual sem narrativa.
@@ -225,7 +225,7 @@ systemctl restart caddy  # Coraza exclusions
 | Repo | URL |
 |---|---|
 | viralefy_api | https://github.com/Viralefy/viralefy_api |
-| viralefy_api_rust | https://github.com/Viralefy/viralefy_api_rust |
+| viralefy_api_rust | https://github.com/Viralefy/**viralefy_dispatcher** (pasta local ≠ nome do remote) |
 | viralefy_core | https://github.com/Viralefy/viralefy_core |
 | viralefy_auth | https://github.com/Viralefy/viralefy_auth |
 | viralefy_payments | https://github.com/Viralefy/viralefy_payments |
@@ -234,6 +234,30 @@ systemctl restart caddy  # Coraza exclusions
 | viralefy_backoffice | https://github.com/Viralefy/viralefy_backoffice |
 | viralefy_ops | https://github.com/Viralefy/viralefy_ops |
 | viralefy_archive | https://github.com/Viralefy/viralefy_archive |
+
+---
+
+## Índice de funcionalidades (§39) — consulte ANTES de criar algo
+
+Gerado por `viralefy_ops/bin/viralefy-index` a partir do código dos 10 repos.
+Regenere e commite junto com a mudança — o CI deste repo falha se `index/` divergir.
+
+- `index/MAPA.md` — grafo de serviços, pontos de entrada e saídas por repo
+- `index/INDEX_GLOBAL.md` — repos, pastas, contratos, cobertura N/M por serviço
+- `index/INDEX_FUNCTIONS_<serviço>.md` — uma linha por função (3728 no total)
+
+Estado em 2026-07-21: **M == N nos 10 serviços**; dívida de doc-comment em 2286
+das 3728 funções (61%) — gate disponível em `viralefy-index --strict-doc`.
+
+---
+
+## Estado do CI (2026-07-21)
+
+Os 10 repos estavam vermelhos; foram destravados na sessão de 21/07:
+gitleaks (action v2 passou a exigir licença paga em org → binário oficial),
+pgx v5.7.4→5.9.2 (GO-2026-5004, SQL injection), Go 1.26.4→1.26.5 (GO-2026-5856),
+sqlx `macros` removida no dispatcher (arrastava `rsa` vulnerável),
+`npm ci --include=dev` nos jobs com `NODE_ENV=production`, shellcheck do ops.
 
 ---
 

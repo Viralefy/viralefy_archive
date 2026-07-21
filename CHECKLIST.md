@@ -1,8 +1,44 @@
 # Viralefy — CHECKLIST.md
 
-**Última atualização:** 2026-06-12
+**Última atualização:** 2026-07-21
 
 Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `[!]` blocker · `[L]` LGPD/legal · `[T]` time-gated · `[$]` cliente fornecer · `[E]` externo (orçamento) · `[Q3]` planejado Q3 2026
+
+---
+
+## ✅ DONE — Sessão 2026-07-21 (índice §39 + CI verde)
+
+### Índice de funcionalidades (§39) — não existia
+- [x] Gerador `viralefy_ops/lib/index/` (19 módulos, 1 função/arquivo, doc em todas)
+- [x] CLI `viralefy_ops/bin/viralefy-index` + `make index` + README
+- [x] `viralefy_archive/index/`: MAPA.md, INDEX_GLOBAL.md e 10 INDEX_FUNCTIONS_*
+- [x] **M == N nos 10 serviços** (3728 funções), conferido contra contagem
+      independente por ripgrep, arquivo a arquivo, nas 5 linguagens
+- [x] Gate no CI: `ops` concilia M==N; `archive` falha se `index/` divergir do gerado
+- [x] 2 bugs de enumeração corrigidos: método Go com receiver anônimo (25 funções
+      fora) e CLIs do ops sem extensão (48 funções do control plane invisíveis)
+
+### CI — os 10 repos estavam vermelhos
+- [x] gitleaks: action v2 exige licença paga em org → binário oficial v8.30.1 (10 repos)
+- [x] **pgx v5.7.4 → v5.9.2** — GO-2026-5004, SQL injection alcançável (5 repos Go)
+- [x] **Go 1.26.4 → 1.26.5** — GO-2026-5856 (ECH/crypto-tls); CI saiu de "1.25"
+- [x] dispatcher: feature sqlx `macros` removida (arrastava `rsa` RUSTSEC-2023-0071);
+      ignore documentado em `.cargo/audit.toml`
+- [x] backoffice: modal de criar admin traduzido (teste `no-pt-regression`)
+- [x] front + backoffice: `npm ci --include=dev` nos jobs com NODE_ENV=production
+- [x] ops: shellcheck limpo (SC2015 no `viralefy-update` engolia falha de cópia)
+
+### Higiene
+- [x] `AGENTS.md` da raiz: 4 → 10 repos, aponta pro CLAUDE.md v0.7.0 + índice
+- [x] `credentials` (chave SSH root) removido do índice do git + `.gitignore`
+      — estava staged; nunca entrou em commit
+
+### Em aberto
+- [ ] Dívida de doc-comment: **2286 das 3728 funções** (61%) sem doc de contexto (§3/§6).
+      Atacar por serviço, começando pelo `core`. Não gerar em massa por IA.
+- [ ] Mapa de endpoints (§39, superfície de ataque) — `route-registry-2026-06-15.md`
+      é o insumo, `/pentest-endpoints` o gerador
+- [ ] Repo raiz do workspace sem remote, com arquivos nunca commitados
 
 ---
 
