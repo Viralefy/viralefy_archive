@@ -267,7 +267,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `RootLayout` | func | Layout async pra ler o nonce do request header `x-nonce` (setado pelo middleware, vide src/middleware.ts). | externo (borda) → interno | headers | — | — | 21 |
+| `RootLayout` | func | Layout async pra ler o nonce do request header `x-nonce` (setado pelo middleware, vide src/middleware.ts). | externo (borda) → interno | headers | — | — | 25 |
 
 ### `src/app/login/page.tsx` — camada `interface`
 
@@ -699,7 +699,7 @@ markPaid -> usd   (src/app/invoices/page.tsx:36 -> src/app/invoices/page.tsx:18)
 markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/invoices/page.tsx:28)
 markPaid -> markPaid   (src/app/invoices/page.tsx:36 -> src/app/orders/[id]/page.tsx:82)
 markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/plans/page.tsx:17)
-RootLayout -> headers   (src/app/layout.tsx:21 -> next.config.ts:39)
+RootLayout -> headers   (src/app/layout.tsx:25 -> next.config.ts:39)
 OrderDetailPage -> can   (src/app/orders/[id]/page.tsx:27 -> src/lib/auth.ts:50)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/users/[id]/page.tsx:32)

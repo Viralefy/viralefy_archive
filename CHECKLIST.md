@@ -33,20 +33,57 @@ Convenção: `[x]` done · `[~]` parcial/decisão externa · `[ ]` pendente · `
 - [x] `credentials` (chave SSH root) removido do índice do git + `.gitignore`
       — estava staged; nunca entrou em commit
 
-### Em aberto — qualidade de frontend (3 workflows ainda vermelhos)
-- [ ] **front / lighthouse**: build corrigido, o Lighthouse agora RODA e reprova 14
-      asserções reais na home — `color-contrast` 0, `meta-description` 0,
-      `errors-in-console` 0, `image-aspect-ratio` 0, `image-redundant-alt` 0,
-      `label-content-name-mismatch` 0, best-practices 0.93 (<0.95), seo 0.92 (<0.95).
-      3 delas (`lcp-lazy-loaded`, `non-composited-animations`, `prioritize-lcp-image`)
-      dão NaN = auditoria não-aplicável: é o preset `lighthouse:no-pwa` do
-      `lighthouserc.json` assertando audit N/A, config a revisar.
-      **NÃO baixar threshold pra fechar** (§37 item 19).
-- [ ] **backoffice / lighthouse**: mesmo caso, build corrigido, falta o passe de qualidade
-- [ ] **front / e2e**: erro de config corrigido (a suíte não executava nada); agora
-      15 testes falham por expectativa desatualizada — `home.spec` espera plan card na
-      `/`, que virou landing global EN com lista de países na reestruturação de SEO
-      (`feat(seo): root = global EN`). Reconciliar teste × UI atual.
+### Qualidade de frontend — atacada (sessão 2026-07-21, parte 3)
+
+**e2e do front: 25/25 verde** (era 10 passando, 15 falhando, e antes disso a suíte
+nem executava). Dois BUGS DE PRODUTO achados pelos testes:
+- [x] **Página estourava 131px na horizontal no mobile** — `.site-header__search`
+      quer cair numa 2ª linha (`flex: 1 0 100%`), mas o `.site-header__row` virou
+      `nowrap` no fix do BUG-13. scrollWidth 524 num viewport de 393; controles
+      ficavam inalcançáveis sob o overlay do checkout. Wrap reativado só ≤760px.
+- [x] **`<Flag>` mentia a proporção** — a flagcdn serve `/w20/` na proporção real
+      de cada país (Canadá 20x10, Nepal 20x24, Suíça 20x20) e o componente
+      declarava 3:2 pra todas. Migrado pro canvas fixo `/20x15/`.
+- [x] `alt` redundante (leitor anunciava "Argentina Argentina") → prop
+      `nameIsAdjacent` nos 13 call sites em que o nome já está ao lado
+- [x] WCAG 2.5.3 no seletor de moeda: `aria-label` escondia o "$ USD" visível
+- [x] `data-testid` de `plan-card` e `status-badge` adicionados no componente
+- [x] Testes reconciliados com a UI: CTA mora na página de plano; modal ganhou
+      passo "Review"; banner LGPD interceptava cliques; `/login` faz handoff SSO;
+      corridas reais (waitForRequest tardio, batch de 10s, rota 404)
+
+**Lighthouse do front: 53 asserções falhando → 20.** best-practices 0.93 → 0.96,
+a11y 1.0, performance 1.0.
+- [x] `metadata.icons` apontava pra 2 arquivos inexistentes (404 por página)
+- [x] `/login` saiu das URLs auditadas (só redireciona pro SSO → `chrome-error://`)
+- [x] Assertions contraditórias desligadas (auditoria pulada que o preset exigia
+      ter rodado; auditorias que não produzem valor). Thresholds intactos.
+
+**Lighthouse do backoffice: 28 falhas → 1.** /dashboard com performance 1.0,
+a11y 1.0, best-practices 0.96, seo 1.0.
+- [x] Auditava `/login`, que é stub de redirect → trocado por `/dashboard`
+- [x] favicon 404 (único erro de console) → `public/icon.svg`
+- [x] logo da sidebar servia 2471px pra renderizar 98px → dimensões corrigidas
+
+### Em aberto — 2 causas-raiz no front + 1 tradeoff no backoffice
+
+- [ ] **Layout raiz é dinâmico e isso custa caro.** `src/app/layout.tsx` faz
+      `await headers()` + `await cookies()` pro i18n/tema. Consequências medidas:
+      (a) resposta vem com `Cache-Control: private, no-store` → reprova `bf-cache`;
+      (b) `<title>` e `<meta name="description">` são **streamados pro BODY**, não
+      pro `<head>` — o Lighthouse pontua `meta-description` 0 e a categoria SEO
+      fica em 0.92; crawler sem JS não lê a descrição;
+      (c) **o `export const revalidate = 1800` da home não tem efeito** — a página
+      é SSR a cada request, exatamente o problema que o round 23 dizia ter
+      resolvido. Corrigir = tirar `headers()/cookies()` do layout raiz (middleware
+      + segmento de rota). Refactor com raio grande (26 idiomas): merece ADR.
+- [ ] **CI audita localhost contra a API de produção** → as chamadas client-side
+      (`/v1/currencies`, `/v1/country-ppp`) batem em CORS e viram erro de console
+      (`errors-in-console` 0). Além de sujar a métrica, faz o CI depender de prod
+      estar no ar. Correto: subir um stub da API no job.
+- [ ] **`unused-javascript`** — no backoffice são 78KB de 117KB do SDK do Sentry
+      (replay já desligado). Reduzir = lazy-load ou tirar do client: decisão de
+      observabilidade, não fix mecânico.
 
 ### Em aberto — outros
 - [ ] Dívida de doc-comment: **2286 das 3728 funções** (61%) sem doc de contexto (§3/§6).
