@@ -74,9 +74,9 @@ Dispatcher/borda de segurança: único serviço exposto (atrás de Caddy + Coraz
 
 Motor de domínio: catálogo, checkout, usuários, pedidos, gateways, recargas, suporte, reviews, A/B, fraude, anti-abuso, multi-moeda e webhooks. Sucessor do monolito viralefy_api.
 
-- **Funções indexadas:** 1206 (N=1206, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_core.md)
-- **Sem doc-comment (§3):** 690
-- **Pontos de entrada (camada `interface`/`cmd`):** 221
+- **Funções indexadas:** 1227 (N=1227, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_core.md)
+- **Sem doc-comment (§3):** 691
+- **Pontos de entrada (camada `interface`/`cmd`):** 227
   - `main` — cmd/core/main.go:29
   - `shutdownTracer` — cmd/core/main.go:89
   - `revLog` — cmd/core/main.go:253
@@ -117,8 +117,8 @@ Motor de domínio: catálogo, checkout, usuários, pedidos, gateways, recargas, 
   - `sumRows` — cmd/user-deletion-cron/main.go:420
   - `writeTextfileMetrics` — cmd/user-deletion-cron/main.go:432
   - `apiKeyAuth` — internal/interface/http/apikey_middleware.go:25
-  - _+181 outros — lista completa no índice fino._
-- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 378
+  - _+187 outros — lista completa no índice fino._
+- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 380
 
 ### `viralefy_auth`
 
@@ -312,9 +312,9 @@ Loja pública: vitrine de planos de seguidores, i18n por país e checkout com ca
 
 Painel admin: CRUD de planos, gateways de pagamento e pedidos.
 
-- **Funções indexadas:** 181 (N=181, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_backoffice.md)
-- **Sem doc-comment (§3):** 152
-- **Pontos de entrada (camada `interface`/`cmd`):** 120
+- **Funções indexadas:** 185 (N=185, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_backoffice.md)
+- **Sem doc-comment (§3):** 154
+- **Pontos de entrada (camada `interface`/`cmd`):** 122
   - `register` — instrumentation.ts:4
   - `AdminsPage` — src/app/admins/page.tsx:12
   - `reload` — src/app/admins/page.tsx:24
@@ -355,16 +355,16 @@ Painel admin: CRUD de planos, gateways de pagamento e pedidos.
   - `startNew` — src/app/gateways/page.tsx:277
   - `startEdit` — src/app/gateways/page.tsx:283
   - `cancelForm` — src/app/gateways/page.tsx:289
-  - _+80 outros — lista completa no índice fino._
-- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 12
+  - _+82 outros — lista completa no índice fino._
+- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 13
 
 ### `viralefy_ops`
 
 Interface única de operação: instala em /viralefy/*, sobe via systemd com isolamento por usuário, expõe via Caddy com TLS, mantém segredo em /etc/viralefy/.env e roda o test kit.
 
-- **Funções indexadas:** 234 (N=234, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_ops.md)
-- **Sem doc-comment (§3):** 112
-- **Pontos de entrada (camada `interface`/`cmd`):** 48
+- **Funções indexadas:** 235 (N=235, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_ops.md)
+- **Sem doc-comment (§3):** 113
+- **Pontos de entrada (camada `interface`/`cmd`):** 49
   - `now` — bin/viralefy-critical-flows:62
   - `emit_json` — bin/viralefy-critical-flows:64
   - `ok` — bin/viralefy-critical-flows:71
@@ -376,15 +376,16 @@ Interface única de operação: instala em /viralefy/*, sobe via systemd com iso
   - `assert_body_has` — bin/viralefy-critical-flows:114
   - `assert_json_field` — bin/viralefy-critical-flows:125
   - `flow_register` — bin/viralefy-critical-flows:143
-  - `flow_login` — bin/viralefy-critical-flows:188
-  - `flow_login_wrong_password` — bin/viralefy-critical-flows:217
-  - `flow_checkout` — bin/viralefy-critical-flows:248
-  - `flow_pages_with_gdpr` — bin/viralefy-critical-flows:309
-  - `flow_db_invariant_softdelete_reuse` — bin/viralefy-critical-flows:335
-  - `flow_selfcheck` — bin/viralefy-critical-flows:366
+  - `flow_login` — bin/viralefy-critical-flows:192
+  - `flow_login_wrong_password` — bin/viralefy-critical-flows:221
+  - `flow_checkout` — bin/viralefy-critical-flows:252
+  - `flow_pages_with_gdpr` — bin/viralefy-critical-flows:313
+  - `flow_db_invariant_softdelete_reuse` — bin/viralefy-critical-flows:339
+  - `flow_selfcheck` — bin/viralefy-critical-flows:370
   - `main` — bin/viralefy-install:48
   - `ensure_ops_in_place` — bin/viralefy-install:78
   - `mapper` — bin/viralefy-logs:9
+  - `q` — bin/viralefy-purge-legacy-test-users:40
   - `pick_free_port` — bin/viralefy-restore-drill:51
   - `cleanup` — bin/viralefy-restore-drill:68
   - `ok` — bin/viralefy-smoke:68
@@ -404,9 +405,8 @@ Interface única de operação: instala em /viralefy/*, sobe via systemd com iso
   - `do_seeds` — bin/viralefy-test:150
   - `run_one` — bin/viralefy-test:210
   - `ts` — bin/viralefy-update:80
-  - `log` — bin/viralefy-update:81
-  - _+8 outros — lista completa no índice fino._
-- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 15
+  - _+9 outros — lista completa no índice fino._
+- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 16
 
 ### `viralefy_archive`
 

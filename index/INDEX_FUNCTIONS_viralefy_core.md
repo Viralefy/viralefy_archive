@@ -5,11 +5,11 @@
 
 | Métrica | Valor |
 |---|---|
-| Arquivos com função indexada | 148 (de 176 varridos) |
-| **N — funções declaradas no código** | **1206** |
-| **M — entradas neste índice** | **1206** |
+| Arquivos com função indexada | 151 (de 179 varridos) |
+| **N — funções declaradas no código** | **1227** |
+| **M — entradas neste índice** | **1227** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 690 (57.2%) |
+| Funções sem doc-comment (§3) | 691 (56.3%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -35,12 +35,10 @@ flowchart LR
   m13["internal/infrastructure/external/notify"]
   m14["internal/infrastructure/external/totp"]
   m15["cmd/migrate-proofs"]
-  m16["cmd/user-deletion-cron"]
-  m17["internal/infrastructure/external/turnstile"]
   m0 -->|1644| m1
-  m2 -->|722| m0
+  m2 -->|735| m0
   m1 -->|545| m0
-  m2 -->|496| m1
+  m2 -->|499| m1
   m0 -->|96| m3
   m0 -->|92| m4
   m0 -->|83| m5
@@ -64,15 +62,16 @@ flowchart LR
   m0 -->|13| m12
   m8 -->|13| m6
   m8 -->|13| m0
-  m2 -->|12| m5
-  m2 -->|12| m3
+  m2 -->|13| m5
+  m2 -->|13| m3
   m6 -->|11| m0
-  m1 -->|10| m5
+  m1 -->|11| m5
   m0 -->|9| m13
   m0 -->|9| m9
   m5 -->|9| m0
   m7 -->|8| m4
   m14 -->|8| m0
+  m2 -->|8| m6
   m0 -->|7| m14
   m11 -->|7| m6
   m11 -->|7| m1
@@ -81,25 +80,24 @@ flowchart LR
   m8 -->|7| m5
   m6 -->|7| m4
   m6 -->|7| m5
-  m2 -->|7| m6
+  m2 -->|7| m4
+  m2 -->|7| m8
   m7 -->|6| m11
   m7 -->|6| m6
   m5 -->|6| m1
   m1 -->|6| m9
-  m2 -->|6| m4
-  m2 -->|6| m8
+  m1 -->|6| m4
+  m1 -->|6| m3
+  m1 -->|6| m8
+  m1 -->|6| m6
   m7 -->|5| m12
   m7 -->|5| m3
   m7 -->|5| m8
   m7 -->|5| m5
   m15 -->|5| m1
-  m16 -->|5| m1
-  m0 -->|5| m17
-  m0 -->|5| m2
-  m3 -->|5| m6
 ```
 
-> Grafo por módulo: 213 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 153 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
+> Grafo por módulo: 214 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 154 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
 
 ## Funções
 
@@ -276,9 +274,9 @@ flowchart LR
 | `(CouponService).Preview` | method | Preview NÃO redeem — só calcula. | interface+application → interno | GetByCode, Apply, Validate, GetByCode, GetByCode, IncrementUsedCount, CreateRedemption, HasUserPaidOrder, Apply, GetByCode | PublicValidateCoupon, Checkout | — | 39 |
 | `(CouponService).Redeem` | method | ⚠ SEM DOC | application → interno | NormalizeCode, New, New, New, New, New, IncrementUsedCount, CreateRedemption, New | redeemCoupon | — | 84 |
 | `(CouponService).Create` | method | Admin ops ---- | interface+test+application+domain+infrastructure → interno | GetByCode, Create, Create, Create, Create, Create, Create, Create, Create, Create +19 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | — | 99 |
-| `(CouponService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByCode, Update, Update, Update, Update, Update, GetByCode, GetByCode, Update +5 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 113 |
+| `(CouponService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByCode, Update, Update, Update, Update, Update, GetByCode, GetByCode, Update +5 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 113 |
 | `(CouponService).List` | method | ⚠ SEM DOC | interface+application+domain+infrastructure → interno | List, List, List, List, List, List, List, List, List | MeListProfiles, AdminGetUser, AdminListCoupons, PublicTaxRates, AdminListVendors, List, List, List, contains, Roles +7 | — | 120 |
-| `(CouponService).Get` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | Get, GetByCode, Get, Get, Get, GetByCode, GetByCode, GetByCode, Get | AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader, PublicListPaymentMethods +40 | — | 124 |
+| `(CouponService).Get` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | Get, GetByCode, Get, Get, Get, GetByCode, GetByCode, GetByCode, Get | AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors +42 | — | 124 |
 
 ### `internal/application/credit_service.go` — camada `application`
 
@@ -297,9 +295,9 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewCurrencyService` | func | NewCurrencyService recebe o PlanRepository pra cascatear mudança de rate em plan_prices. `plans` pode ser nil em testes que não exercem cascade (Update vira no-op nessa parte). | cmd+test → retorno | — | shutdownTracer, newSvc | — | 18 |
 | `(CurrencyService).ListDisplayable` | method | ListDisplayable retorna as moedas que o cliente pode escolher para exibição. | test+infrastructure+interface → interno | ListDisplayable, ListDisplayable | ListDisplayable, ListDisplayable, ListCurrencies | — | 23 |
-| `(CurrencyService).ListAll` | method | ListAll retorna todas as moedas (uso admin). | test+application+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll, ListAll +10 | — | 28 |
-| `(CurrencyService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, GetByCode, Get, Get, Get, GetByCode, GetByCode, GetByCode, Get | Get, AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader +40 | — | 32 |
-| `(CurrencyService).Update` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByCode, UpdateRate, Update, RecomputePricesForCurrency, Update, Update, Update, RecomputePricesForCurrency, Update, GetByCode +10 | AdminUpdateCoupon, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update, Update +12 | — | 43 |
+| `(CurrencyService).ListAll` | method | ListAll retorna todas as moedas (uso admin). | interface+test+application+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | AdminListCurrencies, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 28 |
+| `(CurrencyService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, GetByCode, Get, Get, Get, GetByCode, GetByCode, GetByCode, Get | Get, AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash +42 | — | 32 |
+| `(CurrencyService).Update` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByCode, UpdateRate, Update, RecomputePricesForCurrency, Update, Update, Update, RecomputePricesForCurrency, Update, GetByCode +10 | AdminUpdateCurrency, AdminUpdateCoupon, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 43 |
 | `(CurrencyService).QuoteForPlan` | method | QuoteForPlan resolve o preço de exibição e de liquidação de um plano usando os preços manuais por moeda (prices). | test+application → interno | amountFor, GetByCode, GetByCode, GetByCode, GetByCode | TestQuoteForPlan_UsesManualPriceWhenPresent, TestQuoteForPlan_DerivesFromUSDCentsWhenNoManualPrice, TestQuoteForPlan_USDTMirrors1To1WithUSDcents, TestQuoteForPlan_BTCHonors8Decimals, TestQuoteForPlan_EmptyDisplayCodeFallsBackToUSD, TestQuoteForPlan_InvalidCurrencyFallsBackToUSD, TestQuoteForPlan_DisplayDisabledFallsBackToUSD, TestQuoteForPlan_SettlementResolvedFromDisplayCurrency, TestQuoteForPlan_BRLSettlesAsItself, Create +2 | — | 81 |
 | `amountFor` | func | amountFor devolve o preço manual da moeda se existir; senão converte do USD usando o rate (= unidades da moeda por 1 USD). | application → retorno | — | QuoteForPlan, buildSingleOption, amountInCurrency | — | 108 |
 
@@ -308,7 +306,7 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `newFakeCurrencyRepo` | func | ⚠ SEM DOC | test → retorno | — | newSvc | — | 16 |
-| `(fakeCurrencyRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll, ListAll +10 | — | 30 |
+| `(fakeCurrencyRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | AdminListCurrencies, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 30 |
 | `(fakeCurrencyRepo).ListDisplayable` | method | ⚠ SEM DOC | application+infrastructure+interface → interno | ListDisplayable, ListDisplayable | ListDisplayable, ListDisplayable, ListCurrencies | — | 37 |
 | `(fakeCurrencyRepo).GetByCode` | method | ⚠ SEM DOC | application+domain+infrastructure → interno | GetByCode, GetByCode, GetByCode | Get, Get, Update, QuoteForPlan, buildSingleOption, amountInCurrency, contains, GetByCode, GetByCode, GetByCode +3 | — | 46 |
 | `(fakeCurrencyRepo).UpdateRate` | method | ⚠ SEM DOC | application+infrastructure → interno | UpdateRate | Update, UpdateRate | — | 53 |
@@ -341,13 +339,13 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `(fakeOrderRepoForCron).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +21 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, TestCreateInvoiceInput_RejectsZeroAmount +44 | — | 30 |
-| `(fakeOrderRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 33 |
+| `(fakeOrderRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 33 |
 | `(fakeOrderRepoForCron).GetByExternalRef` | method | ⚠ SEM DOC | application+test+infrastructure → interno | GetByExternalRef, New, New, New, New, New, New, GetByExternalRef, GetByExternalRef | ConfirmByExternalRef, GetByExternalRef, GetByExternalRef, GetByExternalRef | — | 44 |
 | `(fakeOrderRepoForCron).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → interno | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, New, New, New, New, New +10 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListForUser, List, ListByUser, Subscribe, ListByUser +16 | — | 47 |
 | `(fakeOrderRepoForCron).ListViewByUser` | method | ⚠ SEM DOC | test+infrastructure+interface → interno | ListViewByUser, New, New, New, New, New, New, ListViewByUser | ListViewByUser, ListViewByUser, MeOrders | — | 50 |
-| `(fakeOrderRepoForCron).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, New, New, New, New, New +8 | ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll, ListAll +10 | — | 53 |
-| `(fakeOrderRepoForCron).ListAllView` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAllView, New, New, New, New, New, New, ListAllView, ListAllView, ListAllView | AdminListView, ListAllView, AdminList, ListAllView, ListAllView, ListAllView, AdminListOrders, AdminMetricsSummary | — | 56 |
-| `(fakeOrderRepoForCron).UpdateStatus` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | UpdateStatus, New, New, New, New, New, New, UpdateStatus, UpdateStatus, UpdateStatus | ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus, Checkout, UpdateStatus +1 | — | 59 |
+| `(fakeOrderRepoForCron).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, New, New, New, New, New +8 | AdminListCurrencies, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 53 |
+| `(fakeOrderRepoForCron).ListAllView` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAllView, New, New, New, New, New, New, ListAllView, ListAllView, ListAllView | AdminMetricsSummary, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, ListAllView, AdminListOrders | — | 56 |
+| `(fakeOrderRepoForCron).UpdateStatus` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | UpdateStatus, New, New, New, New, New, New, UpdateStatus, UpdateStatus, UpdateStatus | AdminPatchOrder, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus, Checkout +1 | — | 59 |
 | `(fakeOrderRepoForCron).UpdatePayment` | method | ⚠ SEM DOC | application+test+infrastructure → interno | UpdatePayment, New, New, New, New, New, New, UpdatePayment, UpdatePayment | Create, UpdatePayment, UpdatePayment, UpdatePayment, Checkout | — | 62 |
 | `(fakeOrderRepoForCron).LinkTicket` | method | ⚠ SEM DOC | application+test+infrastructure → interno | LinkTicket, New, New, New, New, New, New, LinkTicket | maybeOpenTicket, LinkTicket, LinkTicket | — | 65 |
 | `(fakeOrderRepoForCron).SetBaselineMetrics` | method | ⚠ SEM DOC | application+test+infrastructure → interno | SetBaselineMetrics, New, New, New, New, New, New, SetBaselineMetrics | capture, SetBaselineMetrics, SetBaselineMetrics | — | 68 |
@@ -363,16 +361,16 @@ flowchart LR
 | `(fakeOrderRepoForCron).ListDeletedView` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListDeletedView, New, New, New, New, New, New, ListDeletedView, ListDeletedView | AdminTrash, AdminListDeleted, ListDeletedView, ListDeletedView, ListDeletedView | — | 113 |
 | `(fakeOrderRepoForCron).ListReadyForDeliveryCapture` | method | ListReadyForDeliveryCapture: replica a query SQL em memória. | application+test+infrastructure → interno | CaptureDelivery, capture, ListReadyForDeliveryCapture, ListReadyForDeliveryCapture | tick, TestDeliveryCron_PicksOnlyEligibleOrders, TestDeliveryCron_BatchLimitApplied, ListReadyForDeliveryCapture, ListReadyForDeliveryCapture | — | 118 |
 | `(fakePlanRepoForCron).ListActive` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListActive, ListActive, ListActive | ListByCategory, ListPublic, ListActive, ListActive, ListActive, ListCategories | — | 163 |
-| `(fakePlanRepoForCron).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll, ListAll +10 | — | 166 |
-| `(fakePlanRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 169 |
+| `(fakePlanRepoForCron).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | AdminListCurrencies, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 166 |
+| `(fakePlanRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 169 |
 | `(fakePlanRepoForCron).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, TestCreateInvoiceInput_RejectsZeroAmount +44 | — | 172 |
-| `(fakePlanRepoForCron).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 173 |
+| `(fakePlanRepoForCron).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 173 |
 | `(fakePlanRepoForCron).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 174 |
 | `(fakePlanRepoForCron).UpsertPrices` | method | ⚠ SEM DOC | application+test+infrastructure → interno | UpsertPrices, UpsertPrices | Create, Update, UpsertPrices, UpsertPrices | — | 175 |
 | `(fakePlanRepoForCron).RecomputePricesForCurrency` | method | ⚠ SEM DOC | application+test+infrastructure → interno | RecomputePricesForCurrency, RecomputePricesForCurrency | Update, RecomputePricesForCurrency, RecomputePricesForCurrency | — | 178 |
 | `(fakePlanRepoForCron).RecomputePricesForPlan` | method | ⚠ SEM DOC | application+test+infrastructure → interno | RecomputePricesForPlan, RecomputePricesForPlan | Create, Update, RecomputePricesForPlan, RecomputePricesForPlan | — | 181 |
 | `(fakeProfileRepoForCron).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, TestCreateInvoiceInput_RejectsZeroAmount +44 | — | 187 |
-| `(fakeProfileRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 190 |
+| `(fakeProfileRepoForCron).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 190 |
 | `(fakeProfileRepoForCron).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → interno | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser +4 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListForUser, List, ListByUser, Subscribe, ListByUser +16 | — | 193 |
 | `(fakeProfileRepoForCron).ListByUserAndPlatform` | method | ⚠ SEM DOC | domain+infrastructure → interno | ListByUserAndPlatform | IsValid, ListByUserAndPlatform | — | 196 |
 | `(fakeProfileRepoForCron).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 199 |
@@ -471,7 +469,7 @@ flowchart LR
 | `(GatewayService).GetActiveByProvider` | method | GetActiveByProvider expõe lookup do gateway ativo de um provider. | interface+application+infrastructure → interno | GetActiveByProvider | WooviWebhook, StripeWebhook, HeleketWebhook, pickGateway, GetActiveByProvider, pickGateway | — | 53 |
 | `validateGateway` | func | validateGateway centraliza as regras de provider + accepted_currencies. | application → interno | validCurrencyCode | Create, Update | — | 83 |
 | `(GatewayService).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, validateGateway, Create, Create, Create, Create, Create, Create +22 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, TestCreateInvoiceInput_RejectsZeroAmount +44 | — | 113 |
-| `(GatewayService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, GetByID, validateGateway, GetByID, Update, GetByID, GetByID +21 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 147 |
+| `(GatewayService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, GetByID, validateGateway, GetByID, Update, GetByID, GetByID +21 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 147 |
 | `(GatewayService).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 176 |
 | `(GatewayService).ListActiveAcceptingCurrency` | method | ListActiveAcceptingCurrency devolve todos os gateways ativos que aceitam a moeda dada. | — → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +3 | — | — | 184 |
 
@@ -502,7 +500,7 @@ flowchart LR
 | `(InvoiceService).Create` | method | Create gera invoice + tenta criar charge no gateway adequado. | interface+test+application+domain+infrastructure → interno | Get, Get, QuoteForPlan, Create, GetByID, UpdatePayment, GetByID, Create, Create, GetByID +62 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, TestCreateInvoiceInput_RejectsZeroAmount +44 | — | 43 |
 | `(InvoiceService).pickGateway` | method | ⚠ SEM DOC | application → interno | GetActiveByProvider, GetDefaultActive, GetActiveByProvider, pickGateway | Create, resolveGateway, pickGateway | — | 111 |
 | `(InvoiceService).ListForUser` | method | ⚠ SEM DOC | interface+application → interno | ListByUser, ListByUser, ListByUser, ListByUser, ListForUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser +6 | MeListInvoices, ListForUser, MeListTickets | — | 128 |
-| `(InvoiceService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, GetByID, GetByID, GetByID, Get, GetByID, GetByID, GetByID, GetByID +14 | Get, AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader +40 | — | 132 |
+| `(InvoiceService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, GetByID, GetByID, GetByID, Get, GetByID, GetByID, GetByID, GetByID +14 | Get, AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash +42 | — | 132 |
 | `(InvoiceService).AdminGet` | method | AdminList lista invoices p/ backoffice. | interface+application → interno | GetByID, GetByID, GetByID, GetByID, GetByID, AdminGet, GetByID, GetByID, GetByID, AdminGet +11 | AdminMarkInvoicePaid, AdminGetInvoice, AdminPatchReviewVisibility, AdminGet, AdminGet, AdminGetTicket | — | 145 |
 | `(InvoiceService).AdminList` | method | ⚠ SEM DOC | interface+application → interno | ListAll, ListAll, ListAll, ListAll, AdminList, ListAll, ListAll, AdminList, ListAll, ListAll +5 | AdminListReviews, AdminList, AdminList, AdminListTickets | — | 149 |
 | `(InvoiceService).AdminListView` | method | AdminListView devolve invoices + user hidratado (nome/email). | interface → interno | ListAllView, ListAllView, ListAllView, ListAllView, ListAllView | AdminListInvoices | — | 155 |
@@ -527,8 +525,8 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `NewMetricCaptureService` | func | ⚠ SEM DOC | test+cmd → interno | NewService, NewService | newCaptureWithFakes, revLog | — | 22 |
-| `(MetricCaptureService).CaptureBaseline` | method | CaptureBaseline grava o snapshot pré-entrega pra um pedido. | application+interface → interno | capture | fireBaselineCapture, AdminCaptureOrderMetrics | — | 37 |
-| `(MetricCaptureService).CaptureDelivery` | method | CaptureDelivery grava o snapshot pós-entrega. | application+test+interface → interno | capture | tick, ListReadyForDeliveryCapture, AdminCaptureOrderMetrics | — | 43 |
+| `(MetricCaptureService).CaptureBaseline` | method | CaptureBaseline grava o snapshot pré-entrega pra um pedido. | interface+application → interno | capture | AdminCaptureOrderMetrics, fireBaselineCapture | — | 37 |
+| `(MetricCaptureService).CaptureDelivery` | method | CaptureDelivery grava o snapshot pós-entrega. | interface+application+test → interno | capture | AdminCaptureOrderMetrics, tick, ListReadyForDeliveryCapture | — | 43 |
 | `(MetricCaptureService).capture` | method | ⚠ SEM DOC | application+test → interno | GetByID, SetBaselineMetrics, SetDeliveryMetrics, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, SetBaselineMetrics +19 | tick, ListReadyForDeliveryCapture, newCaptureWithFakes, TestDeliveryCron_TickProcessesBatchAndMarksCaptured, CaptureBaseline, CaptureDelivery | — | 47 |
 
 ### `internal/application/order_service.go` — camada `application`
@@ -551,7 +549,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewPaymentRegistry` | func | ⚠ SEM DOC | cmd → interno | Get, Get, Get, Get, Get, Provider, Provider, Provider, Provider, Provider +3 | shutdownTracer | — | 64 |
 | `NewRemotePaymentRegistry` | func | NewRemotePaymentRegistry cria um registry que delega TODA cobrança pro provider remoto (paymentsclient.Client). | cmd → retorno | — | shutdownTracer | — | 81 |
-| `(PaymentRegistry).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, Get, Get, Get | Get, AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader +40 | — | 88 |
+| `(PaymentRegistry).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, Get, Get, Get | Get, AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash +42 | — | 88 |
 
 ### `internal/application/payment_methods.go` — camada `application`
 
@@ -617,12 +615,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `NewPlanService` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 17 |
-| `(PlanService).GetByID` | method | GetByID expõe o repo pra handlers que precisam de snapshot pre/post-mutation (audit log). | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 23 |
+| `(PlanService).GetByID` | method | GetByID expõe o repo pra handlers que precisam de snapshot pre/post-mutation (audit log). | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 23 |
 | `(PlanService).ListByCategory` | method | ListByCategory devolve os planos ativos de uma categoria. | interface → interno | ListActive, ListActive, ListActive, ListActive | CreateRecoveryRequest | — | 29 |
 | `(PlanService).ListPublic` | method | ⚠ SEM DOC | interface → interno | ListActive, ListActive, ListActive, ListActive | PublicV2Plans, ListPublicPlans | — | 43 |
 | `(PlanService).ListAdmin` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAdmin, ListAll, ListAll, ListAll, ListAll, ListAll +5 | AdminList, ListAdmin, ListAdmin, AdminListPlans | — | 47 |
 | `(PlanService).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, GetByID, GetByID, Create, UpsertPrices, RecomputePricesForPlan, Create, GetByID, Create, Create +48 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | — | 63 |
-| `(PlanService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, UpsertPrices, RecomputePricesForPlan, GetByID, Update, GetByID, usdCents +28 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 118 |
+| `(PlanService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, UpsertPrices, RecomputePricesForPlan, GetByID, Update, GetByID, usdCents +28 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 118 |
 | `(PlanService).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 161 |
 | `usdCents` | func | usdCents extrai o preço USD do mapa de preços manuais (ex.: "2.50" -> 250). | application → retorno | — | Create, Update | — | 167 |
 | `withUSD` | func | withUSD garante que USD esteja presente no mapa, derivando de price_cents. | application → retorno | — | Create, Update | — | 180 |
@@ -633,7 +631,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewProfileService` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 14 |
 | `(ProfileService).List` | method | ⚠ SEM DOC | interface+application+domain+infrastructure → interno | ListByUser, ListByUser, List, ListByUser, ListByUser, ListByUser, ListByUser, List, ListByUser, List +14 | MeListProfiles, AdminGetUser, AdminListCoupons, PublicTaxRates, AdminListVendors, List, List, contains, Roles, List +7 | — | 25 |
-| `(ProfileService).GetByID` | method | GetByID expõe o repo pra handlers admin que hidratam relacionamentos (ex.: detalhe de pedido). | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 32 |
+| `(ProfileService).GetByID` | method | GetByID expõe o repo pra handlers admin que hidratam relacionamentos (ex.: detalhe de pedido). | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 32 |
 | `(ProfileService).Add` | method | Add valida o handle e cria o perfil. | interface+test+application+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +24 | MeAddProfile, allow, TestRateLimiter_ConcurrentSafetyDoesNotPanic, tick, TestDeliveryCron_PicksOnlyEligibleOrders, TestDeliveryCron_BatchLimitApplied, TestDeliveryCron_TickProcessesBatchAndMarksCaptured, TestDeliveryCron_ConcurrentStartIsSafe, upsertBlock, TestIdempotencyCleanupCron_AtomicBoolMutualExclusion +12 | — | 37 |
 | `(ProfileService).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 57 |
 | `(ProfileService).GetForUser` | method | GetForUser garante ownership do perfil. | application+interface → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetForUser, GetByID +10 | GetForUser, MeGetTicket | — | 62 |
@@ -719,17 +717,17 @@ flowchart LR
 | `(fakeReviewRepo).AggregateByCategory` | method | ⚠ SEM DOC | interface+application+infrastructure → interno | AggregateByCategory, AggregateByCategory | PublicReviewsForCategory, AggregateByCategory, AggregateByCategory | — | 56 |
 | `(fakeReviewRepo).SetVisibility` | method | ⚠ SEM DOC | interface+application+infrastructure → interno | SetVisibility, SetVisibility | AdminPatchReviewVisibility, SetVisibility, SetVisibility | — | 59 |
 | `(fakeReviewRepo).ListAdmin` | method | ⚠ SEM DOC | application+infrastructure+interface → interno | ListAdmin, ListAdmin | ListAdmin, AdminList, ListAdmin, AdminListPlans | — | 63 |
-| `(fakeReviewRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 66 |
+| `(fakeReviewRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 66 |
 | `newFakeOrderRepoForReview` | func | ⚠ SEM DOC | test → retorno | — | newReviewSetup | — | 82 |
 | `(fakeOrderRepoForReview).put` | method | ⚠ SEM DOC | test → retorno | — | TestReviewService_AcceptsValidPaidOrder, TestReviewService_RejectsRatingOutOfRange, TestReviewService_RejectsUnpaidOrder, TestReviewService_RejectsForeignOrderOwnership, TestReviewService_RejectsDuplicate, TestReviewService_TrimsAndTruncatesText, TestReviewService_CountryCodeDefaultsToUSWhenEmpty | — | 85 |
 | `(fakeOrderRepoForReview).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +21 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | — | 87 |
-| `(fakeOrderRepoForReview).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 90 |
+| `(fakeOrderRepoForReview).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 90 |
 | `(fakeOrderRepoForReview).GetByExternalRef` | method | ⚠ SEM DOC | test+application+infrastructure → interno | GetByExternalRef, New, New, New, New, New, New, GetByExternalRef, GetByExternalRef | GetByExternalRef, ConfirmByExternalRef, GetByExternalRef, GetByExternalRef | — | 97 |
 | `(fakeOrderRepoForReview).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → interno | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, New, New, New, New, New +10 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, Subscribe, ListByUser +16 | — | 100 |
 | `(fakeOrderRepoForReview).ListViewByUser` | method | ⚠ SEM DOC | test+infrastructure+interface → interno | ListViewByUser, New, New, New, New, New, New, ListViewByUser | ListViewByUser, ListViewByUser, MeOrders | — | 103 |
-| `(fakeOrderRepoForReview).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, New, New, New, New, New +8 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 106 |
-| `(fakeOrderRepoForReview).ListAllView` | method | ⚠ SEM DOC | test+application+infrastructure+interface → interno | ListAllView, New, New, New, New, New, New, ListAllView, ListAllView, ListAllView | ListAllView, AdminListView, AdminList, ListAllView, ListAllView, ListAllView, AdminListOrders, AdminMetricsSummary | — | 109 |
-| `(fakeOrderRepoForReview).UpdateStatus` | method | ⚠ SEM DOC | test+application+infrastructure+interface → interno | UpdateStatus, New, New, New, New, New, New, UpdateStatus, UpdateStatus, UpdateStatus | UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus, Checkout, UpdateStatus +1 | — | 112 |
+| `(fakeOrderRepoForReview).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, New, New, New, New, New +8 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | — | 106 |
+| `(fakeOrderRepoForReview).ListAllView` | method | ⚠ SEM DOC | interface+test+application+infrastructure → interno | ListAllView, New, New, New, New, New, New, ListAllView, ListAllView, ListAllView | AdminMetricsSummary, ListAllView, AdminListView, AdminList, ListAllView, ListAllView, ListAllView, AdminListOrders | — | 109 |
+| `(fakeOrderRepoForReview).UpdateStatus` | method | ⚠ SEM DOC | interface+test+application+infrastructure → interno | UpdateStatus, New, New, New, New, New, New, UpdateStatus, UpdateStatus, UpdateStatus | AdminPatchOrder, UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus, Checkout +1 | — | 112 |
 | `(fakeOrderRepoForReview).UpdatePayment` | method | ⚠ SEM DOC | test+application+infrastructure → interno | UpdatePayment, New, New, New, New, New, New, UpdatePayment, UpdatePayment | UpdatePayment, Create, UpdatePayment, UpdatePayment, Checkout | — | 115 |
 | `(fakeOrderRepoForReview).LinkTicket` | method | ⚠ SEM DOC | test+application+infrastructure → interno | LinkTicket, New, New, New, New, New, New, LinkTicket | LinkTicket, maybeOpenTicket, LinkTicket | — | 118 |
 | `(fakeOrderRepoForReview).SetBaselineMetrics` | method | ⚠ SEM DOC | test+application+infrastructure → interno | SetBaselineMetrics, New, New, New, New, New, New, SetBaselineMetrics | SetBaselineMetrics, capture, SetBaselineMetrics | — | 121 |
@@ -745,10 +743,10 @@ flowchart LR
 | `(fakeOrderRepoForReview).RestoreOrder` | method | ⚠ SEM DOC | interface+test+infrastructure → interno | RestoreOrder, New, New, New, New, New, New, RestoreOrder | AdminRestoreOrder, RestoreOrder, RestoreOrder | — | 151 |
 | `(fakeOrderRepoForReview).ListDeletedView` | method | ⚠ SEM DOC | interface+test+application+infrastructure → interno | ListDeletedView, New, New, New, New, New, New, ListDeletedView, ListDeletedView | AdminTrash, ListDeletedView, AdminListDeleted, ListDeletedView, ListDeletedView | — | 154 |
 | `(fakePlanRepoForReview).ListActive` | method | ⚠ SEM DOC | test+application+infrastructure+interface → interno | ListActive, ListActive, ListActive | ListActive, ListByCategory, ListPublic, ListActive, ListActive, ListCategories | — | 161 |
-| `(fakePlanRepoForReview).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | — | 164 |
-| `(fakePlanRepoForReview).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | — | 167 |
+| `(fakePlanRepoForReview).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → interno | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +2 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | — | 164 |
+| `(fakePlanRepoForReview).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | — | 167 |
 | `(fakePlanRepoForReview).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | — | 170 |
-| `(fakePlanRepoForReview).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 171 |
+| `(fakePlanRepoForReview).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 171 |
 | `(fakePlanRepoForReview).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 172 |
 | `(fakePlanRepoForReview).UpsertPrices` | method | ⚠ SEM DOC | test+application+infrastructure → interno | UpsertPrices, UpsertPrices | UpsertPrices, Create, Update, UpsertPrices | — | 173 |
 | `(fakePlanRepoForReview).RecomputePricesForCurrency` | method | ⚠ SEM DOC | application+test+infrastructure → interno | RecomputePricesForCurrency, RecomputePricesForCurrency | Update, RecomputePricesForCurrency, RecomputePricesForCurrency | — | 176 |
@@ -773,7 +771,7 @@ flowchart LR
 | `(NoopStorage).Put` | method | ⚠ SEM DOC | interface+cmd+infrastructure → interno | Put | uploadProofMultipart, NewRouter, migrateOne, Put | — | 33 |
 | `(NoopStorage).PresignedGetURL` | method | ⚠ SEM DOC | interface+infrastructure → interno | PresignedGetURL | resolveProofURL, PresignedGetURL | — | 36 |
 | `(NoopStorage).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Disable, IsValid +9 | — | 39 |
-| `(errStorageDisabled).Error` | method | ⚠ SEM DOC | cmd+interface+test+application+infrastructure → retorno | — | main, shutdownTracer, WooviWebhook, StripeWebhook, HeleketWebhook, ResendWebhook, AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers, AdminBulkProofDecision +71 | — | 49 |
+| `(errStorageDisabled).Error` | method | ⚠ SEM DOC | cmd+interface+test+application+infrastructure → retorno | — | main, shutdownTracer, WooviWebhook, StripeWebhook, HeleketWebhook, AdminListUsers, ResendWebhook, AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers +74 | — | 49 |
 
 ### `internal/application/stripe_reconcile_cron.go` — camada `application`
 
@@ -943,9 +941,9 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewVendorService` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 20 |
 | `(VendorService).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Create, GetByID, GetByID, Create, Create, GetByID, Create, Create, GetByID, Create +40 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | — | 41 |
-| `(VendorService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, GetByID, Update, GetByID, Update, GetByID, GetByID +20 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | — | 63 |
+| `(VendorService).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → interno | Update, GetByID, GetByID, Update, GetByID, Update, GetByID, Update, GetByID, GetByID +20 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | — | 63 |
 | `(VendorService).List` | method | ⚠ SEM DOC | interface+application+domain+infrastructure → interno | List, List, List, List, List, List, List, List, List | MeListProfiles, AdminGetUser, AdminListCoupons, PublicTaxRates, AdminListVendors, List, List, contains, Roles, List +7 | — | 97 |
-| `(VendorService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, GetByID, GetByID, GetByID, Get, Get, GetByID, GetByID, GetByID +14 | Get, AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader +40 | — | 101 |
+| `(VendorService).Get` | method | ⚠ SEM DOC | application+interface+test+infrastructure → interno | Get, Get, GetByID, GetByID, GetByID, Get, Get, GetByID, GetByID, GetByID +14 | Get, AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash +42 | — | 101 |
 
 ### `internal/application/whatsapp_service.go` — camada `application`
 
@@ -998,7 +996,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | New cria a cache e faz o bootstrap inicial. | cmd+interface+application+test+domain+infrastructure → db | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | db | 60 |
+| `New` | func | New cria a cache e faz o bootstrap inicial. | cmd+interface+application+test+domain+infrastructure → db | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | db | 60 |
 | `log` | closure | ⚠ SEM DOC | interface → interno | bootstrap | NewRouter | — | 62 |
 | `(RevocationCache).Start` | method | Start dispara as 3 goroutines de manutenção. | cmd+application+test → interno | Start, Start, Start, Start, Start, Start, Start, Start, listenLoop, pollLoop +2 | shutdownTracer, Start, TestDeliveryCron_StartIsIdempotent, TestDeliveryCron_TickProcessesBatchAndMarksCaptured, TestDeliveryCron_ListErrorDoesNotPanic, TestDeliveryCron_CtxCancelStopsLoop, TestDeliveryCron_DefaultsAppliedWhenZero, TestDeliveryCron_RunningFlagPreventsDoubleStart, TestDeliveryCron_ConcurrentStartIsSafe, revLog +9 | — | 82 |
 | `(RevocationCache).IsRevoked` | method | IsRevoked devolve true se o jti está no hot-set E ainda não expirou. jti vazio retorna false (defesa contra tokens sem claim — esses já vão falhar em outras checagens upstream). | application → retorno | — | ValidateToken, ValidateAdmin | — | 91 |
@@ -1019,7 +1017,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | New escolhe o EmailSender: Resend (se EMAIL_PROVIDER=resend e há API key), senão SMTP (se há Addr), senão LogSender (dev). | cmd+interface+application+test+domain+infrastructure → email | New, New, New, New, L, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | email | 35 |
+| `New` | func | New escolhe o EmailSender: Resend (se EMAIL_PROVIDER=resend e há API key), senão SMTP (se há Addr), senão LogSender (dev). | cmd+interface+application+test+domain+infrastructure → email | New, New, New, New, L, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | email | 35 |
 | `(SMTPSender).Send` | method | ⚠ SEM DOC | interface+application+infrastructure+test → email | Send, Send, buildMessage, Send, Send, Send | AdminProofDecision, AdminBulkProofDecision, sendConfirmationEmail, notifyAdmin, sendOne, notifyUserOfReply, Send, NotifyIfOptedIn, Send, Send +6 | email | 63 |
 | `buildMessage` | func | ⚠ SEM DOC | infrastructure → retorno | — | Send | — | 85 |
 | `(LogSender).Send` | method | ⚠ SEM DOC | interface+application+infrastructure+test → interno | Send, Send, Send, Send, Send, L, MaskEmail | AdminProofDecision, AdminBulkProofDecision, sendConfirmationEmail, notifyAdmin, sendOne, notifyUserOfReply, Send, NotifyIfOptedIn, Send, Send +6 | — | 101 |
@@ -1163,7 +1161,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | New cria o cliente. baseURL é tipo "http://127.0.0.1:8081"; token é o INTERNAL_SHARED_SECRET. | cmd+interface+application+test+domain+infrastructure → interno | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | — | 54 |
+| `New` | func | New cria o cliente. baseURL é tipo "http://127.0.0.1:8081"; token é o INTERNAL_SHARED_SECRET. | cmd+interface+application+test+domain+infrastructure → interno | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | — | 54 |
 | `(Client).Provider` | method | Provider satisfaz application.PaymentProvider. | application+infrastructure+test → interno | Provider, Provider, Provider, Provider, Provider, Provider | NewPaymentRegistry, Provider, Provider, Provider, Provider, Provider, Provider, TestNewReturnsClient | — | 66 |
 | `(Client).CreateCharge` | method | CreateCharge satisfaz application.PaymentProvider. | application+infrastructure+test → interno | CreateCharge, CreateCharge, CreateCharge, CreateCharge, CreateCharge, CreateCharge, doJSON, doJSON | Create, CreateCharge, CreateCharge, CreateCharge, CreateCharge, CreateCharge, CreateCharge, TestCreateCharge_ContractRoundtrip, TestCreateCharge_MissingPaymentExtra, TestCreateCharge_ServerError +1 | — | 101 |
 | `(Client).ListMethods` | method | ListMethods chama GET /internal/v1/methods. | interface+test → interno | doJSON, escapeQuery, doJSON | PublicListPaymentMethods, TestListMethods_ContractRoundtrip, TestListMethods_RawArrayShape_Fails | — | 155 |
@@ -1190,7 +1188,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | New cria o cliente. baseURL ex: "http://127.0.0.1:8082"; token é INTERNAL_SHARED_SECRET (mesmo do paymentsclient — segredo único). | cmd+interface+application+test+domain+infrastructure → interno | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | — | 59 |
+| `New` | func | New cria o cliente. baseURL ex: "http://127.0.0.1:8082"; token é INTERNAL_SHARED_SECRET (mesmo do paymentsclient — segredo único). | cmd+interface+application+test+domain+infrastructure → interno | New, New, New, New, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | — | 59 |
 | `(Client).Send` | method | Send satisfaz application.EmailSender. | interface+application+infrastructure+test → interno | Send, Send, Send, Send, Send, doJSON, doJSON | AdminProofDecision, AdminBulkProofDecision, sendConfirmationEmail, notifyAdmin, sendOne, notifyUserOfReply, Send, NotifyIfOptedIn, Send, Send +6 | — | 99 |
 | `(Client).SendTemplate` | method | SendTemplate satisfaz application.TemplatedEmailer. | application+test → interno | doJSON, SendTelegram, doJSON | sendConfirmationEmail, TestSendTemplate_Shape, TestSend_404MapsToErrNotFound | — | 123 |
 | `(Client).SendTelegram` | method | SendTelegram (positional) satisfaz application.TelegramNotifier — o PaymentReceiver chama (handle, template, vars) sem importar este pacote. | cmd+application+infrastructure+test → interno | sendTelegramRaw | revLog, telegramBroadcast, SendTemplate, TestSendTelegram_Shape | — | 153 |
@@ -1215,7 +1213,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | New conecta no endpoint S3-compat. | cmd+interface+application+test+domain+infrastructure → interno | Enabled, New, New, Enabled, New, New, Enabled, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | — | 34 |
+| `New` | func | New conecta no endpoint S3-compat. | cmd+interface+application+test+domain+infrastructure → interno | Enabled, New, New, Enabled, New, New, Enabled, New | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | — | 34 |
 | `(S3Client).Put` | method | Put grava o conteúdo no bucket. | interface+cmd+application → interno | Put, resolveBucket | uploadProofMultipart, NewRouter, migrateOne, Put | — | 53 |
 | `(S3Client).PresignedGetURL` | method | PresignedGetURL gera URL temporária. | interface+application → interno | PresignedGetURL, resolveBucket | resolveProofURL, PresignedGetURL | — | 71 |
 | `(S3Client).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → interno | Delete, Delete, Delete, Delete, Delete, Delete, Delete, resolveBucket, Delete, Delete +3 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Disable +9 | — | 88 |
@@ -1317,7 +1315,7 @@ flowchart LR
 | `(AdminHoneypotRepo).Record` | method | ⚠ SEM DOC | interface+application+infrastructure → db | Record, Record, Record | PublicRecordConsent, Record, RecordEvent, Record, Record, logHoneypot | db | 14 |
 | `(AdminHoneypotRepo).ActorHasShadowDeleted` | method | ⚠ SEM DOC | — → db | — | — | db | 28 |
 | `(AdminHoneypotRepo).ActorShadowDeletedTargets` | method | ⚠ SEM DOC | interface → db | Close | AdminListAdmins | db | 38 |
-| `(AdminHoneypotRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close, ListAll +3 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 57 |
+| `(AdminHoneypotRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close, ListAll +3 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 57 |
 
 ### `internal/infrastructure/persistence/postgres/admin_repo.go` — camada `infrastructure`
 
@@ -1325,8 +1323,8 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewAdminRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 13 |
 | `(AdminRepo).GetByEmail` | method | ⚠ SEM DOC | application+infrastructure → db | scanAdmin, GetByEmail | Register, Login, EnsureShadowAccount, Login, AdminCreate, Checkout, GetByEmail | db | 19 |
-| `(AdminRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, scanAdmin, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 24 |
-| `(AdminRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, scanAdmin, ListAll, Close +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 29 |
+| `(AdminRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, scanAdmin, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 24 |
+| `(AdminRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, scanAdmin, ListAll, Close +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 29 |
 | `(AdminRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 46 |
 | `(AdminRepo).UpdateRole` | method | ⚠ SEM DOC | application → db | — | AdminUpdateRole | db | 54 |
 | `(AdminRepo).UpdateRequires2FA` | method | ⚠ SEM DOC | — → db | — | — | db | 65 |
@@ -1377,7 +1375,7 @@ flowchart LR
 | `scanCoupon` | func | ⚠ SEM DOC | infrastructure → db | — | GetByCode, List | db | 23 |
 | `(CouponRepo).GetByCode` | method | ⚠ SEM DOC | application+test+domain+infrastructure → db | GetByCode, NormalizeCode, GetByCode, scanCoupon, GetByCode | Get, Get, Update, QuoteForPlan, GetByCode, buildSingleOption, amountInCurrency, contains, GetByCode, GetByCode +3 | db | 39 |
 | `(CouponRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +16 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 51 |
-| `(CouponRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, NormalizeCode, Update, Update, Update +2 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | db | 66 |
+| `(CouponRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, NormalizeCode, Update, Update, Update +2 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | db | 66 |
 | `(CouponRepo).List` | method | ⚠ SEM DOC | interface+application+domain+infrastructure → db | List, List, List, List, List, scanCoupon, Close, List, List, List +1 | MeListProfiles, AdminGetUser, AdminListCoupons, PublicTaxRates, AdminListVendors, List, List, List, contains, Roles +7 | db | 83 |
 | `(CouponRepo).IncrementUsedCount` | method | IncrementUsedCount tenta atomicamente bumpar used_count respeitando max_uses. | domain+application → db | NormalizeCode | contains, Preview, Redeem | db | 105 |
 | `(CouponRepo).CreateRedemption` | method | ⚠ SEM DOC | domain+application → db | NormalizeCode | contains, Preview, Redeem | db | 125 |
@@ -1398,7 +1396,7 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `NewCurrencyRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 13 |
-| `(CurrencyRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, query, ListAll +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 17 |
+| `(CurrencyRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, query, ListAll +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 17 |
 | `(CurrencyRepo).ListDisplayable` | method | ⚠ SEM DOC | application+test+interface → db | ListDisplayable, ListDisplayable, query, query | ListDisplayable, ListDisplayable, ListCurrencies | db | 21 |
 | `(CurrencyRepo).query` | method | ⚠ SEM DOC | cmd+infrastructure → db | scanCurrency, Close, query | run, ListAll, ListDisplayable, ListByUser, ListByUserAndPlatform, query | db | 25 |
 | `(CurrencyRepo).GetByCode` | method | ⚠ SEM DOC | application+test+domain+infrastructure → db | GetByCode, GetByCode, GetByCode, scanCurrency | Get, Get, Update, QuoteForPlan, GetByCode, buildSingleOption, amountInCurrency, contains, GetByCode, GetByCode +3 | db | 42 |
@@ -1409,8 +1407,8 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `New` | func | ⚠ SEM DOC | cmd+interface+application+test+domain+infrastructure → db | New, New, New, New, New, Close | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, TestClassifyStripeIdempotencyResult_TableDriven, TestClassifyStripeIdempotencyResult_TransientNeverProceeds +109 | db | 13 |
-| `(DB).Close` | method | ⚠ SEM DOC | cmd+interface+test+application+infrastructure → retorno | — | shutdownTracer, PublicCountryPPP, uploadProofMultipart, runSeedCmd, IdempotencyMiddleware, TestSecurity_SQLInjectionProbesNeverReturn500, TestSecurity_XSSPayloadEchoedAsJSONEscaped, TestSecurity_AuthBypass_NoTokenReturns401, TestSecurity_AuthBypass_InvalidTokenReturns401, TestSecurity_IDOR_OrderOfAnotherUserReturns404 +99 | — | 25 |
+| `New` | func | ⚠ SEM DOC | cmd+interface+application+test+domain+infrastructure → db | New, New, New, New, New, Close | shutdownTracer, StripeWebhook, Spend, Recharge, AdminAdjustment, runSeedCmd, TestWriteError_UnknownErrorReturns500, writeError, writeErrorMsg, main +111 | db | 13 |
+| `(DB).Close` | method | ⚠ SEM DOC | cmd+interface+test+application+infrastructure → retorno | — | shutdownTracer, PublicCountryPPP, uploadProofMultipart, runSeedCmd, IdempotencyMiddleware, TestSecurity_SQLInjectionProbesNeverReturn500, TestSecurity_XSSPayloadEchoedAsJSONEscaped, TestSecurity_AuthBypass_NoTokenReturns401, main, TestSecurity_AuthBypass_InvalidTokenReturns401 +103 | — | 25 |
 | `(DB).Pool` | method | ⚠ SEM DOC | interface+cmd+application+test → db | — | StripeWebhook, PublicStatus, PublicCountryPPP, MeDismiss2FAPrompt, computeShouldPrompt2FA, IdempotencyMiddleware, fetchPendingProofs, migrateOne, RecordResendEvent, IsDisabled +29 | db | 29 |
 | `(DB).Migrate` | method | ⚠ SEM DOC | — → db | — | — | db | 33 |
 
@@ -1419,12 +1417,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `NewGatewayRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 15 |
-| `(GatewayRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 23 |
-| `(GatewayRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, scanGateway +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 41 |
+| `(GatewayRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 23 |
+| `(GatewayRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, scanGateway +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 41 |
 | `(GatewayRepo).GetDefaultActive` | method | ⚠ SEM DOC | application → db | scanGateway | pickGateway, pickGateway | db | 51 |
 | `(GatewayRepo).GetActiveByProvider` | method | ⚠ SEM DOC | interface+application → db | GetActiveByProvider, scanGateway | WooviWebhook, StripeWebhook, HeleketWebhook, GetActiveByProvider, pickGateway, pickGateway | db | 61 |
 | `(GatewayRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 72 |
-| `(GatewayRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | db | 85 |
+| `(GatewayRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | db | 85 |
 | `(GatewayRepo).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Disable +9 | db | 105 |
 | `scanGateway` | func | ⚠ SEM DOC | infrastructure → db | — | ListAll, GetByID, GetDefaultActive, GetActiveByProvider | db | 125 |
 
@@ -1434,18 +1432,18 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewInvoiceRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 14 |
 | `(InvoiceRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 22 |
-| `(InvoiceRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 38 |
+| `(InvoiceRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 38 |
 | `(InvoiceRepo).GetByExternalRef` | method | ⚠ SEM DOC | test+application+infrastructure → db | GetByExternalRef, GetByExternalRef, scanInvoice, GetByExternalRef | GetByExternalRef, ConfirmByExternalRef, GetByExternalRef, GetByExternalRef | db | 43 |
 | `(InvoiceRepo).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → db | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, Close, scanInvoices +6 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, ListByUser, Subscribe +16 | db | 48 |
 | `(InvoiceRepo).SoftDeleteInvoice` | method | SoftDeleteInvoice / HardDeleteInvoice / RestoreInvoice — vide order_repo.go pra contexto. | application → db | — | AdminSoftDelete | db | 62 |
 | `(InvoiceRepo).HardDeleteInvoice` | method | ⚠ SEM DOC | application → db | — | AdminHardDelete | db | 79 |
 | `(InvoiceRepo).RestoreInvoice` | method | ⚠ SEM DOC | application → db | — | AdminRestore | db | 90 |
-| `(InvoiceRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 103 |
+| `(InvoiceRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 103 |
 | `(InvoiceRepo).ListDeletedView` | method | ListDeletedView devolve invoices soft-deleted + user via JOIN, pra a aba Trash do superadmin. | interface+test+application+infrastructure → db | ListDeletedView, ListDeletedView, Close, ListDeletedView | AdminTrash, ListDeletedView, AdminListDeleted, ListDeletedView, ListDeletedView | db | 125 |
 | `(InvoiceRepo).UpdatePayment` | method | ⚠ SEM DOC | test+application+infrastructure → db | UpdatePayment, UpdatePayment, UpdatePayment, nullable | UpdatePayment, Create, UpdatePayment, UpdatePayment, Checkout | db | 165 |
 | `(InvoiceRepo).MarkPaid` | method | ⚠ SEM DOC | application → db | — | AdminMarkPaid | db | 182 |
-| `(InvoiceRepo).UpdateStatus` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, Checkout, UpdateStatus +1 | db | 194 |
-| `(InvoiceRepo).ListAllView` | method | ListAllView devolve invoices + user_name/user_email via LEFT JOIN. | test+application+infrastructure+interface → db | ListAllView, ListAllView, Close, ListAllView, ListAllView | ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders, AdminMetricsSummary | db | 208 |
+| `(InvoiceRepo).UpdateStatus` | method | ⚠ SEM DOC | interface+test+application+infrastructure → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | AdminPatchOrder, UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, Checkout +1 | db | 194 |
+| `(InvoiceRepo).ListAllView` | method | ListAllView devolve invoices + user_name/user_email via LEFT JOIN. | interface+test+application+infrastructure → db | ListAllView, ListAllView, Close, ListAllView, ListAllView | AdminMetricsSummary, ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders | db | 208 |
 | `scanInvoices` | func | ⚠ SEM DOC | infrastructure → db | scanInvoiceRow | ListByUser, ListAll | db | 256 |
 | `scanInvoice` | func | ⚠ SEM DOC | infrastructure → db | scanInvoiceRow | GetByID, GetByExternalRef | db | 268 |
 | `scanInvoiceRow` | func | ⚠ SEM DOC | infrastructure → db | — | scanInvoices, scanInvoice | db | 276 |
@@ -1469,17 +1467,17 @@ flowchart LR
 | `NewOrderRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 15 |
 | `(OrderRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 31 |
 | `(OrderRepo).LinkTicket` | method | LinkTicket marca o ticket que foi aberto pro pedido (após pagamento confirmado em categorias com handoff manual). | test+application → db | LinkTicket, LinkTicket | LinkTicket, maybeOpenTicket, LinkTicket | db | 70 |
-| `(OrderRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 82 |
+| `(OrderRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 82 |
 | `(OrderRepo).GetByExternalRef` | method | ⚠ SEM DOC | test+application+infrastructure → db | GetByExternalRef, GetByExternalRef, GetByExternalRef, scanOrder | GetByExternalRef, ConfirmByExternalRef, GetByExternalRef, GetByExternalRef | db | 87 |
 | `(OrderRepo).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → db | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, Close, ListByUser +6 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, ListByUser, Subscribe +16 | db | 92 |
-| `(OrderRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 104 |
+| `(OrderRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 104 |
 | `(OrderRepo).ListDeletedView` | method | ListDeletedView devolve SÓ as orders soft-deleted (deleted_at IS NOT NULL) hidratadas com plano + user pra aba Trash do superadmin. | interface+test+application+infrastructure → db | ListDeletedView, ListDeletedView, Close, ListDeletedView, scanOrderViews | AdminTrash, ListDeletedView, AdminListDeleted, ListDeletedView, ListDeletedView | db | 119 |
 | `(OrderRepo).SoftDeleteOrder` | method | SoftDeleteOrder marca a order como soft-deleted, grava quem foi o admin que apagou e a razão (opcional). | interface+test → db | SoftDeleteOrder, SoftDeleteOrder | AdminBulkSoftDeleteOrders, AdminSoftDeleteOrder, SoftDeleteOrder, SoftDeleteOrder | db | 137 |
 | `(OrderRepo).HardDeleteOrder` | method | HardDeleteOrder remove a linha do DB. | interface+test → db | HardDeleteOrder, HardDeleteOrder | AdminHardDeleteOrder, HardDeleteOrder, HardDeleteOrder | db | 157 |
 | `(OrderRepo).RestoreOrder` | method | RestoreOrder zera o flag de soft-delete (NULL em deleted_at, deleted_by_admin_id e delete_reason). | interface+test → db | RestoreOrder, RestoreOrder | AdminRestoreOrder, RestoreOrder, RestoreOrder | db | 170 |
 | `(OrderRepo).ListViewByUser` | method | ⚠ SEM DOC | test+interface → db | ListViewByUser, ListViewByUser, Close, scanOrderViews | ListViewByUser, ListViewByUser, MeOrders | db | 201 |
-| `(OrderRepo).ListAllView` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | ListAllView, ListAllView, Close, ListAllView, scanOrderViews, ListAllView | ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders, AdminMetricsSummary | db | 212 |
-| `(OrderRepo).UpdateStatus` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, Checkout, UpdateStatus +1 | db | 225 |
+| `(OrderRepo).ListAllView` | method | ⚠ SEM DOC | interface+test+application+infrastructure → db | ListAllView, ListAllView, Close, ListAllView, scanOrderViews, ListAllView | AdminMetricsSummary, ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders | db | 212 |
+| `(OrderRepo).UpdateStatus` | method | ⚠ SEM DOC | interface+test+application+infrastructure → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | AdminPatchOrder, UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, Checkout +1 | db | 225 |
 | `(OrderRepo).UpdatePayment` | method | ⚠ SEM DOC | test+application+infrastructure → db | UpdatePayment, UpdatePayment, UpdatePayment, nullable | UpdatePayment, Create, UpdatePayment, UpdatePayment, Checkout | db | 237 |
 | `nullable` | func | ⚠ SEM DOC | infrastructure → retorno | — | UpdatePayment, UpdatePayment | — | 254 |
 | `scanOrders` | func | ⚠ SEM DOC | infrastructure → db | scanOrderRow | ListByUser, ListAll, ListReadyForDeliveryCapture | db | 261 |
@@ -1501,10 +1499,10 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewPlanRepo` | func | ⚠ SEM DOC | cmd → db | — | shutdownTracer | db | 14 |
 | `(PlanRepo).ListActive` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | ListActive, ListActive, ListActive, Close, scanPlans | ListActive, ListByCategory, ListPublic, ListActive, ListActive, ListCategories | db | 19 |
-| `(PlanRepo).ListAll` | method | ⚠ SEM DOC | application+test+infrastructure+interface → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin, ListAll +10 | db | 30 |
-| `(PlanRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 41 |
+| `(PlanRepo).ListAll` | method | ⚠ SEM DOC | interface+application+test+infrastructure → db | ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll, Close +4 | AdminListCurrencies, ListAll, ListAll, ListAll, ListAll, List, ListActiveAcceptingCurrency, AdminList, ListPaymentMethods, ListAdmin +10 | db | 30 |
+| `(PlanRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 41 |
 | `(PlanRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 52 |
-| `(PlanRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | db | 66 |
+| `(PlanRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | db | 66 |
 | `(PlanRepo).Delete` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Delete +2 | MeDeleteProfile, NewRouter, Delete, Delete, Delete, Delete, Delete, Delete, Delete, Disable +9 | db | 79 |
 | `scanPlans` | func | ⚠ SEM DOC | infrastructure → db | scanPlanRow | ListActive, ListAll | db | 90 |
 | `scanPlan` | func | ⚠ SEM DOC | infrastructure → db | scanPlanRow | GetByID | db | 102 |
@@ -1519,7 +1517,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewProfileRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 13 |
 | `(ProfileRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 17 |
-| `(ProfileRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 25 |
+| `(ProfileRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 25 |
 | `(ProfileRepo).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → db | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, query, ListByUser +6 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, ListByUser, Subscribe +16 | db | 35 |
 | `(ProfileRepo).ListByUserAndPlatform` | method | ⚠ SEM DOC | test+domain → db | ListByUserAndPlatform, query, query | ListByUserAndPlatform, IsValid | db | 39 |
 | `(ProfileRepo).query` | method | ⚠ SEM DOC | cmd+infrastructure → db | query, Close | run, ListAll, ListDisplayable, query, ListByUser, ListByUserAndPlatform | db | 43 |
@@ -1555,7 +1553,7 @@ flowchart LR
 | `(ReviewRepo).AggregateByCategory` | method | ⚠ SEM DOC | interface+application+test → interno | AggregateByCategory, AggregateByCategory, aggregate | PublicReviewsForCategory, AggregateByCategory, AggregateByCategory | — | 108 |
 | `(ReviewRepo).aggregate` | method | ⚠ SEM DOC | interface+infrastructure → db | — | AdminPatchReviewVisibility, AggregateByPlan, AggregateByCategory | db | 112 |
 | `(ReviewRepo).SetVisibility` | method | ⚠ SEM DOC | interface+application+test → db | SetVisibility, SetVisibility | AdminPatchReviewVisibility, SetVisibility, SetVisibility | db | 131 |
-| `(ReviewRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 142 |
+| `(ReviewRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 142 |
 | `(ReviewRepo).ListAdmin` | method | ⚠ SEM DOC | application+test+interface → db | ListAdmin, ListAdmin, itoa, Close, itoa | ListAdmin, AdminList, ListAdmin, AdminListPlans | db | 157 |
 | `itoa` | func | itoa local minúsculo pra montar placeholders sem importar strconv só pra isso. | infrastructure → interno | itoa | MaskToken, itoa, ListAdmin | — | 208 |
 | `NewReviewRequestRepo` | func | ⚠ SEM DOC | cmd → retorno | — | revLog | — | 224 |
@@ -1590,10 +1588,10 @@ flowchart LR
 | `NewSubscriptionRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 14 |
 | `scanSubscription` | func | ⚠ SEM DOC | infrastructure → db | — | GetByID, ListByUser, ListDue | db | 19 |
 | `(SubscriptionRepo).Create` | method | Create insere a sub. | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 41 |
-| `(SubscriptionRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 57 |
+| `(SubscriptionRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 57 |
 | `(SubscriptionRepo).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → db | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, Close, ListByUser +6 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, ListByUser, Subscribe +16 | db | 68 |
 | `(SubscriptionRepo).ListDue` | method | ListDue limita em 100 por chamada — cron tickando 1h dá vazão de 2400/dia por tick, o que é >>> que o esperado pro MVP. | application → db | Close, scanSubscription | ProcessDueRenewals | db | 92 |
-| `(SubscriptionRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | db | 114 |
+| `(SubscriptionRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | db | 114 |
 | `(SubscriptionRepo).Cancel` | method | ⚠ SEM DOC | interface+application → db | Cancel | MeCancelSubscription, Cancel, renewOne | db | 135 |
 
 ### `internal/infrastructure/persistence/postgres/tax_rate_repo.go` — camada `infrastructure`
@@ -1610,11 +1608,11 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewTicketRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 13 |
 | `(TicketRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 17 |
-| `(TicketRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 25 |
+| `(TicketRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +8 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 25 |
 | `(TicketRepo).ListByUser` | method | ⚠ SEM DOC | application+interface+test+domain+infrastructure → db | ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, Close, ListByUser +5 | History, MeListMySubscriptions, MeJourney, AdminUserJourney, ListByUser, ListByUser, ListForUser, List, ListByUser, Subscribe +16 | db | 36 |
-| `(TicketRepo).ListAllView` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | ListAllView, ListAllView, Close, ListAllView, ListAllView | ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders, AdminMetricsSummary | db | 61 |
+| `(TicketRepo).ListAllView` | method | ⚠ SEM DOC | interface+test+application+infrastructure → db | ListAllView, ListAllView, Close, ListAllView, ListAllView | AdminMetricsSummary, ListAllView, AdminListView, ListAllView, AdminList, ListAllView, ListAllView, AdminListOrders | db | 61 |
 | `(TicketRepo).GetView` | method | ⚠ SEM DOC | application → db | — | AdminGet | db | 90 |
-| `(TicketRepo).UpdateStatus` | method | ⚠ SEM DOC | test+application+infrastructure+interface → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus, Checkout +1 | db | 103 |
+| `(TicketRepo).UpdateStatus` | method | ⚠ SEM DOC | interface+test+application+infrastructure → db | UpdateStatus, UpdateStatus, UpdateStatus, UpdateStatus | AdminPatchOrder, UpdateStatus, ConfirmByExternalRef, MarkOrderPaid, UpdateStatus, ReplyAsUser, ReplyAsAdmin, AdminUpdateStatus, UpdateStatus, UpdateStatus +1 | db | 103 |
 | `(TicketRepo).UpdatePriority` | method | ⚠ SEM DOC | application → db | — | AdminUpdatePriority | db | 114 |
 | `(TicketRepo).AssignAdmin` | method | ⚠ SEM DOC | — → db | — | — | db | 125 |
 | `(TicketRepo).AppendMessage` | method | ⚠ SEM DOC | application → db | — | Open, ReplyAsUser, ReplyAsAdmin | db | 136 |
@@ -1626,7 +1624,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `NewAdminTwoFARepo` | func | ⚠ SEM DOC | cmd → retorno | — | revLog | — | 21 |
 | `NewUserTwoFARepo` | func | ⚠ SEM DOC | cmd → retorno | — | revLog | — | 25 |
-| `(TwoFARepo).Get` | method | ⚠ SEM DOC | application+interface+test → db | Get, Get, Get, Get, Get | Get, AdminListInvoices, WooviWebhook, StripeWebhook, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash, AdminListVisitors, readAnalyticsConsentHeader +40 | db | 29 |
+| `(TwoFARepo).Get` | method | ⚠ SEM DOC | application+interface+test → db | Get, Get, Get, Get, Get | Get, AdminUpdateCurrency, AdminListInvoices, WooviWebhook, StripeWebhook, AdminListUsers, ResendWebhook, AdminUpdateCoupon, AdminListFraudSignals, AdminTrash +42 | db | 29 |
 | `(TwoFARepo).Upsert` | method | ⚠ SEM DOC | application → db | — | Enroll | db | 44 |
 | `(TwoFARepo).MarkEnrolled` | method | ⚠ SEM DOC | application → db | — | Verify | db | 57 |
 | `(TwoFARepo).MarkUsed` | method | ⚠ SEM DOC | application+infrastructure → db+cripto | MarkUsed | Verify, ValidateKey, MarkUsed | db, cripto | 69 |
@@ -1660,16 +1658,28 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `NewUserRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 14 |
-| `(UserRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 21 |
-| `(UserRepo).GetByEmail` | method | GetByEmail retorna apenas users ATIVOS. | application+infrastructure → db | GetByEmail, scanUser | Register, Login, EnsureShadowAccount, Login, AdminCreate, GetByEmail, Checkout | db | 36 |
-| `(UserRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 41 |
-| `scanUser` | func | ⚠ SEM DOC | infrastructure → db | — | GetByUserCode, GetByEmail, GetByID | db | 46 |
-| `(UserRepo).ListWithCreditBalance` | method | ListWithCreditBalance — usado pelo backoffice. | interface → db | Close | AdminListUsers | db | 67 |
-| `(UserRepo).ListDeletedWithCreditBalance` | method | ListDeletedWithCreditBalance devolve usuários soft-deleted pra aba Trash do superadmin. | interface → db | Close | AdminTrash | db | 99 |
-| `(UserRepo).SoftDeleteUser` | method | SoftDeleteUser marca usuário como apagado. | interface → db | — | AdminBulkSoftDeleteUsers, AdminSoftDeleteUser | db | 136 |
-| `(UserRepo).HardDeleteUser` | method | HardDeleteUser remove a row do DB. | interface → db | — | AdminHardDeleteUser | db | 155 |
-| `(UserRepo).RestoreUser` | method | RestoreUser tira o soft-delete (deleted_at = NULL). | interface → db | — | AdminRestoreUser | db | 167 |
+| `NewUserRepo` | func | ⚠ SEM DOC | cmd+test → retorno | — | shutdownTracer, TestListPageWithCreditBalancePaginates, TestListPageExcludesTestFixtures, TestListPageSearchIsServerSide, TestListPageRejectsInjectionInSearch | — | 16 |
+| `(UserRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 23 |
+| `(UserRepo).GetByEmail` | method | GetByEmail retorna apenas users ATIVOS. | application+infrastructure → db | GetByEmail, scanUser | Register, Login, EnsureShadowAccount, Login, AdminCreate, GetByEmail, Checkout | db | 38 |
+| `(UserRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 43 |
+| `scanUser` | func | ⚠ SEM DOC | infrastructure → db | — | GetByUserCode, GetByEmail, GetByID | db | 48 |
+| `escapeLikePattern` | func | prefixa `\` em `\`, `%` e `_` pra que o termo case literalmente. | infrastructure → interno | AdminListUsers | add | nenhum — pura. | 77 |
+| `(UserRepo).ListPageWithCreditBalance` | method | uma página keyset (created_at, id) DESC, com busca opcional por email | interface+test → retorno | — | AdminListUsers, TestListPageWithCreditBalancePaginates, TestListPageExcludesTestFixtures, TestListPageSearchIsServerSide, TestListPageRejectsInjectionInSearch | leitura no Postgres (users LEFT JOIN credit_accounts). | 110 |
+| `add` | closure | ⚠ SEM DOC | — → db | Close, escapeLikePattern | — | db | 119 |
+| `(UserRepo).ListDeletedWithCreditBalance` | method | ListDeletedWithCreditBalance devolve usuários soft-deleted pra aba Trash do superadmin. | interface → db | Close | AdminTrash | db | 181 |
+| `(UserRepo).SoftDeleteUser` | method | SoftDeleteUser marca usuário como apagado. | interface → db | — | AdminBulkSoftDeleteUsers, AdminSoftDeleteUser | db | 218 |
+| `(UserRepo).HardDeleteUser` | method | HardDeleteUser remove a row do DB. | interface → db | — | AdminHardDeleteUser | db | 237 |
+| `(UserRepo).RestoreUser` | method | RestoreUser tira o soft-delete (deleted_at = NULL). | interface → db | — | AdminRestoreUser | db | 249 |
+
+### `internal/infrastructure/persistence/postgres/user_repo_page_test.go` — camada `test`
+
+| Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
+|---|---|---|---|---|---|---|---|
+| `openTestDB` | func | resolve DATABASE_URL e conecta; sem banco, os testes de integração são | test → interno | New, New, New, New, New, New | TestListPageWithCreditBalancePaginates, TestListPageExcludesTestFixtures, TestListPageSearchIsServerSide, TestListPageRejectsInjectionInSearch | abre conexão com o Postgres. | 20 |
+| `TestListPageWithCreditBalancePaginates` | func | percorre todas as páginas acumulando ids e compara com o total. | — → interno | Close, NewUserRepo, ListPageWithCreditBalance, openTestDB | — | só leitura. | 42 |
+| `TestListPageExcludesTestFixtures` | func | por default fixtures `@viralefy.test` não aparecem; com IncludeTest | — → interno | Close, NewUserRepo, ListPageWithCreditBalance, openTestDB | — | só leitura. | 93 |
+| `TestListPageSearchIsServerSide` | func | um termo que casa poucos registros reduz o total; termo impossível | — → interno | Close, NewUserRepo, ListPageWithCreditBalance, openTestDB | — | só leitura. | 131 |
+| `TestListPageRejectsInjectionInSearch` | func | payload de SQL injection no campo de busca é tratado como TEXTO — não | — → interno | Close, NewUserRepo, ListPageWithCreditBalance, openTestDB | — | só leitura. | 165 |
 
 ### `internal/infrastructure/persistence/postgres/vendor_repo.go` — camada `infrastructure`
 
@@ -1678,9 +1688,9 @@ flowchart LR
 | `NewVendorRepo` | func | ⚠ SEM DOC | cmd → retorno | — | shutdownTracer | — | 15 |
 | `scanVendor` | func | ⚠ SEM DOC | infrastructure → db | — | GetByID, List | db | 19 |
 | `(VendorRepo).Create` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | Create, Create, Create, Create, Create, Create, Create, Create, Create, Create +15 | MeRecharge, AdminCreateCoupon, MeCreateAPIKey, MeCreateReview, AdminCreateVendor, Create, Create, Create, Create, Create +44 | db | 27 |
-| `(VendorRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus, AdminIssueRefund, MeGetReviewForOrder +61 | db | 44 |
+| `(VendorRepo).GetByID` | method | ⚠ SEM DOC | interface+test+application+domain+infrastructure → db | GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +9 | AdminPatchOrder, AdminCaptureOrderMetrics, AdminGetInvoice, AdminGetUser, PublicValidateCoupon, AdminProofDecision, AdminGetProofURL, AdminBulkProofDecision, MeEnroll2FA, PublicV2OrderStatus +61 | db | 44 |
 | `(VendorRepo).List` | method | ⚠ SEM DOC | interface+application+domain+infrastructure → db | List, List, List, List, List, List, Close, List, List, scanVendor +1 | MeListProfiles, AdminGetUser, AdminListCoupons, PublicTaxRates, AdminListVendors, List, List, List, contains, Roles +7 | db | 53 |
-| `(VendorRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update, Update +12 | db | 70 |
+| `(VendorRepo).Update` | method | ⚠ SEM DOC | interface+application+test+domain+infrastructure → db | Update, Update, Update, Update, Update, Update, Update, Update, Update, Update +1 | AdminUpdateCurrency, AdminUpdateCoupon, Update, AdminUpdateVendor, TestUpdate_RejectsZeroOrNegativeRate, TestUpdate_RejectsEmptySettlementCode, TestUpdate_RejectsUnknownSettlementCode, TestUpdate_AppliesChangesAndReturnsUpdated, Update, Update +12 | db | 70 |
 
 ### `internal/interface/http/apikey_middleware.go` — camada `interface`
 
@@ -1696,7 +1706,7 @@ flowchart LR
 | `clientIP` | func | clientIP extrai o IP do cliente do request, respeitando X-Forwarded-For quando vier do Caddy/Cloudflare. | interface+test → interno | Get, Get, Get, Get, Get, Get | PublicTrackEvent, PublicRecordConsent, TestClientIP_PrefersXForwardedForFirstIP, TestClientIP_HandlesSingleXForwardedFor, TestClientIP_FallsBackToRemoteAddr, TestClientIP_EmptyWhenNothingAvailable, TestClientIP_StripsLeadingWhitespaceInXFF, Middleware, TestRateLimiter_Middleware_EmptyIPBypasses, CreateRecoveryRequest +4 | — | 101 |
 | `(Handlers).ListPublicPlans` | method | --- Público --- | externo (borda) → interno | writeError, writeData, ListPublic, AggregateByPlan, AggregateByPlan, AggregateByPlan | — | — | 121 |
 | `(Handlers).ListCategories` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, ListActive, ListActive, ListActive, ListActive | — | — | 140 |
-| `(Handlers).ListCurrencies` | method | ⚠ SEM DOC | externo (borda) → interno | ListDisplayable, writeError, writeData, ListDisplayable, ListDisplayable | — | — | 149 |
+| `(Handlers).ListCurrencies` | method | ⚠ SEM DOC | externo (borda) → interno | ListDisplayable, ListDisplayable, writeError, writeData, ListDisplayable | — | — | 149 |
 | `(Handlers).CreateRecoveryRequest` | method | CreateRecoveryRequest é o entrypoint para o formulário de Account Recovery nas LPs por país. | externo (borda) → cripto | userIDFromContext, writeError, writeData, ListByCategory, Error, Verify, Verify, Verify, FromContext, Checkout +2 | — | cripto | 164 |
 | `(Handlers).CreateCheckout` | method | ⚠ SEM DOC | externo (borda) → interno | userIDFromContext, writeError, writeData, Checkout, enrichTracking | — | — | 239 |
 | `(Handlers).UserRegister` | method | --- Auth de usuário --- | externo (borda) → interno | writeError, writeData, Register, enrichTracking, verifyTurnstile | — | — | 293 |
@@ -1728,7 +1738,7 @@ flowchart LR
 | `(Handlers).AdminCreatePlan` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, Create, Create, Create, Create, Create, Create, Create, Create +19 | — | — | 911 |
 | `(Handlers).AdminUpdatePlan` | method | ⚠ SEM DOC | externo (borda) → interno | Update, writeError, writeData, GetByID, GetByID, Update, GetByID, Update, GetByID, Update +24 | — | — | 926 |
 | `(Handlers).AdminDeletePlan` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, GetByID, GetByID, Delete, GetByID, Delete, Delete, GetByID, Delete +25 | — | — | 945 |
-| `(Handlers).logAudit` | method | logAudit é um wrapper enxuto que recolhe actor (do contexto) + meta (IP, user-agent) e dispara o AuditService de forma não-bloqueante. | interface → interno | logAuditMeta | AdminCreateCoupon, AdminUpdateCoupon, AdminCreateAB, AdminUpdateAB, AdminIssueRefund, AdminCreateVendor, AdminUpdateVendor, AdminCreatePlan, AdminUpdatePlan, AdminDeletePlan +1 | — | 959 |
+| `(Handlers).logAudit` | method | logAudit é um wrapper enxuto que recolhe actor (do contexto) + meta (IP, user-agent) e dispara o AuditService de forma não-bloqueante. | interface → interno | logAuditMeta | AdminPatchOrder, AdminCreateCoupon, AdminUpdateCoupon, AdminCreateAB, AdminUpdateAB, AdminIssueRefund, AdminCreateVendor, AdminUpdateVendor, AdminCreatePlan, AdminUpdatePlan +1 | — | 959 |
 | `(Handlers).logAuditMeta` | method | logAuditMeta é a versão que aceita metadata adicional além do default (IP, UA, path, method). | interface → interno | Get, Get, principalFromContext, Get, Get, Get, Log, Get, clientIP | AdminMarkInvoicePaid, logAudit | — | 966 |
 | `(Handlers).AdminListGateways` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, List, List, List, List, List, List, List, List +2 | — | — | 997 |
 | `(Handlers).AdminCreateGateway` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, Create, Create, Create, Create, Create, Create, Create, Create +18 | — | — | 1006 |
@@ -1738,7 +1748,7 @@ flowchart LR
 | `(Handlers).AdminGetOrder` | method | AdminGetOrder devolve um pedido específico com TUDO: custom_data, tracking, payment_extra. | externo (borda) → interno | writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +11 | — | — | 1056 |
 | `(Handlers).AdminPatchOrder` | method | AdminPatchOrder permite editar status e nota interna do pedido. | externo (borda) → interno | writeError, writeData, GetByID, UpdateStatus, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +17 | — | — | 1093 |
 | `(Handlers).AdminCaptureOrderMetrics` | method | AdminCaptureOrderMetrics dispara captura manual de baseline ou delivery pra um pedido. | externo (borda) → interno | writeError, writeData, GetByID, GetByID, GetByID, CaptureBaseline, CaptureDelivery, GetByID, GetByID, GetByID +13 | — | — | 1132 |
-| `(Handlers).AdminMetricsSummary` | method | AdminMetricsSummary alimenta o /dashboard com agregados: - totals por status (pending/paid/failed) - revenue total em USD (settlement_amount somado quando paid) - top 5 categorias por revenue - top… | externo (borda) → interno | writeError, writeData, ListAllView, ListAllView, ListAllView, ListAllView, ListAllView, formatFloat, parseFloatOr | — | — | 1173 |
+| `(Handlers).AdminMetricsSummary` | method | AdminMetricsSummary alimenta o /dashboard com agregados: - totals por status (pending/paid/failed) - revenue total em USD (settlement_amount somado quando paid) - top 5 categorias por revenue - top… | externo (borda) → interno | formatFloat, parseFloatOr, writeError, writeData, ListAllView, ListAllView, ListAllView, ListAllView, ListAllView | — | — | 1173 |
 | `formatFloat` | func | ⚠ SEM DOC | interface → retorno | — | AdminMetricsSummary | — | 1274 |
 | `parseFloatOr` | func | ⚠ SEM DOC | interface → retorno | — | AdminMetricsSummary | — | 1281 |
 | `(Handlers).AdminListCurrencies` | method | ⚠ SEM DOC | externo (borda) → interno | ListAll, ListAll, writeError, writeData, ListAll, ListAll, ListAll, ListAll, ListAll, ListAll +5 | — | — | 1288 |
@@ -1756,82 +1766,82 @@ flowchart LR
 | `(Handlers).WooviWebhook` | method | --- Webhooks (público, verificados por assinatura) --- // | externo (borda) → log | Get, Get, WriteHeader, writeError, GetActiveByProvider, Get, Get, ConfirmByExternalRef, Error, Get +8 | — | log | 1534 |
 | `(Handlers).StripeWebhook` | method | StripeWebhook recebe eventos da Stripe (https://stripe.com/docs/webhooks). | externo (borda) → db+log | Get, Get, WriteHeader, writeError, classifyStripeIdempotencyResult, GetActiveByProvider, Get, Get, MarkOrderPaid, Error +17 | — | db, log | 1579 |
 | `(Handlers).HeleketWebhook` | method | ⚠ SEM DOC | externo (borda) → log | WriteHeader, writeError, GetActiveByProvider, ConfirmByExternalRef, Error, IsPaid, IsPaid, VerifyHeleketWebhook, ParseHeleketEvent, IsPaid +2 | — | log | 1675 |
-| `(Handlers).AdminListUsers` | method | --- Admin: users + credits + orders --- // | externo (borda) → interno | writeError, writeData, ListWithCreditBalance | — | — | 1716 |
-| `(Handlers).AdminGetUser` | method | ⚠ SEM DOC | externo (borda) → interno | Balance, History, writeError, writeData, GetByID, GetByID, GetByID, List, GetByID, List +23 | — | — | 1725 |
-| `(Handlers).AdminAdjustCredits` | method | ⚠ SEM DOC | externo (borda) → interno | AdminAdjustment, writeError, writeData | — | — | 1743 |
-| `(Handlers).AdminMarkOrderPaid` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, MarkOrderPaid | — | — | 1764 |
-| `(Handlers).ResendWebhook` | method | ResendWebhook recebe eventos da Resend (delivered/bounced/complained). | externo (borda) → log | Get, Get, WriteHeader, writeError, RecordResendEvent, Get, Get, Error, Get, VerifySvixSignature +2 | — | log | 1780 |
-| `(Handlers).PublicValidateCoupon` | method | PublicValidateCoupon — preview do desconto sem comprometer used_count. | externo (borda) → interno | writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +12 | — | — | 1815 |
-| `(Handlers).AdminListCoupons` | method | Admin CRUD ---- | externo (borda) → interno | writeError, writeData, List, List, List, List, List, List, List, List +2 | — | — | 1850 |
-| `(Handlers).AdminCreateCoupon` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, Create, Create, Create, Create, Create, Create, Create, Create +19 | — | — | 1863 |
-| `(Handlers).AdminUpdateCoupon` | method | ⚠ SEM DOC | externo (borda) → interno | Get, Get, Update, writeError, writeData, Update, Update, Get, Get, Update +11 | — | — | 1878 |
-| `Health` | func | ⚠ SEM DOC | externo (borda) → interno | writeJSON | — | — | 1896 |
-| `(Handlers).PublicStatus` | method | PublicStatus devolve o snapshot do estado dos componentes principais — consumido pela página /status do storefront. | externo (borda) → db | writeData, Pool | — | db | 1907 |
-| `ReadyHandler` | func | ReadyHandler devolve um http.Handler que executa `check` (tipicamente db.Ping). 200 quando check==nil ou check() retorna nil; 503 caso contrário. | interface → interno | writeJSON | NewRouter | — | 1991 |
-| `(Handlers).MeGetOrder` | method | MeGetOrder devolve o pedido completo do user logado pra renderizar a página de tracking (/account/orders/{id}). | externo (borda) → interno | userIDFromContext, writeError, writeData, GetByIDForUser | — | — | 2010 |
-| `(Handlers).PublicCountryPPP` | method | PublicCountryPPP devolve o catálogo de multipliers PPP (Fase 6.5). | externo (borda) → db | writeError, writeData, Close, Pool | — | db | 2031 |
-| `(Handlers).MeGetNotifPrefs` | method | MeGetNotifPrefs — GET /v1/me/notif-prefs Devolve as 4 chaves canônicas (order_updates, marketing, reviews, cart_recovery) com defaults aplicados quando ausentes. | externo (borda) → interno | userIDFromContext, writeError, writeData, GetPrefs | — | — | 2064 |
-| `(Handlers).MeUpdateNotifPrefs` | method | MeUpdateNotifPrefs — PUT /v1/me/notif-prefs Body: { order_updates?: bool, marketing?: bool, reviews?: bool, cart_recovery?: bool } Merge no JSONB: chaves ausentes são preservadas; chaves fora da al… | externo (borda) → interno | userIDFromContext, writeError, writeData, GetPrefs, UpdatePrefs | — | — | 2086 |
-| `(Handlers).MeExportData` | method | MeExportData devolve um JSON com tudo que o sistema sabe do usuário (orders, tickets, profiles, reviews, prefs). | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, ExportData | — | — | 2119 |
-| `(Handlers).MeRequestDeletion` | method | MeRequestDeletion agenda exclusão da conta. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, RequestDeletion | — | — | 2143 |
-| `(Handlers).MeCancelDeletion` | method | MeCancelDeletion desfaz um pedido pendente. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, CancelDeletion | — | — | 2167 |
-| `(Handlers).MeGetDeletion` | method | MeGetDeletion devolve o estado corrente do pedido de exclusão (se houver) + listas de categorias deletadas vs retidas pra transparência LGPD Art. 9. | externo (borda) → interno | userIDFromContext, writeJSON, writeError, GetDeletionStatus | — | — | 2188 |
-| `(Handlers).PublicJWKS` | method | PublicJWKS expõe a chave pública RSA (Fase 4.1) em /.well-known/jwks.json — consumidores externos (verificadores stateless) podem validar tokens RS256 sem chamar a API. | infrastructure → interno | writeJSON, writeError, PublicJWKS | PublicJWKS | — | 2211 |
-| `(Handlers).PublicABAssign` | method | PublicABAssign — atribui (ou recupera) a variant do visitor. | externo (borda) → interno | writeError, writeData, GetAssignment, GetAssignment | — | — | 2248 |
-| `(Handlers).PublicABTrack` | method | PublicABTrack — registra um evento. | externo (borda) → interno | WriteHeader, writeError, TrackEvent | — | — | 2276 |
-| `(Handlers).AdminListAB` | method | AdminListAB — lista todos os experimentos pro backoffice. | externo (borda) → interno | writeError, writeData, AdminListExperiments | — | — | 2305 |
-| `(Handlers).AdminCreateAB` | method | AdminCreateAB — cria experimento. | externo (borda) → interno | writeError, writeData, AdminCreateExperiment, logAudit | — | — | 2320 |
-| `(Handlers).AdminUpdateAB` | method | AdminUpdateAB — atualiza descrição, pesos e flag active. | externo (borda) → interno | writeError, writeData, AdminUpdateExperiment, logAudit | — | — | 2340 |
-| `(Handlers).MeGetMyReferral` | method | MeGetMyReferral devolve {code, total_referred, total_earned_cents} para o painel /account/referral. | externo (borda) → interno | userIDFromContext, writeError, writeData, MyStats | — | — | 2366 |
-| `(Handlers).PublicReferralInfo` | method | PublicReferralInfo é o endpoint anônimo consumido pelo checkout pra renderizar o selo "Convidado por X" (primeiro nome apenas). | externo (borda) → interno | writeError, writeData, PublicInfo | — | — | 2388 |
-| `(Handlers).AdminListFraudSignals` | method | AdminListFraudSignals devolve a timeline de sinais gravados pelo FraudVelocityCron + checagens inline. | externo (borda) → db | Get, Get, writeError, writeData, ListSignals, Get, Get, Get, Get | — | db | 2407 |
-| `(Handlers).PublicTaxRates` | method | PublicTaxRates devolve o catálogo de alíquotas fiscais (Fase 5.3 — VAT UE+GB). | externo (borda) → interno | writeError, writeData, List, List, List, List, List, List, List, List +2 | — | — | 2440 |
-| `(Handlers).MeListMySubscriptions` | method | MeListMySubscriptions devolve subs do user autenticado (active + cancelled), ordenadas por created_at DESC. | externo (borda) → interno | userIDFromContext, writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser +8 | — | — | 2462 |
-| `(Handlers).MeSubscribe` | method | MeSubscribe cria sub ativa. | externo (borda) → interno | userIDFromContext, writeError, writeData, Subscribe | — | — | 2483 |
-| `(Handlers).MeCancelSubscription` | method | MeCancelSubscription cancela a sub do user (valida ownership no service). | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Cancel, Cancel | — | — | 2510 |
-| `(Handlers).PublicTrackEvent` | method | PublicTrackEvent — captura evento behavioral. | externo (borda) → interno | readAnalyticsConsentHeader, WriteHeader, userIDFromContext, writeError, IsAllowedEventType, RecordEvent, clientIP | — | — | 2549 |
-| `(Handlers).MeJourney` | method | MeJourney — devolve o agregado do user logado + os últimos 50 eventos. | externo (borda) → interno | userIDFromContext, writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, GetJourney +10 | — | — | 2610 |
-| `decodeBulkDelete` | func | ⚠ SEM DOC | interface → retorno | — | AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers | — | 2661 |
-| `(Handlers).AdminBulkSoftDeleteOrders` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, SoftDeleteOrder, SoftDeleteOrder, Error, SoftDeleteOrder | — | — | 2675 |
-| `(Handlers).AdminBulkSoftDeleteInvoices` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, AdminSoftDelete, Error | — | — | 2697 |
-| `(Handlers).AdminBulkSoftDeleteUsers` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, Error, SoftDeleteUser | — | — | 2719 |
-| `(Handlers).AdminTrash` | method | AdminTrash — GET /v1/admin/trash (superadmin only) Endpoint consolidado pra aba "Trash" do painel admin. | externo (borda) → db | Get, Get, writeError, writeData, ListDeletedView, Get, AdminListDeleted, Get, ListDeletedView, Get +4 | — | db | 2757 |
-| `decodeDeleteBody` | func | ⚠ SEM DOC | interface → retorno | — | AdminSoftDeleteOrder, AdminSoftDeleteInvoice, AdminSoftDeleteUser | — | 2804 |
-| `(Handlers).AdminSoftDeleteOrder` | method | AdminSoftDeleteOrder — DELETE /v1/admin/orders/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, SoftDeleteOrder, SoftDeleteOrder, SoftDeleteOrder | — | — | 2814 |
-| `(Handlers).AdminHardDeleteOrder` | method | AdminHardDeleteOrder — DELETE /v1/admin/orders/{id}/hard (superadmin) | externo (borda) → interno | WriteHeader, writeError, HardDeleteOrder, HardDeleteOrder, HardDeleteOrder | — | — | 2834 |
-| `(Handlers).AdminRestoreOrder` | method | AdminRestoreOrder — POST /v1/admin/orders/{id}/restore (superadmin) | externo (borda) → interno | WriteHeader, writeError, RestoreOrder, RestoreOrder, RestoreOrder | — | — | 2848 |
-| `(Handlers).AdminSoftDeleteInvoice` | method | AdminSoftDeleteInvoice — DELETE /v1/admin/invoices/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, AdminSoftDelete | — | — | 2862 |
-| `(Handlers).AdminHardDeleteInvoice` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, AdminHardDelete | — | — | 2881 |
-| `(Handlers).AdminRestoreInvoice` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, AdminRestore | — | — | 2894 |
-| `(Handlers).AdminSoftDeleteUser` | method | AdminSoftDeleteUser — DELETE /v1/admin/users/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, SoftDeleteUser | — | — | 2908 |
-| `(Handlers).AdminHardDeleteUser` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, HardDeleteUser | — | — | 2927 |
-| `(Handlers).AdminRestoreUser` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, RestoreUser | — | — | 2940 |
-| `(Handlers).AdminUserJourney` | method | AdminUserJourney — GET /v1/admin/users/{id}/journey Espelha MeJourney mas pra qualquer user lookup-by-id. | externo (borda) → interno | writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, GetJourney, ListByUser +9 | — | — | 2957 |
-| `(Handlers).AdminListVisitors` | method | AdminListVisitors — GET /v1/admin/visitors?limit=&offset= Lista paginada de visitors agrupados (anônimos + convertidos). | externo (borda) → db | Get, Get, writeError, writeData, Get, Get, ListRecentVisitors, Get, Get, ListRecentVisitors | — | db | 2986 |
-| `(Handlers).AdminGetVisitor` | method | AdminGetVisitor — GET /v1/admin/visitors/{vid} Devolve o agregado do visitor + últimos 100 eventos. | externo (borda) → interno | writeError, writeData, ListByVisitor, GetVisitorSummary, ListByVisitor, GetVisitorSummary | — | — | 3006 |
-| `readAnalyticsConsentHeader` | func | readAnalyticsConsentHeader — lê o header X-Analytics-Consent ("1" / "0"). | interface → interno | Get, Get, Get, Get, Get, Get | PublicTrackEvent | — | 3038 |
-| `(Handlers).PublicRecordConsent` | method | PublicRecordConsent — POST /v1/me/consent Append-only audit log da decisão de consent de cookies. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Record, Record, Record, Record, clientIP | — | — | 3080 |
-| `(Handlers).PublicListPaymentMethods` | method | PublicListPaymentMethods — GET /v1/plans/{id}/payment-methods Catálogo de métodos de pagamento disponíveis para um plano específico, com preview de quanto o cliente paga em CADA método (já converti… | externo (borda) → db | Get, Get, writeError, writeData, Get, Get, ListPaymentMethods, Get, ListMethods, Get | — | db | 3136 |
-| `(Handlers).MeUploadProof` | method | MeUploadProof — POST /v1/me/orders/{id}/proof Cliente anexa comprovante de pagamento (PIX, crypto on-chain). | externo (borda) → interno | Get, uploadProofMultipart, Get, userIDFromContext, writeError, writeData, SetProof, Get, GetByIDForUser, Get +4 | — | — | 3197 |
-| `(Handlers).AdminProofDecision` | method | AdminProofDecision — POST /v1/admin/orders/{id}/proof/decision Admin revisa o comprovante anexado pelo cliente e marca approved ou rejected. approved dispara mark-as-paid em sequência (fecha o loop… | externo (borda) → interno | buildProofRejectionEmail, writeError, writeData, GetByID, SetProofStatus, GetByID, GetByID, MarkOrderPaid, GetByID, GetByID +22 | — | — | 3262 |
-| `buildProofRejectionEmail` | func | buildProofRejectionEmail compõe a mensagem enviada ao cliente quando admin rejeita o comprovante. | interface → retorno | — | AdminProofDecision, AdminBulkProofDecision | — | 3314 |
-| `(Handlers).AdminListPendingProofs` | method | AdminListPendingProofs — GET /v1/admin/proofs/pending Fila de comprovantes aguardando revisão (mais antigos primeiro). | externo (borda) → db | Get, Get, writeError, writeData, ListPendingProofs, Get, Get, ListPendingProofs, Get, ListPendingProofs +1 | — | db | 3345 |
-| `(Handlers).uploadProofMultipart` | method | uploadProofMultipart processa multipart/form-data: field "file" (binary), opcional "note" (text). | interface → interno | Get, nowKeyPrefix, Get, writeError, writeData, SetProof, Get, GetByIDForUser, Get, SetProof +6 | MeUploadProof | — | 3376 |
-| `nowKeyPrefix` | func | nowKeyPrefix gera "20260608T193045-a1b2c3d4" — timestamp UTC + 8 chars random pra unicidade dentro do bucket. | interface → retorno | — | uploadProofMultipart | — | 3432 |
-| `(Handlers).MeGetProofURL` | method | MeGetProofURL — GET /v1/me/orders/{id}/proof-url Retorna presigned URL pra cliente baixar/visualizar o próprio comprovante. | externo (borda) → interno | resolveProofURL, userIDFromContext, writeError, writeData, GetByIDForUser | — | — | 3442 |
-| `(Handlers).AdminGetProofURL` | method | AdminGetProofURL — GET /v1/admin/orders/{id}/proof-url Espelha pro admin — backoffice ProofCard chama isso pra renderizar img/<a>. | externo (borda) → interno | resolveProofURL, writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +12 | — | — | 3464 |
-| `(Handlers).resolveProofURL` | method | resolveProofURL devolve a melhor URL pra renderizar o comprovante, respeitando a precedência pós-migração 040: 1. proof_storage_key NOT NULL → presign MinIO/R2 (fonte canônica). | interface → interno | PresignedGetURL, PresignedGetURL | MeGetProofURL, AdminGetProofURL | — | 3492 |
-| `(Handlers).AdminLoginEnroll2FA` | method | AdminLoginEnroll2FA — POST /v1/auth/login/2fa/enroll Chamado quando AdminLogin retornou twofa_enroll_required=true. | externo (borda) → interno | writeError, writeData, Enroll, ParsePartialToken, Enroll, GetAdminByID | — | — | 3527 |
-| `(Handlers).AdminLoginComplete2FA` | method | AdminLoginComplete2FA — POST /v1/auth/login/2fa Segundo step do login. | externo (borda) → interno | writeError, writeData, CompleteLoginWith2FA, CompleteLoginWith2FA | — | — | 3561 |
-| `(Handlers).AdminDisable2FA` | method | AdminDisable2FA — POST /v1/admin/me/2fa/disable Apenas superadmin (PermAdminsManage). | externo (borda) → interno | WriteHeader, principalFromContext, writeError, Disable, Log | — | — | 3586 |
-| `(Handlers).AdminBulkProofDecision` | method | AdminBulkProofDecision — POST /v1/admin/proofs/bulk-decision Body {order_ids: [], decision: "approved"\|"rejected", note?}. | externo (borda) → interno | buildProofRejectionEmail, principalFromContext, writeError, writeData, GetByID, SetProofStatus, GetByID, GetByID, MarkOrderPaid, GetByID +25 | — | — | 3625 |
-| `(Handlers).UserLoginComplete2FA` | method | UserLoginComplete2FA — POST /v1/auth/user/login/2fa Body {partial_token, code}. | externo (borda) → interno | writeError, writeData, CompleteLoginWith2FA, CompleteLoginWith2FA | — | — | 3705 |
-| `(Handlers).MeEnroll2FA` | method | MeEnroll2FA — POST /v1/me/2fa/enroll User logado pede setup. | externo (borda) → interno | userIDFromContext, writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +14 | — | — | 3729 |
-| `(Handlers).MeVerify2FA` | method | MeVerify2FA — POST /v1/me/2fa/verify Primeira verificação após Enroll → marca enrolled_at. | externo (borda) → cripto | WriteHeader, userIDFromContext, writeError, Verify, Verify, Verify | — | cripto | 3755 |
-| `(Handlers).MeDisable2FA` | method | MeDisable2FA — POST /v1/me/2fa/disable User self-service desativa o próprio 2FA. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Disable | — | — | 3782 |
-| `(Handlers).MeDismiss2FAPrompt` | method | MeDismiss2FAPrompt — POST /v1/me/2fa/dismiss-prompt User clicou "Talvez depois" no modal de nag. | externo (borda) → db | WriteHeader, userIDFromContext, writeError, Pool | — | db | 3802 |
-| `(Handlers).MeTwoFAStatus` | method | MeTwoFAStatus — GET /v1/me/2fa/status Front consulta na primeira tela pós-login. | externo (borda) → interno | computeShouldPrompt2FA, userIDFromContext, writeError, writeData, IsEnrolled | — | — | 3833 |
-| `(Handlers).computeShouldPrompt2FA` | method | ⚠ SEM DOC | interface → db | Pool | MeTwoFAStatus | db | 3853 |
+| `(Handlers).AdminListUsers` | method | página de clientes pro backoffice, com saldo de crédito, busca | infrastructure → db | Get, Get, parsePage, encodeCursor, writePage, writeError, writeErrorMsg, Get, Get, Error +3 | escapeLikePattern | db | 1733 |
+| `(Handlers).AdminGetUser` | method | ⚠ SEM DOC | externo (borda) → interno | Balance, History, writeError, writeData, GetByID, GetByID, GetByID, List, GetByID, List +23 | — | — | 1766 |
+| `(Handlers).AdminAdjustCredits` | method | ⚠ SEM DOC | externo (borda) → interno | AdminAdjustment, writeError, writeData | — | — | 1784 |
+| `(Handlers).AdminMarkOrderPaid` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, MarkOrderPaid | — | — | 1805 |
+| `(Handlers).ResendWebhook` | method | ResendWebhook recebe eventos da Resend (delivered/bounced/complained). | externo (borda) → log | Get, Get, WriteHeader, writeError, RecordResendEvent, Get, Get, Error, Get, VerifySvixSignature +2 | — | log | 1821 |
+| `(Handlers).PublicValidateCoupon` | method | PublicValidateCoupon — preview do desconto sem comprometer used_count. | externo (borda) → interno | writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +12 | — | — | 1856 |
+| `(Handlers).AdminListCoupons` | method | Admin CRUD ---- | externo (borda) → interno | writeError, writeData, List, List, List, List, List, List, List, List +2 | — | — | 1891 |
+| `(Handlers).AdminCreateCoupon` | method | ⚠ SEM DOC | externo (borda) → interno | writeError, writeData, Create, Create, Create, Create, Create, Create, Create, Create +19 | — | — | 1904 |
+| `(Handlers).AdminUpdateCoupon` | method | ⚠ SEM DOC | externo (borda) → interno | Get, Get, Update, writeError, writeData, Update, Update, Get, Get, Update +11 | — | — | 1919 |
+| `Health` | func | ⚠ SEM DOC | externo (borda) → interno | writeJSON | — | — | 1937 |
+| `(Handlers).PublicStatus` | method | PublicStatus devolve o snapshot do estado dos componentes principais — consumido pela página /status do storefront. | externo (borda) → db | writeData, Pool | — | db | 1948 |
+| `ReadyHandler` | func | ReadyHandler devolve um http.Handler que executa `check` (tipicamente db.Ping). 200 quando check==nil ou check() retorna nil; 503 caso contrário. | interface → interno | writeJSON | NewRouter | — | 2032 |
+| `(Handlers).MeGetOrder` | method | MeGetOrder devolve o pedido completo do user logado pra renderizar a página de tracking (/account/orders/{id}). | externo (borda) → interno | userIDFromContext, writeError, writeData, GetByIDForUser | — | — | 2051 |
+| `(Handlers).PublicCountryPPP` | method | PublicCountryPPP devolve o catálogo de multipliers PPP (Fase 6.5). | externo (borda) → db | writeError, writeData, Close, Pool | — | db | 2072 |
+| `(Handlers).MeGetNotifPrefs` | method | MeGetNotifPrefs — GET /v1/me/notif-prefs Devolve as 4 chaves canônicas (order_updates, marketing, reviews, cart_recovery) com defaults aplicados quando ausentes. | externo (borda) → interno | userIDFromContext, writeError, writeData, GetPrefs | — | — | 2105 |
+| `(Handlers).MeUpdateNotifPrefs` | method | MeUpdateNotifPrefs — PUT /v1/me/notif-prefs Body: { order_updates?: bool, marketing?: bool, reviews?: bool, cart_recovery?: bool } Merge no JSONB: chaves ausentes são preservadas; chaves fora da al… | externo (borda) → interno | userIDFromContext, writeError, writeData, GetPrefs, UpdatePrefs | — | — | 2127 |
+| `(Handlers).MeExportData` | method | MeExportData devolve um JSON com tudo que o sistema sabe do usuário (orders, tickets, profiles, reviews, prefs). | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, ExportData | — | — | 2160 |
+| `(Handlers).MeRequestDeletion` | method | MeRequestDeletion agenda exclusão da conta. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, RequestDeletion | — | — | 2184 |
+| `(Handlers).MeCancelDeletion` | method | MeCancelDeletion desfaz um pedido pendente. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, CancelDeletion | — | — | 2208 |
+| `(Handlers).MeGetDeletion` | method | MeGetDeletion devolve o estado corrente do pedido de exclusão (se houver) + listas de categorias deletadas vs retidas pra transparência LGPD Art. 9. | externo (borda) → interno | userIDFromContext, writeJSON, writeError, GetDeletionStatus | — | — | 2229 |
+| `(Handlers).PublicJWKS` | method | PublicJWKS expõe a chave pública RSA (Fase 4.1) em /.well-known/jwks.json — consumidores externos (verificadores stateless) podem validar tokens RS256 sem chamar a API. | infrastructure → interno | writeJSON, writeError, PublicJWKS | PublicJWKS | — | 2252 |
+| `(Handlers).PublicABAssign` | method | PublicABAssign — atribui (ou recupera) a variant do visitor. | externo (borda) → interno | writeError, writeData, GetAssignment, GetAssignment | — | — | 2289 |
+| `(Handlers).PublicABTrack` | method | PublicABTrack — registra um evento. | externo (borda) → interno | WriteHeader, writeError, TrackEvent | — | — | 2317 |
+| `(Handlers).AdminListAB` | method | AdminListAB — lista todos os experimentos pro backoffice. | externo (borda) → interno | writeError, writeData, AdminListExperiments | — | — | 2346 |
+| `(Handlers).AdminCreateAB` | method | AdminCreateAB — cria experimento. | externo (borda) → interno | writeError, writeData, AdminCreateExperiment, logAudit | — | — | 2361 |
+| `(Handlers).AdminUpdateAB` | method | AdminUpdateAB — atualiza descrição, pesos e flag active. | externo (borda) → interno | writeError, writeData, AdminUpdateExperiment, logAudit | — | — | 2381 |
+| `(Handlers).MeGetMyReferral` | method | MeGetMyReferral devolve {code, total_referred, total_earned_cents} para o painel /account/referral. | externo (borda) → interno | userIDFromContext, writeError, writeData, MyStats | — | — | 2407 |
+| `(Handlers).PublicReferralInfo` | method | PublicReferralInfo é o endpoint anônimo consumido pelo checkout pra renderizar o selo "Convidado por X" (primeiro nome apenas). | externo (borda) → interno | writeError, writeData, PublicInfo | — | — | 2429 |
+| `(Handlers).AdminListFraudSignals` | method | AdminListFraudSignals devolve a timeline de sinais gravados pelo FraudVelocityCron + checagens inline. | externo (borda) → db | Get, Get, writeError, writeData, ListSignals, Get, Get, Get, Get | — | db | 2448 |
+| `(Handlers).PublicTaxRates` | method | PublicTaxRates devolve o catálogo de alíquotas fiscais (Fase 5.3 — VAT UE+GB). | externo (borda) → interno | writeError, writeData, List, List, List, List, List, List, List, List +2 | — | — | 2481 |
+| `(Handlers).MeListMySubscriptions` | method | MeListMySubscriptions devolve subs do user autenticado (active + cancelled), ordenadas por created_at DESC. | externo (borda) → interno | userIDFromContext, writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser +8 | — | — | 2503 |
+| `(Handlers).MeSubscribe` | method | MeSubscribe cria sub ativa. | externo (borda) → interno | userIDFromContext, writeError, writeData, Subscribe | — | — | 2524 |
+| `(Handlers).MeCancelSubscription` | method | MeCancelSubscription cancela a sub do user (valida ownership no service). | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Cancel, Cancel | — | — | 2551 |
+| `(Handlers).PublicTrackEvent` | method | PublicTrackEvent — captura evento behavioral. | externo (borda) → interno | readAnalyticsConsentHeader, WriteHeader, userIDFromContext, writeError, IsAllowedEventType, RecordEvent, clientIP | — | — | 2592 |
+| `(Handlers).MeJourney` | method | MeJourney — devolve o agregado do user logado + os últimos 50 eventos. | externo (borda) → interno | userIDFromContext, writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, GetJourney +10 | — | — | 2653 |
+| `decodeBulkDelete` | func | ⚠ SEM DOC | interface → retorno | — | AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers | — | 2704 |
+| `(Handlers).AdminBulkSoftDeleteOrders` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, SoftDeleteOrder, SoftDeleteOrder, Error, SoftDeleteOrder | — | — | 2718 |
+| `(Handlers).AdminBulkSoftDeleteInvoices` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, AdminSoftDelete, Error | — | — | 2740 |
+| `(Handlers).AdminBulkSoftDeleteUsers` | method | ⚠ SEM DOC | externo (borda) → interno | decodeBulkDelete, principalFromContext, writeError, writeData, Error, SoftDeleteUser | — | — | 2762 |
+| `(Handlers).AdminTrash` | method | AdminTrash — GET /v1/admin/trash (superadmin only) Endpoint consolidado pra aba "Trash" do painel admin. | externo (borda) → db | Get, Get, writeError, writeData, ListDeletedView, Get, AdminListDeleted, Get, ListDeletedView, Get +4 | — | db | 2800 |
+| `decodeDeleteBody` | func | ⚠ SEM DOC | interface → retorno | — | AdminSoftDeleteOrder, AdminSoftDeleteInvoice, AdminSoftDeleteUser | — | 2847 |
+| `(Handlers).AdminSoftDeleteOrder` | method | AdminSoftDeleteOrder — DELETE /v1/admin/orders/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, SoftDeleteOrder, SoftDeleteOrder, SoftDeleteOrder | — | — | 2857 |
+| `(Handlers).AdminHardDeleteOrder` | method | AdminHardDeleteOrder — DELETE /v1/admin/orders/{id}/hard (superadmin) | externo (borda) → interno | WriteHeader, writeError, HardDeleteOrder, HardDeleteOrder, HardDeleteOrder | — | — | 2877 |
+| `(Handlers).AdminRestoreOrder` | method | AdminRestoreOrder — POST /v1/admin/orders/{id}/restore (superadmin) | externo (borda) → interno | WriteHeader, writeError, RestoreOrder, RestoreOrder, RestoreOrder | — | — | 2891 |
+| `(Handlers).AdminSoftDeleteInvoice` | method | AdminSoftDeleteInvoice — DELETE /v1/admin/invoices/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, AdminSoftDelete | — | — | 2905 |
+| `(Handlers).AdminHardDeleteInvoice` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, AdminHardDelete | — | — | 2924 |
+| `(Handlers).AdminRestoreInvoice` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, AdminRestore | — | — | 2937 |
+| `(Handlers).AdminSoftDeleteUser` | method | AdminSoftDeleteUser — DELETE /v1/admin/users/{id} | externo (borda) → interno | decodeDeleteBody, WriteHeader, principalFromContext, writeError, SoftDeleteUser | — | — | 2951 |
+| `(Handlers).AdminHardDeleteUser` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, HardDeleteUser | — | — | 2970 |
+| `(Handlers).AdminRestoreUser` | method | ⚠ SEM DOC | externo (borda) → interno | WriteHeader, writeError, RestoreUser | — | — | 2983 |
+| `(Handlers).AdminUserJourney` | method | AdminUserJourney — GET /v1/admin/users/{id}/journey Espelha MeJourney mas pra qualquer user lookup-by-id. | externo (borda) → interno | writeError, writeData, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, ListByUser, GetJourney, ListByUser +9 | — | — | 3000 |
+| `(Handlers).AdminListVisitors` | method | AdminListVisitors — GET /v1/admin/visitors?limit=&offset= Lista paginada de visitors agrupados (anônimos + convertidos). | externo (borda) → db | Get, Get, writeError, writeData, Get, Get, ListRecentVisitors, Get, Get, ListRecentVisitors | — | db | 3029 |
+| `(Handlers).AdminGetVisitor` | method | AdminGetVisitor — GET /v1/admin/visitors/{vid} Devolve o agregado do visitor + últimos 100 eventos. | externo (borda) → interno | writeError, writeData, ListByVisitor, GetVisitorSummary, ListByVisitor, GetVisitorSummary | — | — | 3049 |
+| `readAnalyticsConsentHeader` | func | readAnalyticsConsentHeader — lê o header X-Analytics-Consent ("1" / "0"). | interface → interno | Get, Get, Get, Get, Get, Get | PublicTrackEvent | — | 3081 |
+| `(Handlers).PublicRecordConsent` | method | PublicRecordConsent — POST /v1/me/consent Append-only audit log da decisão de consent de cookies. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Record, Record, Record, Record, clientIP | — | — | 3124 |
+| `(Handlers).PublicListPaymentMethods` | method | PublicListPaymentMethods — GET /v1/plans/{id}/payment-methods Catálogo de métodos de pagamento disponíveis para um plano específico, com preview de quanto o cliente paga em CADA método (já converti… | externo (borda) → db | Get, Get, writeError, writeData, Get, Get, ListPaymentMethods, Get, ListMethods, Get | — | db | 3181 |
+| `(Handlers).MeUploadProof` | method | MeUploadProof — POST /v1/me/orders/{id}/proof Cliente anexa comprovante de pagamento (PIX, crypto on-chain). | externo (borda) → interno | Get, uploadProofMultipart, Get, userIDFromContext, writeError, writeData, SetProof, Get, GetByIDForUser, Get +4 | — | — | 3242 |
+| `(Handlers).AdminProofDecision` | method | AdminProofDecision — POST /v1/admin/orders/{id}/proof/decision Admin revisa o comprovante anexado pelo cliente e marca approved ou rejected. approved dispara mark-as-paid em sequência (fecha o loop… | externo (borda) → interno | buildProofRejectionEmail, writeError, writeData, GetByID, SetProofStatus, GetByID, GetByID, MarkOrderPaid, GetByID, GetByID +22 | — | — | 3307 |
+| `buildProofRejectionEmail` | func | buildProofRejectionEmail compõe a mensagem enviada ao cliente quando admin rejeita o comprovante. | interface → retorno | — | AdminProofDecision, AdminBulkProofDecision | — | 3359 |
+| `(Handlers).AdminListPendingProofs` | method | AdminListPendingProofs — GET /v1/admin/proofs/pending Fila de comprovantes aguardando revisão (mais antigos primeiro). | externo (borda) → db | Get, Get, writeError, writeData, ListPendingProofs, Get, Get, ListPendingProofs, Get, ListPendingProofs +1 | — | db | 3390 |
+| `(Handlers).uploadProofMultipart` | method | uploadProofMultipart processa multipart/form-data: field "file" (binary), opcional "note" (text). | interface → interno | Get, nowKeyPrefix, Get, writeError, writeData, SetProof, Get, GetByIDForUser, Get, SetProof +6 | MeUploadProof | — | 3421 |
+| `nowKeyPrefix` | func | nowKeyPrefix gera "20260608T193045-a1b2c3d4" — timestamp UTC + 8 chars random pra unicidade dentro do bucket. | interface → retorno | — | uploadProofMultipart | — | 3477 |
+| `(Handlers).MeGetProofURL` | method | MeGetProofURL — GET /v1/me/orders/{id}/proof-url Retorna presigned URL pra cliente baixar/visualizar o próprio comprovante. | externo (borda) → interno | resolveProofURL, userIDFromContext, writeError, writeData, GetByIDForUser | — | — | 3487 |
+| `(Handlers).AdminGetProofURL` | method | AdminGetProofURL — GET /v1/admin/orders/{id}/proof-url Espelha pro admin — backoffice ProofCard chama isso pra renderizar img/<a>. | externo (borda) → interno | resolveProofURL, writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +12 | — | — | 3509 |
+| `(Handlers).resolveProofURL` | method | resolveProofURL devolve a melhor URL pra renderizar o comprovante, respeitando a precedência pós-migração 040: 1. proof_storage_key NOT NULL → presign MinIO/R2 (fonte canônica). | interface → interno | PresignedGetURL, PresignedGetURL | MeGetProofURL, AdminGetProofURL | — | 3537 |
+| `(Handlers).AdminLoginEnroll2FA` | method | AdminLoginEnroll2FA — POST /v1/auth/login/2fa/enroll Chamado quando AdminLogin retornou twofa_enroll_required=true. | externo (borda) → interno | writeError, writeData, Enroll, ParsePartialToken, Enroll, GetAdminByID | — | — | 3572 |
+| `(Handlers).AdminLoginComplete2FA` | method | AdminLoginComplete2FA — POST /v1/auth/login/2fa Segundo step do login. | externo (borda) → interno | writeError, writeData, CompleteLoginWith2FA, CompleteLoginWith2FA | — | — | 3606 |
+| `(Handlers).AdminDisable2FA` | method | AdminDisable2FA — POST /v1/admin/me/2fa/disable Apenas superadmin (PermAdminsManage). | externo (borda) → interno | WriteHeader, principalFromContext, writeError, Disable, Log | — | — | 3631 |
+| `(Handlers).AdminBulkProofDecision` | method | AdminBulkProofDecision — POST /v1/admin/proofs/bulk-decision Body {order_ids: [], decision: "approved"\|"rejected", note?}. | externo (borda) → interno | buildProofRejectionEmail, principalFromContext, writeError, writeData, GetByID, SetProofStatus, GetByID, GetByID, MarkOrderPaid, GetByID +25 | — | — | 3670 |
+| `(Handlers).UserLoginComplete2FA` | method | UserLoginComplete2FA — POST /v1/auth/user/login/2fa Body {partial_token, code}. | externo (borda) → interno | writeError, writeData, CompleteLoginWith2FA, CompleteLoginWith2FA | — | — | 3750 |
+| `(Handlers).MeEnroll2FA` | method | MeEnroll2FA — POST /v1/me/2fa/enroll User logado pede setup. | externo (borda) → interno | userIDFromContext, writeError, writeData, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID, GetByID +14 | — | — | 3774 |
+| `(Handlers).MeVerify2FA` | method | MeVerify2FA — POST /v1/me/2fa/verify Primeira verificação após Enroll → marca enrolled_at. | externo (borda) → cripto | WriteHeader, userIDFromContext, writeError, Verify, Verify, Verify | — | cripto | 3800 |
+| `(Handlers).MeDisable2FA` | method | MeDisable2FA — POST /v1/me/2fa/disable User self-service desativa o próprio 2FA. | externo (borda) → interno | WriteHeader, userIDFromContext, writeError, Disable | — | — | 3827 |
+| `(Handlers).MeDismiss2FAPrompt` | method | MeDismiss2FAPrompt — POST /v1/me/2fa/dismiss-prompt User clicou "Talvez depois" no modal de nag. | externo (borda) → db | WriteHeader, userIDFromContext, writeError, Pool | — | db | 3847 |
+| `(Handlers).MeTwoFAStatus` | method | MeTwoFAStatus — GET /v1/me/2fa/status Front consulta na primeira tela pós-login. | externo (borda) → interno | computeShouldPrompt2FA, userIDFromContext, writeError, writeData, IsEnrolled | — | — | 3878 |
+| `(Handlers).computeShouldPrompt2FA` | method | ⚠ SEM DOC | interface → db | Pool | MeTwoFAStatus | db | 3898 |
 
 ### `internal/interface/http/handlers_api_keys.go` — camada `interface`
 
@@ -1905,7 +1915,7 @@ flowchart LR
 | `AdminAuth` | func | AdminAuth valida o token de admin e injeta o Principal (RBAC) no contexto. | cmd → interno | bearerToken, writeError, ValidateAdmin | revLog | — | 26 |
 | `RequirePermission` | func | RequirePermission é o gate RBAC por rota. | test+interface → interno | principalFromContext, writeError, Can | TestRequirePermission_Returns401WhenNoPrincipal, TestRequirePermission_Returns403WhenPermissionMissing, TestRequirePermission_AllowsWhenPermissionGranted, TestRequirePermission_SuperadminBypassesAnyPermission, TestRequirePermission_DifferentPermissionsAreIsolated, NewRouter | — | 46 |
 | `RequireSuperadmin` | func | RequireSuperadmin é mais estrito que RequirePermission — só passa se o principal for role=superadmin. | externo (borda) → interno | principalFromContext, writeError | — | — | 68 |
-| `principalFromContext` | func | ⚠ SEM DOC | interface+test → retorno | — | AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers, AdminSoftDeleteOrder, AdminSoftDeleteInvoice, AdminSoftDeleteUser, AdminDisable2FA, AdminBulkProofDecision, AdminIssueRefund, TestPrincipalFromContext_ReturnsFalseWhenAbsent +13 | — | 83 |
+| `principalFromContext` | func | ⚠ SEM DOC | interface+test → retorno | — | AdminUpdateCurrency, AdminBulkSoftDeleteOrders, AdminBulkSoftDeleteInvoices, AdminBulkSoftDeleteUsers, AdminSoftDeleteOrder, AdminSoftDeleteInvoice, AdminSoftDeleteUser, AdminDisable2FA, AdminBulkProofDecision, AdminIssueRefund +13 | — | 83 |
 | `UserAuth` | func | UserAuth valida o token de usuário (loja) e injeta o user_id no contexto. | cmd → interno | bearerToken, writeError, ValidateToken, ValidateToken | revLog | — | 89 |
 | `userIDFromContext` | func | ⚠ SEM DOC | interface+test → retorno | — | MeListProfiles, MeAddProfile, MeDeleteProfile, MeCredits, MeTransactions, MeRecharge, MeListInvoices, MeGetOrder, MeGetNotifPrefs, MeUpdateNotifPrefs +37 | — | 108 |
 | `OptionalUserAuth` | func | OptionalUserAuth: igual ao UserAuth mas não rejeita se não houver token. | cmd → interno | bearerToken, ValidateToken, ValidateToken | revLog | — | 117 |
@@ -1926,6 +1936,29 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `ObservabilityMiddleware` | func | ObservabilityMiddleware faz: - extrai trace_id do contexto OTel (preenchido por otelhttp) - extrai request_id (chi/middleware.RequestID) - cria child logger com trace_id/request_id/method/path - cr… | externo (borda) → interno | Get, Get, Get, Get, Get, L, WithLogger, FromContext, WithTraceID, WithRequestID +1 | — | — | 24 |
+
+### `internal/interface/http/pagination.go` — camada `interface`
+
+| Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
+|---|---|---|---|---|---|---|---|
+| `(Page).HasCursor` | method | distingue "primeira página" de "continuação". | test → retorno | — | TestParsePageDefaults | nenhum. | 38 |
+| `parsePage` | func | transforma parâmetros crus (hostis por definição) numa Page válida. | interface+test → db | Get, Get, decodeCursor, writePage, Get, Get, Get, Get | AdminListUsers, TestParsePageDefaults, TestParsePageLimitBoundaries, TestParsePageRejectsBadCursor, TestParsePageTrimsQuery, TestParsePageRejectsControlCharsInSearch | db | 62 |
+| `encodeCursor` | func | empacota (created_at, id) num token opaco base64. | interface+test → retorno | — | AdminListUsers, TestCursorRoundTrip | nenhum. | 116 |
+| `decodeCursor` | func | extrai (created_at, id) de um token de cursor. | interface+test → interno | writePage | parsePage, TestCursorRoundTrip, TestDecodeCursorRejectsGarbage | nenhum. | 131 |
+| `writePage` | func | escreve `{data: [...], meta: {next_cursor, has_more, total, limit}}`. | interface → interno | writeJSON | AdminListUsers, parsePage, decodeCursor | escreve na resposta HTTP. | 172 |
+
+### `internal/interface/http/pagination_test.go` — camada `test`
+
+| Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
+|---|---|---|---|---|---|---|---|
+| `TestParsePageDefaults` | func | sem query string, parsePage devolve o limite default e nenhum cursor. | — → interno | HasCursor, parsePage, Error | — | — | 15 |
+| `TestParsePageLimitBoundaries` | func | valor fora de faixa é ajustado, não rejeitado; lixo é rejeitado. | — → interno | parsePage | — | — | 35 |
+| `TestCursorRoundTrip` | func | o par (created_at, id) volta idêntico ao nanossegundo. | — → interno | encodeCursor, decodeCursor | — | — | 77 |
+| `TestDecodeCursorRejectsGarbage` | func | token corrompido vira erro, nunca uma posição silenciosamente errada. | — → interno | decodeCursor, encodeRaw | — | — | 99 |
+| `TestParsePageRejectsBadCursor` | func | cursor inválido faz parsePage falhar (o handler traduz em 400). | — → interno | parsePage, Error | — | — | 122 |
+| `TestParsePageTrimsQuery` | func | espaços em volta somem; busca só de espaços vira busca vazia. | — → interno | parsePage | — | — | 134 |
+| `encodeRaw` | func | base64 de uma string arbitrária, sem passar por encodeCursor — é assim | test → retorno | — | TestDecodeCursorRejectsGarbage | — | 159 |
+| `TestParsePageRejectsControlCharsInSearch` | func | busca com null byte (ou outro control char) é rejeitada na BORDA. | — → interno | parsePage | — | — | 171 |
 
 ### `internal/interface/http/ratelimit.go` — camada `interface`
 
@@ -1954,9 +1987,10 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `writeJSON` | func | ⚠ SEM DOC | interface → interno | WriteHeader | Health, ReadyHandler, MeGetDeletion, PublicJWKS, writeError, writeData | — | 24 |
-| `writeError` | func | ⚠ SEM DOC | interface+test+application → db | writeJSON, Error, New, New, New, New, New, New | MeListProfiles, MeAddProfile, MeDeleteProfile, MeCredits, MeTransactions, MeRecharge, MeListInvoices, AdminListInvoices, AdminMarkInvoicePaid, AdminGetInvoice +154 | db | 30 |
-| `writeData` | func | ⚠ SEM DOC | interface+test → interno | writeJSON | MeListProfiles, MeAddProfile, MeCredits, MeTransactions, MeRecharge, MeListInvoices, AdminListInvoices, AdminMarkInvoicePaid, AdminGetInvoice, AdminListUsers +97 | — | 97 |
+| `writeJSON` | func | ⚠ SEM DOC | interface → interno | WriteHeader | Health, ReadyHandler, MeGetDeletion, PublicJWKS, writePage, writeError, writeData, writeErrorMsg | — | 24 |
+| `writeError` | func | ⚠ SEM DOC | interface+test+application → db | writeJSON, Error, New, New, New, New, New, New | AdminPatchOrder, AdminCaptureOrderMetrics, AdminMetricsSummary, AdminListCurrencies, AdminUpdateCurrency, MeListProfiles, MeAddProfile, MeDeleteProfile, MeCredits, MeTransactions +155 | db | 30 |
+| `writeData` | func | ⚠ SEM DOC | interface+test → interno | writeJSON, writeError | AdminPatchOrder, AdminCaptureOrderMetrics, AdminMetricsSummary, AdminListCurrencies, AdminUpdateCurrency, MeListProfiles, MeAddProfile, MeCredits, MeTransactions, MeRecharge +96 | — | 97 |
+| `writeErrorMsg` | func | mesmo envelope de writeError (code/message/trace_id/details), mas pra | interface → interno | writeJSON, New, New, New, New, New, New | AdminListUsers | escreve na resposta HTTP. | 118 |
 
 ### `internal/interface/http/response_test.go` — camada `test`
 
@@ -2154,7 +2188,7 @@ shutdownTracer -> NewTaxRateRepo   (cmd/core/main.go:89 -> internal/infrastructu
 shutdownTracer -> NewTicketRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/ticket_repo.go:13)
 shutdownTracer -> NewUserConsentRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:16)
 shutdownTracer -> NewUserEventRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/user_event_repo.go:18)
-shutdownTracer -> NewUserRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/user_repo.go:14)
+shutdownTracer -> NewUserRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/user_repo.go:16)
 shutdownTracer -> NewCouponService   (cmd/core/main.go:89 -> internal/application/coupon_service.go:18)
 shutdownTracer -> NewVendorRepo   (cmd/core/main.go:89 -> internal/infrastructure/persistence/postgres/vendor_repo.go:15)
 revLog -> shutdownTracer   (cmd/core/main.go:253 -> cmd/core/main.go:89)
@@ -2421,7 +2455,7 @@ Create -> Create   (internal/application/api_key_service.go:64 -> internal/infra
 Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/api_key_service.go:64 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/api_key_service.go:64 -> internal/application/coupon_service.go:99)
 ValidateKey -> hashKey   (internal/application/api_key_service.go:98 -> internal/application/api_key_service.go:39)
@@ -2461,7 +2495,7 @@ Login -> Login   (internal/application/auth_service.go:88 -> internal/applicatio
 Login -> issueFinalToken   (internal/application/auth_service.go:88 -> internal/application/auth_service.go:148)
 Login -> issuePartialToken   (internal/application/auth_service.go:88 -> internal/application/auth_service.go:185)
 Login -> GetByEmail   (internal/application/auth_service.go:88 -> internal/infrastructure/persistence/postgres/admin_repo.go:19)
-Login -> GetByEmail   (internal/application/auth_service.go:88 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+Login -> GetByEmail   (internal/application/auth_service.go:88 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/application/delivery_capture_cron_test.go:33)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/application/delivery_capture_cron_test.go:169)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/application/delivery_capture_cron_test.go:190)
@@ -2486,7 +2520,7 @@ CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> i
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 CompleteLoginWith2FA -> GetByID   (internal/application/auth_service.go:122 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 issueFinalToken -> Add   (internal/application/auth_service.go:148 -> internal/application/profile_service.go:37)
 issueFinalToken -> GetPermissions   (internal/application/auth_service.go:148 -> internal/infrastructure/persistence/postgres/role_repo.go:13)
@@ -2526,7 +2560,7 @@ GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/
 GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetAdminByID -> GetByID   (internal/application/auth_service.go:292 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminListAdmins -> ListAll   (internal/application/auth_service.go:298 -> internal/application/currency_service.go:28)
 AdminListAdmins -> ListAll   (internal/application/auth_service.go:298 -> internal/application/currency_service_test.go:30)
@@ -2574,8 +2608,8 @@ AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/in
 AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-AdminCreate -> GetByEmail   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+AdminCreate -> GetByEmail   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 AdminCreate -> Create   (internal/application/auth_service.go:305 -> internal/application/coupon_service.go:99)
 AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/application/delivery_capture_cron_test.go:33)
@@ -2597,7 +2631,7 @@ AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> intern
 AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminUpdateRole -> GetByID   (internal/application/auth_service.go:341 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/application/delivery_capture_cron_test.go:33)
 AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/application/delivery_capture_cron_test.go:169)
@@ -2629,7 +2663,7 @@ AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/i
 AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 AdminDelete -> Delete   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/twofa_repo.go:120)
-AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminDelete -> GetByID   (internal/application/auth_service.go:364 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Start -> Start   (internal/application/cart_abandonment_cron.go:49 -> internal/application/delivery_capture_cron.go:41)
 Start -> loop   (internal/application/cart_abandonment_cron.go:49 -> internal/application/delivery_capture_cron.go:67)
@@ -2800,12 +2834,12 @@ Checkout -> UpdateStatus   (internal/application/checkout_service.go:187 -> inte
 Checkout -> resolveGateway   (internal/application/checkout_service.go:187 -> internal/application/checkout_service.go:568)
 Checkout -> Get   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
 Checkout -> sendCheckoutEmail   (internal/application/checkout_service.go:187 -> internal/application/checkout_service.go:623)
-Checkout -> Create   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Checkout -> GetByEmail   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
-Checkout -> GetByID   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Checkout -> Create   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Checkout -> GetByEmail   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
+Checkout -> GetByID   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+Checkout -> Preview   (internal/application/checkout_service.go:187 -> internal/application/coupon_service.go:39)
 Checkout -> Create   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Checkout -> GetByID   (internal/application/checkout_service.go:187 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-Checkout -> Preview   (internal/application/checkout_service.go:187 -> internal/application/coupon_service.go:39)
 Checkout -> Create   (internal/application/checkout_service.go:187 -> internal/application/coupon_service.go:99)
 redeemCoupon -> Error   (internal/application/checkout_service.go:505 -> internal/application/storage.go:49)
 redeemCoupon -> FromContext   (internal/application/checkout_service.go:505 -> internal/infrastructure/observability/logger.go:67)
@@ -2828,7 +2862,7 @@ resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> inte
 resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 resolveTarget -> GetByID   (internal/application/checkout_service.go:519 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/application/delivery_capture_cron_test.go:33)
 resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/application/delivery_capture_cron_test.go:169)
@@ -2849,7 +2883,7 @@ resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> int
 resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 resolveGateway -> pickGateway   (internal/application/checkout_service.go:568 -> internal/application/checkout_service.go:599)
-resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 resolveGateway -> GetByID   (internal/application/checkout_service.go:568 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 pickGateway -> GetActiveByProvider   (internal/application/checkout_service.go:599 -> internal/application/gateway_service.go:53)
 pickGateway -> pickGateway   (internal/application/checkout_service.go:599 -> internal/application/invoice_service.go:111)
@@ -2911,7 +2945,7 @@ Create -> Create   (internal/application/coupon_service.go:99 -> internal/infras
 Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/coupon_service.go:99 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Update -> Update   (internal/application/coupon_service.go:113 -> internal/application/currency_service.go:43)
 Update -> GetByCode   (internal/application/coupon_service.go:113 -> internal/application/currency_service_test.go:46)
@@ -3221,7 +3255,7 @@ Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> int
 Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:30 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/application/delivery_capture_cron_test.go:169)
@@ -3240,7 +3274,7 @@ GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> i
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:33 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/application/delivery_capture_cron_test.go:44 -> internal/application/review_service_test.go:97)
 GetByExternalRef -> New   (internal/application/delivery_capture_cron_test.go:44 -> internal/infrastructure/auth/revocation_cache.go:60)
@@ -3452,7 +3486,7 @@ GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> 
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:169 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/application/delivery_capture_cron_test.go:187)
@@ -3476,7 +3510,7 @@ Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> in
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:172 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/application/delivery_capture_cron_test.go:173 -> internal/application/currency_service.go:43)
@@ -3530,7 +3564,7 @@ Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> in
 Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/delivery_capture_cron_test.go:187 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/application/delivery_capture_cron_test.go:33)
@@ -3549,7 +3583,7 @@ GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> 
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/delivery_capture_cron_test.go:190 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByUser -> ListByUser   (internal/application/delivery_capture_cron_test.go:193 -> internal/application/delivery_capture_cron_test.go:47)
 ListByUser -> ListByUser   (internal/application/delivery_capture_cron_test.go:193 -> internal/application/review_service_test.go:100)
@@ -4014,7 +4048,7 @@ Create -> Create   (internal/application/gateway_service.go:113 -> internal/infr
 Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/gateway_service.go:113 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/gateway_service.go:113 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/application/gateway_service.go:147 -> internal/application/currency_service.go:43)
@@ -4044,7 +4078,7 @@ Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/inf
 Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Update -> Update   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
 Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Update -> GetByID   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Update -> Update   (internal/application/gateway_service.go:147 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
 Update -> Update   (internal/application/gateway_service.go:147 -> internal/application/coupon_service.go:113)
@@ -4227,8 +4261,8 @@ Create -> Create   (internal/application/invoice_service.go:43 -> internal/infra
 Create -> GetByID   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 Create -> Get   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
 Create -> pickGateway   (internal/application/invoice_service.go:43 -> internal/application/checkout_service.go:599)
-Create -> Create   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Create -> GetByID   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Create -> Create   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Create -> GetByID   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Create -> Create   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> GetByID   (internal/application/invoice_service.go:43 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/invoice_service.go:43 -> internal/application/coupon_service.go:99)
@@ -4274,7 +4308,7 @@ Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infras
 Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 Get -> Get   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Get -> GetByID   (internal/application/invoice_service.go:132 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/application/delivery_capture_cron_test.go:33)
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/application/delivery_capture_cron_test.go:169)
@@ -4295,7 +4329,7 @@ AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/i
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminGet -> GetByID   (internal/application/invoice_service.go:145 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminList -> ListAll   (internal/application/invoice_service.go:149 -> internal/application/currency_service.go:28)
 AdminList -> ListAll   (internal/application/invoice_service.go:149 -> internal/application/currency_service_test.go:30)
@@ -4343,7 +4377,7 @@ AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> inter
 AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminMarkPaid -> GetByID   (internal/application/invoice_service.go:182 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/application/delivery_capture_cron_test.go:30)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/application/delivery_capture_cron_test.go:172)
@@ -4369,7 +4403,7 @@ TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoi
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestCreateInvoiceInput_RejectsZeroAmount -> Create   (internal/application/invoice_service_test.go:16 -> internal/application/coupon_service.go:99)
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/application/delivery_capture_cron_test.go:30)
@@ -4396,7 +4430,7 @@ TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/i
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestCreateInvoiceInput_RejectsNegativeAmount -> Create   (internal/application/invoice_service_test.go:28 -> internal/application/coupon_service.go:99)
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/application/delivery_capture_cron_test.go:30)
@@ -4423,7 +4457,7 @@ TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invo
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestCreateInvoiceInput_RejectsEmptyUserID -> Create   (internal/application/invoice_service_test.go:40 -> internal/application/coupon_service.go:99)
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/application/delivery_capture_cron_test.go:30)
@@ -4450,7 +4484,7 @@ TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/inv
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestCreateInvoiceInput_RejectsBelowMinimum -> Create   (internal/application/invoice_service_test.go:52 -> internal/application/coupon_service.go:99)
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/application/delivery_capture_cron_test.go:30)
@@ -4477,7 +4511,7 @@ TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/applic
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestCreateInvoiceInput_MinimumIsUSDCentsNotBRLCents -> Create   (internal/application/invoice_service_test.go:72 -> internal/application/coupon_service.go:99)
 NewMetricCaptureService -> NewService   (internal/application/metric_capture_service.go:22 -> internal/infrastructure/external/metrics/capture.go:44)
@@ -4511,7 +4545,7 @@ capture -> GetByID   (internal/application/metric_capture_service.go:47 -> inter
 capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 capture -> GetByID   (internal/application/metric_capture_service.go:47 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/application/delivery_capture_cron_test.go:33)
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/application/delivery_capture_cron_test.go:169)
@@ -4530,7 +4564,7 @@ GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> interna
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByIDForUser -> GetByID   (internal/application/order_service.go:24 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GeneratePassword -> randInt   (internal/application/password.go:15 -> internal/application/password.go:35)
 NewPaymentRegistry -> Get   (internal/application/payment.go:64 -> internal/application/coupon_service.go:124)
@@ -4584,7 +4618,7 @@ ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> i
 ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 ListPaymentMethods -> GetByID   (internal/application/payment_methods.go:55 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 gatewayEligible -> pickPrimaryCurrency   (internal/application/payment_methods.go:139 -> internal/application/payment_methods.go:201)
 buildMethodOptions -> pickPrimaryCurrency   (internal/application/payment_methods.go:178 -> internal/application/payment_methods.go:201)
@@ -4650,7 +4684,7 @@ ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 
 ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 ConfirmByExternalRef -> UpdateStatus   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/ticket_repo.go:103)
-ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 ConfirmByExternalRef -> GetByID   (internal/application/payment_receiver.go:111 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 referralPayout -> GrantOnFirstPaidOrder   (internal/application/payment_receiver.go:157 -> internal/application/referral_service.go:126)
 referralPayout -> Error   (internal/application/payment_receiver.go:157 -> internal/application/storage.go:49)
@@ -4679,7 +4713,7 @@ MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> inte
 MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 MarkOrderPaid -> UpdateStatus   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/ticket_repo.go:103)
-MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 MarkOrderPaid -> GetByID   (internal/application/payment_receiver.go:172 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/application/delivery_capture_cron_test.go:33)
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/application/delivery_capture_cron_test.go:169)
@@ -4704,7 +4738,7 @@ onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> intern
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 onOrderPaid -> GetByID   (internal/application/payment_receiver.go:198 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/application/delivery_capture_cron_test.go:33)
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/application/delivery_capture_cron_test.go:169)
@@ -4727,7 +4761,7 @@ telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> 
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 telegramBroadcast -> GetByID   (internal/application/payment_receiver.go:219 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/application/delivery_capture_cron_test.go:33)
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/application/delivery_capture_cron_test.go:169)
@@ -4747,7 +4781,7 @@ checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> i
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 checkoutPaidVars -> GetByID   (internal/application/payment_receiver.go:245 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 maybeOpenTicket -> LinkTicket   (internal/application/payment_receiver.go:277 -> internal/application/delivery_capture_cron_test.go:65)
 maybeOpenTicket -> formatTicketBody   (internal/application/payment_receiver.go:277 -> internal/application/payment_receiver.go:324)
@@ -4783,7 +4817,7 @@ sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366
 sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 sendConfirmationEmail -> GetByID   (internal/application/payment_receiver.go:366 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 notifyAdmin -> Error   (internal/application/payment_receiver.go:440 -> internal/application/storage.go:49)
 notifyAdmin -> Send   (internal/application/payment_receiver.go:440 -> internal/application/whatsapp_service.go:50)
@@ -4882,7 +4916,7 @@ GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infras
 GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/plan_service.go:23 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByCategory -> ListActive   (internal/application/plan_service.go:29 -> internal/application/delivery_capture_cron_test.go:163)
 ListByCategory -> ListActive   (internal/application/plan_service.go:29 -> internal/application/review_service_test.go:161)
@@ -4960,8 +4994,8 @@ Create -> Create   (internal/application/plan_service.go:63 -> internal/infrastr
 Create -> GetByID   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Create -> Create   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
 Create -> GetByID   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Create -> Create   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Create -> GetByID   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Create -> Create   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Create -> GetByID   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Create -> Create   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> GetByID   (internal/application/plan_service.go:63 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/plan_service.go:63 -> internal/application/coupon_service.go:99)
@@ -4999,7 +5033,7 @@ Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infras
 Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Update -> Update   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
 Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Update -> GetByID   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Update -> Update   (internal/application/plan_service.go:118 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
 Update -> Update   (internal/application/plan_service.go:118 -> internal/application/coupon_service.go:113)
@@ -5055,7 +5089,7 @@ GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/inf
 GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/profile_service.go:32 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/application/delivery_capture_cron_test.go:30)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/application/delivery_capture_cron_test.go:172)
@@ -5088,7 +5122,7 @@ Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastr
 Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Add -> Create   (internal/application/profile_service.go:37 -> internal/application/coupon_service.go:99)
 Delete -> Delete   (internal/application/profile_service.go:57 -> internal/application/delivery_capture_cron_test.go:174)
@@ -5121,7 +5155,7 @@ GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/
 GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetForUser -> GetByID   (internal/application/profile_service.go:62 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetOrCreateCode -> EnsureCode   (internal/application/referral_service.go:32 -> internal/infrastructure/persistence/postgres/referral_repo.go:35)
 LookupCode -> GetByUserCode   (internal/application/referral_service.go:40 -> internal/infrastructure/persistence/postgres/referral_repo.go:85)
@@ -5154,7 +5188,7 @@ GrantOnFirstPaidOrder -> CountPriorPaidOrders   (internal/application/referral_s
 GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GrantOnFirstPaidOrder -> GetByID   (internal/application/referral_service.go:126 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 fetchReferrerID -> FetchReferrerID   (internal/application/referral_service.go:192 -> internal/infrastructure/persistence/postgres/referral_repo.go:140)
 countPriorPaidOrders -> CountPriorPaidOrders   (internal/application/referral_service.go:199 -> internal/infrastructure/persistence/postgres/referral_repo.go:158)
@@ -5305,8 +5339,8 @@ Create -> Create   (internal/application/review_service.go:37 -> internal/infras
 Create -> GetByID   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Create -> Create   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
 Create -> GetByID   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Create -> Create   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Create -> GetByID   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Create -> Create   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Create -> GetByID   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Create -> Create   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> GetByID   (internal/application/review_service.go:37 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/review_service.go:37 -> internal/application/coupon_service.go:99)
@@ -5344,7 +5378,7 @@ AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/in
 AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminGet -> GetByID   (internal/application/review_service.go:126 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/application/delivery_capture_cron_test.go:172)
@@ -5368,7 +5402,7 @@ Create -> Create   (internal/application/review_service_test.go:32 -> internal/i
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/review_service_test.go:32 -> internal/application/coupon_service.go:99)
 GetByOrderID -> GetByOrderID   (internal/application/review_service_test.go:40 -> internal/infrastructure/persistence/postgres/review_repo.go:29)
@@ -5398,7 +5432,7 @@ GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal
 GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/review_service_test.go:66 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/application/delivery_capture_cron_test.go:172)
@@ -5428,7 +5462,7 @@ Create -> Create   (internal/application/review_service_test.go:87 -> internal/i
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/review_service_test.go:87 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/application/delivery_capture_cron_test.go:33)
@@ -5447,7 +5481,7 @@ GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal
 GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/review_service_test.go:90 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/application/review_service_test.go:97 -> internal/application/delivery_capture_cron_test.go:44)
 GetByExternalRef -> New   (internal/application/review_service_test.go:97 -> internal/infrastructure/auth/revocation_cache.go:60)
@@ -5669,7 +5703,7 @@ GetByID -> GetByID   (internal/application/review_service_test.go:167 -> interna
 GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/application/review_service_test.go:167 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/application/delivery_capture_cron_test.go:172)
@@ -5693,7 +5727,7 @@ Create -> Create   (internal/application/review_service_test.go:170 -> internal/
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/application/review_service_test.go:170 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/application/review_service_test.go:171 -> internal/application/currency_service.go:43)
@@ -5753,7 +5787,7 @@ TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review
 TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_AcceptsValidPaidOrder -> Create   (internal/application/review_service_test.go:194 -> internal/application/coupon_service.go:99)
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5781,7 +5815,7 @@ TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/revi
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_RejectsRatingOutOfRange -> Create   (internal/application/review_service_test.go:218 -> internal/application/coupon_service.go:99)
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5809,7 +5843,7 @@ TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_se
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_RejectsUnpaidOrder -> Create   (internal/application/review_service_test.go:232 -> internal/application/coupon_service.go:99)
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5837,7 +5871,7 @@ TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_RejectsForeignOrderOwnership -> Create   (internal/application/review_service_test.go:249 -> internal/application/coupon_service.go:99)
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5865,7 +5899,7 @@ TestReviewService_RejectsDuplicate -> Create   (internal/application/review_serv
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_RejectsDuplicate -> Create   (internal/application/review_service_test.go:261 -> internal/application/coupon_service.go:99)
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5894,7 +5928,7 @@ TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_TrimsAndTruncatesText -> Create   (internal/application/review_service_test.go:275 -> internal/application/coupon_service.go:99)
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/application/delivery_capture_cron_test.go:30)
@@ -5921,7 +5955,7 @@ TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_ser
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_RejectsMissingIDs -> Create   (internal/application/review_service_test.go:305 -> internal/application/coupon_service.go:99)
 TestReviewService_AggregateByPlanReturnsRepoValue -> AggregateByPlan   (internal/application/review_service_test.go:319 -> internal/application/review_service.go:107)
@@ -5957,7 +5991,7 @@ TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/applica
 TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 TestReviewService_CountryCodeDefaultsToUSWhenEmpty -> Create   (internal/application/review_service_test.go:341 -> internal/application/coupon_service.go:99)
 Put -> Put   (internal/application/storage.go:33 -> internal/infrastructure/external/storage/s3.go:53)
@@ -6170,7 +6204,7 @@ Subscribe -> Create   (internal/application/subscription_service.go:55 -> intern
 Subscribe -> ListByUser   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
 Subscribe -> ListByUser   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
 Subscribe -> ListByUser   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-Subscribe -> Create   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Subscribe -> Create   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Subscribe -> Create   (internal/application/subscription_service.go:55 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Subscribe -> Create   (internal/application/subscription_service.go:55 -> internal/application/coupon_service.go:99)
 Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/application/delivery_capture_cron_test.go:33)
@@ -6191,7 +6225,7 @@ Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal
 Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Cancel -> Cancel   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/subscription_repo.go:135)
 Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Cancel -> GetByID   (internal/application/subscription_service.go:90 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByUser -> ListByUser   (internal/application/subscription_service.go:106 -> internal/application/delivery_capture_cron_test.go:47)
 ListByUser -> ListByUser   (internal/application/subscription_service.go:106 -> internal/application/delivery_capture_cron_test.go:193)
@@ -6273,7 +6307,7 @@ renewOne -> GetByID   (internal/application/subscription_service.go:147 -> inter
 renewOne -> ListByUser   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
 renewOne -> ListByUser   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
 renewOne -> ListByUser   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-renewOne -> GetByID   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+renewOne -> GetByID   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 renewOne -> GetByID   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 renewOne -> Update   (internal/application/subscription_service.go:147 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
 renewOne -> Update   (internal/application/subscription_service.go:147 -> internal/application/coupon_service.go:113)
@@ -6308,7 +6342,7 @@ Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastr
 Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
 Open -> AppendMessage   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/ticket_repo.go:136)
-Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Open -> Create   (internal/application/ticket_service.go:35 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Open -> Create   (internal/application/ticket_service.go:35 -> internal/application/coupon_service.go:99)
 ListForUser -> ListByUser   (internal/application/ticket_service.go:61 -> internal/application/delivery_capture_cron_test.go:47)
@@ -6361,7 +6395,7 @@ GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/i
 GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 GetForUser -> ListMessages   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/ticket_repo.go:150)
-GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetForUser -> GetByID   (internal/application/ticket_service.go:82 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/application/delivery_capture_cron_test.go:33)
 ReplyAsUser -> UpdateStatus   (internal/application/ticket_service.go:98 -> internal/application/delivery_capture_cron_test.go:59)
@@ -6392,7 +6426,7 @@ ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/
 ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 ReplyAsUser -> UpdateStatus   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/ticket_repo.go:103)
 ReplyAsUser -> AppendMessage   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/ticket_repo.go:136)
-ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 ReplyAsUser -> GetByID   (internal/application/ticket_service.go:98 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminList -> ListAllView   (internal/application/ticket_service.go:127 -> internal/application/delivery_capture_cron_test.go:56)
 AdminList -> AdminList   (internal/application/ticket_service.go:127 -> internal/application/invoice_service.go:149)
@@ -6435,7 +6469,7 @@ ReplyAsAdmin -> GetByID   (internal/application/ticket_service.go:145 -> interna
 ReplyAsAdmin -> GetByID   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 ReplyAsAdmin -> UpdateStatus   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/ticket_repo.go:103)
 ReplyAsAdmin -> AppendMessage   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/ticket_repo.go:136)
-ReplyAsAdmin -> GetByID   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+ReplyAsAdmin -> GetByID   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 ReplyAsAdmin -> GetByID   (internal/application/ticket_service.go:145 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminUpdateStatus -> UpdateStatus   (internal/application/ticket_service.go:168 -> internal/application/delivery_capture_cron_test.go:59)
 AdminUpdateStatus -> UpdateStatus   (internal/application/ticket_service.go:168 -> internal/application/review_service_test.go:112)
@@ -6467,7 +6501,7 @@ notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> in
 notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 notifyUserOfReply -> GetByID   (internal/application/ticket_service.go:186 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Enroll -> Enroll   (internal/application/twofa_service.go:55 -> internal/infrastructure/external/totp/totp.go:35)
 Enroll -> Encrypt   (internal/application/twofa_service.go:55 -> internal/infrastructure/external/totp/totp.go:74)
@@ -6548,8 +6582,8 @@ Register -> Create   (internal/application/user_auth_service.go:161 -> internal/
 Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Register -> GetByEmail   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Register -> GetByEmail   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 Register -> Create   (internal/application/user_auth_service.go:161 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Register -> Create   (internal/application/user_auth_service.go:161 -> internal/application/coupon_service.go:99)
 Login -> IsEnrolled   (internal/application/user_auth_service.go:205 -> internal/application/twofa_service.go:133)
@@ -6557,7 +6591,7 @@ Login -> issuePartialUserToken   (internal/application/user_auth_service.go:205 
 Login -> session   (internal/application/user_auth_service.go:205 -> internal/application/user_auth_service.go:320)
 Login -> Login   (internal/application/user_auth_service.go:205 -> internal/application/auth_service.go:88)
 Login -> GetByEmail   (internal/application/user_auth_service.go:205 -> internal/infrastructure/persistence/postgres/admin_repo.go:19)
-Login -> GetByEmail   (internal/application/user_auth_service.go:205 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+Login -> GetByEmail   (internal/application/user_auth_service.go:205 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/application/delivery_capture_cron_test.go:33)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/application/delivery_capture_cron_test.go:169)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/application/delivery_capture_cron_test.go:190)
@@ -6582,7 +6616,7 @@ CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 CompleteLoginWith2FA -> GetByID   (internal/application/user_auth_service.go:238 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 issuePartialUserToken -> Add   (internal/application/user_auth_service.go:263 -> internal/application/profile_service.go:37)
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/application/delivery_capture_cron_test.go:30)
@@ -6617,8 +6651,8 @@ EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-EnsureShadowAccount -> GetByEmail   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+EnsureShadowAccount -> GetByEmail   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 EnsureShadowAccount -> Create   (internal/application/user_auth_service.go:287 -> internal/application/coupon_service.go:99)
 session -> Add   (internal/application/user_auth_service.go:320 -> internal/application/profile_service.go:37)
@@ -6750,8 +6784,8 @@ Create -> Create   (internal/application/vendor_service.go:41 -> internal/infras
 Create -> GetByID   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Create -> Create   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
 Create -> GetByID   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Create -> Create   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-Create -> GetByID   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Create -> Create   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+Create -> GetByID   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Create -> Create   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> GetByID   (internal/application/vendor_service.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/application/vendor_service.go:41 -> internal/application/coupon_service.go:99)
@@ -6781,7 +6815,7 @@ Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infra
 Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Update -> Update   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
 Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Update -> GetByID   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Update -> Update   (internal/application/vendor_service.go:63 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
 Update -> Update   (internal/application/vendor_service.go:63 -> internal/application/coupon_service.go:113)
@@ -6816,7 +6850,7 @@ Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrast
 Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 Get -> Get   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 Get -> GetByID   (internal/application/vendor_service.go:101 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Send -> Send   (internal/application/whatsapp_service.go:50 -> internal/infrastructure/external/email/resend.go:31)
 Send -> Send   (internal/application/whatsapp_service.go:50 -> internal/infrastructure/external/email/sender.go:63)
@@ -6900,7 +6934,7 @@ contains -> Create   (internal/domain/coupon.go:83 -> internal/infrastructure/pe
 contains -> Update   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
 contains -> List   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
 contains -> Create   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-contains -> Create   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+contains -> Create   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 contains -> Create   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 contains -> List   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
 contains -> Update   (internal/domain/coupon.go:83 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
@@ -6981,8 +7015,8 @@ IsValid -> ListByUser   (internal/domain/profile.go:27 -> internal/infrastructur
 IsValid -> Delete   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/twofa_repo.go:120)
 IsValid -> ListByUser   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
 IsValid -> ListByUser   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-IsValid -> Create   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-IsValid -> GetByID   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+IsValid -> Create   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+IsValid -> GetByID   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 IsValid -> Create   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 IsValid -> GetByID   (internal/domain/profile.go:27 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 IsValid -> Create   (internal/domain/profile.go:27 -> internal/application/coupon_service.go:99)
@@ -7061,7 +7095,7 @@ VerifySvixSignature -> New   (internal/infrastructure/external/email/svix.go:38 
 VerifySvixSignature -> New   (internal/infrastructure/external/email/svix.go:38 -> internal/infrastructure/external/storage/s3.go:34)
 VerifySvixSignature -> New   (internal/infrastructure/external/email/svix.go:38 -> internal/infrastructure/persistence/postgres/db.go:13)
 LoadOrGenerate -> parsePEM   (internal/infrastructure/external/jwtkeys/keys.go:28 -> internal/infrastructure/external/jwtkeys/keys.go:61)
-PublicJWKS -> PublicJWKS   (internal/infrastructure/external/jwtkeys/keys.go:93 -> internal/interface/http/handlers.go:2211)
+PublicJWKS -> PublicJWKS   (internal/infrastructure/external/jwtkeys/keys.go:93 -> internal/interface/http/handlers.go:2252)
 PublicJWKS -> KeyID   (internal/infrastructure/external/jwtkeys/keys.go:93 -> internal/infrastructure/external/jwtkeys/keys.go:82)
 NewService -> NewService   (internal/infrastructure/external/metrics/capture.go:44 -> internal/infrastructure/external/turnstile/turnstile.go:28)
 CaptureProfile -> fetch   (internal/infrastructure/external/metrics/capture.go:55 -> internal/infrastructure/external/metrics/capture.go:107)
@@ -7576,7 +7610,7 @@ ListAll -> ListAll   (internal/infrastructure/persistence/postgres/admin_honeypo
 ListAll -> ListAll   (internal/infrastructure/persistence/postgres/admin_honeypot_repo.go:57 -> internal/infrastructure/persistence/postgres/order_repo.go:104)
 ListAll -> ListAll   (internal/infrastructure/persistence/postgres/admin_honeypot_repo.go:57 -> internal/infrastructure/persistence/postgres/plan_repo.go:30)
 GetByEmail -> scanAdmin   (internal/infrastructure/persistence/postgres/admin_repo.go:19 -> internal/infrastructure/persistence/postgres/admin_repo.go:87)
-GetByEmail -> GetByEmail   (internal/infrastructure/persistence/postgres/admin_repo.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:36)
+GetByEmail -> GetByEmail   (internal/infrastructure/persistence/postgres/admin_repo.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:38)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/application/delivery_capture_cron_test.go:33)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/application/delivery_capture_cron_test.go:169)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/application/delivery_capture_cron_test.go:190)
@@ -7594,7 +7628,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/admin_repo.go:24 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListAll -> ListAll   (internal/infrastructure/persistence/postgres/admin_repo.go:29 -> internal/application/currency_service.go:28)
 ListAll -> ListAll   (internal/infrastructure/persistence/postgres/admin_repo.go:29 -> internal/application/currency_service_test.go:30)
@@ -7632,7 +7666,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:4
 Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/admin_repo.go:46 -> internal/application/coupon_service.go:99)
 Delete -> Delete   (internal/infrastructure/persistence/postgres/admin_repo.go:76 -> internal/application/delivery_capture_cron_test.go:174)
@@ -7669,7 +7703,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go
 Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/api_key_repo.go:34 -> internal/application/coupon_service.go:99)
 GetByHash -> scanAPIKey   (internal/infrastructure/persistence/postgres/api_key_repo.go:48 -> internal/infrastructure/persistence/postgres/api_key_repo.go:19)
@@ -7746,7 +7780,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:
 Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/coupon_repo.go:51 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/infrastructure/persistence/postgres/coupon_repo.go:66 -> internal/application/currency_service.go:43)
@@ -7854,7 +7888,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/gateway_repo.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetDefaultActive -> scanGateway   (internal/infrastructure/persistence/postgres/gateway_repo.go:51 -> internal/infrastructure/persistence/postgres/gateway_repo.go:125)
 GetActiveByProvider -> GetActiveByProvider   (internal/infrastructure/persistence/postgres/gateway_repo.go:61 -> internal/application/gateway_service.go:53)
@@ -7881,7 +7915,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go
 Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/gateway_repo.go:72 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/infrastructure/persistence/postgres/gateway_repo.go:85 -> internal/application/currency_service.go:43)
@@ -7929,7 +7963,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go
 Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/invoice_repo.go:22 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/application/delivery_capture_cron_test.go:33)
@@ -7949,7 +7983,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/invoice_repo.go:38 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/infrastructure/persistence/postgres/invoice_repo.go:43 -> internal/application/delivery_capture_cron_test.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/infrastructure/persistence/postgres/invoice_repo.go:43 -> internal/application/review_service_test.go:97)
@@ -8035,7 +8069,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:3
 Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/order_repo.go:31 -> internal/application/coupon_service.go:99)
 LinkTicket -> LinkTicket   (internal/infrastructure/persistence/postgres/order_repo.go:70 -> internal/application/delivery_capture_cron_test.go:65)
@@ -8057,7 +8091,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/order_repo.go:82 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/infrastructure/persistence/postgres/order_repo.go:87 -> internal/application/delivery_capture_cron_test.go:44)
 GetByExternalRef -> GetByExternalRef   (internal/infrastructure/persistence/postgres/order_repo.go:87 -> internal/application/review_service_test.go:97)
@@ -8180,7 +8214,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/plan_repo.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/application/delivery_capture_cron_test.go:172)
@@ -8204,7 +8238,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/plan_repo.go:52 -> internal/application/coupon_service.go:99)
 Update -> Update   (internal/infrastructure/persistence/postgres/plan_repo.go:66 -> internal/application/currency_service.go:43)
@@ -8260,7 +8294,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go
 Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/profile_repo.go:17 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/application/delivery_capture_cron_test.go:33)
@@ -8279,7 +8313,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/profile_repo.go:25 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/profile_repo.go:35 -> internal/application/delivery_capture_cron_test.go:47)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/profile_repo.go:35 -> internal/application/delivery_capture_cron_test.go:193)
@@ -8323,7 +8357,7 @@ EnsureCode -> New   (internal/infrastructure/persistence/postgres/referral_repo.
 EnsureCode -> New   (internal/infrastructure/persistence/postgres/referral_repo.go:35 -> internal/infrastructure/external/storage/s3.go:34)
 EnsureCode -> New   (internal/infrastructure/persistence/postgres/referral_repo.go:35 -> internal/infrastructure/persistence/postgres/db.go:13)
 EnsureCode -> randCode   (internal/infrastructure/persistence/postgres/referral_repo.go:35 -> internal/infrastructure/persistence/postgres/referral_repo.go:21)
-GetByUserCode -> scanUser   (internal/infrastructure/persistence/postgres/referral_repo.go:85 -> internal/infrastructure/persistence/postgres/user_repo.go:46)
+GetByUserCode -> scanUser   (internal/infrastructure/persistence/postgres/referral_repo.go:85 -> internal/infrastructure/persistence/postgres/user_repo.go:48)
 GrantReward -> Error   (internal/infrastructure/persistence/postgres/referral_repo.go:109 -> internal/application/storage.go:49)
 GrantReward -> newID   (internal/infrastructure/persistence/postgres/referral_repo.go:109 -> internal/infrastructure/persistence/postgres/referral_repo.go:133)
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/application/delivery_capture_cron_test.go:30)
@@ -8348,7 +8382,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/review_repo.go:19 -> internal/application/coupon_service.go:99)
 GetByOrderID -> GetByOrderID   (internal/infrastructure/persistence/postgres/review_repo.go:29 -> internal/application/review_service_test.go:40)
@@ -8382,7 +8416,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.g
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/review_repo.go:142 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListAdmin -> ListAdmin   (internal/infrastructure/persistence/postgres/review_repo.go:157 -> internal/application/plan_service.go:47)
 ListAdmin -> ListAdmin   (internal/infrastructure/persistence/postgres/review_repo.go:157 -> internal/application/review_service_test.go:63)
@@ -8450,7 +8484,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/subscription_re
 Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
 Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/subscription_repo.go:41 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/application/delivery_capture_cron_test.go:33)
@@ -8470,7 +8504,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> scanSubscription   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/subscription_repo.go:19)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/subscription_repo.go:57 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/subscription_repo.go:68 -> internal/application/delivery_capture_cron_test.go:47)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/subscription_repo.go:68 -> internal/application/delivery_capture_cron_test.go:193)
@@ -8534,7 +8568,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:
 Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
 Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
-Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 Create -> Create   (internal/infrastructure/persistence/postgres/ticket_repo.go:17 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/application/delivery_capture_cron_test.go:33)
@@ -8553,7 +8587,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.g
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/ticket_repo.go:25 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/ticket_repo.go:36 -> internal/application/delivery_capture_cron_test.go:47)
 ListByUser -> ListByUser   (internal/infrastructure/persistence/postgres/ticket_repo.go:36 -> internal/application/delivery_capture_cron_test.go:193)
@@ -8646,54 +8680,78 @@ ListRecentVisitors -> Close   (internal/infrastructure/persistence/postgres/user
 ListRecentVisitors -> scanVisitorSummary   (internal/infrastructure/persistence/postgres/user_event_repo.go:242 -> internal/infrastructure/persistence/postgres/user_event_repo.go:348)
 GetVisitorSummary -> GetVisitorSummary   (internal/infrastructure/persistence/postgres/user_event_repo.go:301 -> internal/application/user_event_service.go:187)
 GetVisitorSummary -> scanVisitorSummary   (internal/infrastructure/persistence/postgres/user_event_repo.go:301 -> internal/infrastructure/persistence/postgres/user_event_repo.go:348)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/delivery_capture_cron_test.go:30)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/delivery_capture_cron_test.go:172)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/delivery_capture_cron_test.go:187)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/gateway_service.go:113)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/invoice_service.go:43)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/plan_service.go:63)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/review_service.go:37)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/review_service_test.go:32)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/review_service_test.go:87)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/review_service_test.go:170)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/api_key_service.go:64)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/vendor_service.go:41)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/admin_repo.go:46)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/api_key_repo.go:34)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/coupon_repo.go:51)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/gateway_repo.go:72)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/invoice_repo.go:22)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/order_repo.go:31)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/plan_repo.go:52)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
-Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:21 -> internal/application/coupon_service.go:99)
-GetByEmail -> GetByEmail   (internal/infrastructure/persistence/postgres/user_repo.go:36 -> internal/infrastructure/persistence/postgres/admin_repo.go:19)
-GetByEmail -> scanUser   (internal/infrastructure/persistence/postgres/user_repo.go:36 -> internal/infrastructure/persistence/postgres/user_repo.go:46)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/delivery_capture_cron_test.go:33)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/delivery_capture_cron_test.go:169)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/delivery_capture_cron_test.go:190)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/plan_service.go:23)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/profile_service.go:32)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/review_service_test.go:66)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/review_service_test.go:90)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/application/review_service_test.go:167)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> scanUser   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/user_repo.go:46)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:41 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-ListWithCreditBalance -> Close   (internal/infrastructure/persistence/postgres/user_repo.go:67 -> internal/infrastructure/persistence/postgres/db.go:25)
-ListDeletedWithCreditBalance -> Close   (internal/infrastructure/persistence/postgres/user_repo.go:99 -> internal/infrastructure/persistence/postgres/db.go:25)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/delivery_capture_cron_test.go:30)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/delivery_capture_cron_test.go:172)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/delivery_capture_cron_test.go:187)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/gateway_service.go:113)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/invoice_service.go:43)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/plan_service.go:63)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/review_service.go:37)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/review_service_test.go:32)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/review_service_test.go:87)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/review_service_test.go:170)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/api_key_service.go:64)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/vendor_service.go:41)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/admin_repo.go:46)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/api_key_repo.go:34)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/coupon_repo.go:51)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/gateway_repo.go:72)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/invoice_repo.go:22)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/order_repo.go:31)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/plan_repo.go:52)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
+Create -> Create   (internal/infrastructure/persistence/postgres/user_repo.go:23 -> internal/application/coupon_service.go:99)
+GetByEmail -> GetByEmail   (internal/infrastructure/persistence/postgres/user_repo.go:38 -> internal/infrastructure/persistence/postgres/admin_repo.go:19)
+GetByEmail -> scanUser   (internal/infrastructure/persistence/postgres/user_repo.go:38 -> internal/infrastructure/persistence/postgres/user_repo.go:48)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/delivery_capture_cron_test.go:33)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/delivery_capture_cron_test.go:169)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/delivery_capture_cron_test.go:190)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/plan_service.go:23)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/profile_service.go:32)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/review_service_test.go:66)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/review_service_test.go:90)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/application/review_service_test.go:167)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+GetByID -> scanUser   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/user_repo.go:48)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/user_repo.go:43 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+escapeLikePattern -> AdminListUsers   (internal/infrastructure/persistence/postgres/user_repo.go:77 -> internal/interface/http/handlers.go:1733)
+add -> Close   (internal/infrastructure/persistence/postgres/user_repo.go:119 -> internal/infrastructure/persistence/postgres/db.go:25)
+add -> escapeLikePattern   (internal/infrastructure/persistence/postgres/user_repo.go:119 -> internal/infrastructure/persistence/postgres/user_repo.go:77)
+ListDeletedWithCreditBalance -> Close   (internal/infrastructure/persistence/postgres/user_repo.go:181 -> internal/infrastructure/persistence/postgres/db.go:25)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/auth/revocation_cache.go:60)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/external/email/sender.go:35)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/external/paymentsclient/client.go:54)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/external/senderclient/client.go:59)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/external/storage/s3.go:34)
+openTestDB -> New   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:20 -> internal/infrastructure/persistence/postgres/db.go:13)
+TestListPageWithCreditBalancePaginates -> Close   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:42 -> internal/infrastructure/persistence/postgres/db.go:25)
+TestListPageWithCreditBalancePaginates -> NewUserRepo   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:42 -> internal/infrastructure/persistence/postgres/user_repo.go:16)
+TestListPageWithCreditBalancePaginates -> ListPageWithCreditBalance   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:42 -> internal/infrastructure/persistence/postgres/user_repo.go:110)
+TestListPageWithCreditBalancePaginates -> openTestDB   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:42 -> internal/infrastructure/persistence/postgres/user_repo_page_test.go:20)
+TestListPageExcludesTestFixtures -> Close   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:93 -> internal/infrastructure/persistence/postgres/db.go:25)
+TestListPageExcludesTestFixtures -> NewUserRepo   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:93 -> internal/infrastructure/persistence/postgres/user_repo.go:16)
+TestListPageExcludesTestFixtures -> ListPageWithCreditBalance   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:93 -> internal/infrastructure/persistence/postgres/user_repo.go:110)
+TestListPageExcludesTestFixtures -> openTestDB   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:93 -> internal/infrastructure/persistence/postgres/user_repo_page_test.go:20)
+TestListPageSearchIsServerSide -> Close   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:131 -> internal/infrastructure/persistence/postgres/db.go:25)
+TestListPageSearchIsServerSide -> NewUserRepo   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:131 -> internal/infrastructure/persistence/postgres/user_repo.go:16)
+TestListPageSearchIsServerSide -> ListPageWithCreditBalance   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:131 -> internal/infrastructure/persistence/postgres/user_repo.go:110)
+TestListPageSearchIsServerSide -> openTestDB   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:131 -> internal/infrastructure/persistence/postgres/user_repo_page_test.go:20)
+TestListPageRejectsInjectionInSearch -> Close   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:165 -> internal/infrastructure/persistence/postgres/db.go:25)
+TestListPageRejectsInjectionInSearch -> NewUserRepo   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:165 -> internal/infrastructure/persistence/postgres/user_repo.go:16)
+TestListPageRejectsInjectionInSearch -> ListPageWithCreditBalance   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:165 -> internal/infrastructure/persistence/postgres/user_repo.go:110)
+TestListPageRejectsInjectionInSearch -> openTestDB   (internal/infrastructure/persistence/postgres/user_repo_page_test.go:165 -> internal/infrastructure/persistence/postgres/user_repo_page_test.go:20)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/application/delivery_capture_cron_test.go:30)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/application/delivery_capture_cron_test.go:172)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/application/delivery_capture_cron_test.go:187)
@@ -8717,7 +8775,7 @@ Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 Create -> Create   (internal/infrastructure/persistence/postgres/vendor_repo.go:27 -> internal/application/coupon_service.go:99)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/application/delivery_capture_cron_test.go:33)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/application/delivery_capture_cron_test.go:169)
@@ -8736,7 +8794,7 @@ GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.g
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+GetByID -> GetByID   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 GetByID -> scanVendor   (internal/infrastructure/persistence/postgres/vendor_repo.go:44 -> internal/infrastructure/persistence/postgres/vendor_repo.go:19)
 List -> List   (internal/infrastructure/persistence/postgres/vendor_repo.go:53 -> internal/application/gateway_service.go:47)
 List -> List   (internal/infrastructure/persistence/postgres/vendor_repo.go:53 -> internal/application/profile_service.go:25)
@@ -8787,9 +8845,9 @@ ListCategories -> ListActive   (internal/interface/http/handlers.go:140 -> inter
 ListCategories -> ListActive   (internal/interface/http/handlers.go:140 -> internal/infrastructure/persistence/postgres/category_repo.go:13)
 ListCategories -> ListActive   (internal/interface/http/handlers.go:140 -> internal/infrastructure/persistence/postgres/plan_repo.go:19)
 ListCurrencies -> ListDisplayable   (internal/interface/http/handlers.go:149 -> internal/application/currency_service.go:23)
+ListCurrencies -> ListDisplayable   (internal/interface/http/handlers.go:149 -> internal/application/currency_service_test.go:37)
 ListCurrencies -> writeError   (internal/interface/http/handlers.go:149 -> internal/interface/http/response.go:30)
 ListCurrencies -> writeData   (internal/interface/http/handlers.go:149 -> internal/interface/http/response.go:97)
-ListCurrencies -> ListDisplayable   (internal/interface/http/handlers.go:149 -> internal/application/currency_service_test.go:37)
 ListCurrencies -> ListDisplayable   (internal/interface/http/handlers.go:149 -> internal/infrastructure/persistence/postgres/currency_repo.go:21)
 CreateRecoveryRequest -> userIDFromContext   (internal/interface/http/handlers.go:164 -> internal/interface/http/middleware.go:108)
 CreateRecoveryRequest -> writeError   (internal/interface/http/handlers.go:164 -> internal/interface/http/response.go:30)
@@ -8991,7 +9049,7 @@ AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal
 AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 AdminCreatePlan -> Create   (internal/interface/http/handlers.go:911 -> internal/application/coupon_service.go:99)
 AdminCreatePlan -> logAudit   (internal/interface/http/handlers.go:911 -> internal/interface/http/handlers.go:959)
@@ -9024,7 +9082,7 @@ AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> interna
 AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminUpdatePlan -> Update   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
 AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminUpdatePlan -> GetByID   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminUpdatePlan -> Update   (internal/interface/http/handlers.go:926 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
 AdminUpdatePlan -> Update   (internal/interface/http/handlers.go:926 -> internal/application/coupon_service.go:113)
@@ -9061,7 +9119,7 @@ AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> interna
 AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 AdminDeletePlan -> Delete   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/twofa_repo.go:120)
-AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminDeletePlan -> GetByID   (internal/interface/http/handlers.go:945 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminDeletePlan -> logAudit   (internal/interface/http/handlers.go:945 -> internal/interface/http/handlers.go:959)
 logAudit -> logAuditMeta   (internal/interface/http/handlers.go:959 -> internal/interface/http/handlers.go:966)
@@ -9111,7 +9169,7 @@ AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> inte
 AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 AdminCreateGateway -> Create   (internal/interface/http/handlers.go:1006 -> internal/application/coupon_service.go:99)
 AdminUpdateGateway -> Update   (internal/interface/http/handlers.go:1020 -> internal/application/currency_service.go:43)
@@ -9169,7 +9227,7 @@ AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal
 AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminGetOrder -> GetByID   (internal/interface/http/handlers.go:1056 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminPatchOrder -> writeError   (internal/interface/http/handlers.go:1093 -> internal/interface/http/response.go:30)
 AdminPatchOrder -> writeData   (internal/interface/http/handlers.go:1093 -> internal/interface/http/response.go:97)
@@ -9195,7 +9253,7 @@ AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> intern
 AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
 AdminPatchOrder -> UpdateStatus   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/ticket_repo.go:103)
-AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminPatchOrder -> GetByID   (internal/interface/http/handlers.go:1093 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminPatchOrder -> logAudit   (internal/interface/http/handlers.go:1093 -> internal/interface/http/handlers.go:959)
 AdminCaptureOrderMetrics -> writeError   (internal/interface/http/handlers.go:1132 -> internal/interface/http/response.go:30)
@@ -9219,8 +9277,10 @@ AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 
 AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminCaptureOrderMetrics -> GetByID   (internal/interface/http/handlers.go:1132 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+AdminMetricsSummary -> formatFloat   (internal/interface/http/handlers.go:1173 -> internal/interface/http/handlers.go:1274)
+AdminMetricsSummary -> parseFloatOr   (internal/interface/http/handlers.go:1173 -> internal/interface/http/handlers.go:1281)
 AdminMetricsSummary -> writeError   (internal/interface/http/handlers.go:1173 -> internal/interface/http/response.go:30)
 AdminMetricsSummary -> writeData   (internal/interface/http/handlers.go:1173 -> internal/interface/http/response.go:97)
 AdminMetricsSummary -> ListAllView   (internal/interface/http/handlers.go:1173 -> internal/application/delivery_capture_cron_test.go:56)
@@ -9228,8 +9288,6 @@ AdminMetricsSummary -> ListAllView   (internal/interface/http/handlers.go:1173 -
 AdminMetricsSummary -> ListAllView   (internal/interface/http/handlers.go:1173 -> internal/infrastructure/persistence/postgres/invoice_repo.go:208)
 AdminMetricsSummary -> ListAllView   (internal/interface/http/handlers.go:1173 -> internal/infrastructure/persistence/postgres/order_repo.go:212)
 AdminMetricsSummary -> ListAllView   (internal/interface/http/handlers.go:1173 -> internal/infrastructure/persistence/postgres/ticket_repo.go:61)
-AdminMetricsSummary -> formatFloat   (internal/interface/http/handlers.go:1173 -> internal/interface/http/handlers.go:1274)
-AdminMetricsSummary -> parseFloatOr   (internal/interface/http/handlers.go:1173 -> internal/interface/http/handlers.go:1281)
 AdminListCurrencies -> ListAll   (internal/interface/http/handlers.go:1288 -> internal/application/currency_service.go:28)
 AdminListCurrencies -> ListAll   (internal/interface/http/handlers.go:1288 -> internal/application/currency_service_test.go:30)
 AdminListCurrencies -> writeError   (internal/interface/http/handlers.go:1288 -> internal/interface/http/response.go:30)
@@ -9334,7 +9392,7 @@ MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/inf
 MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 MeRecharge -> Create   (internal/interface/http/handlers.go:1413 -> internal/application/coupon_service.go:99)
 MeListInvoices -> userIDFromContext   (internal/interface/http/handlers.go:1443 -> internal/interface/http/middleware.go:108)
@@ -9380,7 +9438,7 @@ AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> intern
 AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminGetInvoice -> GetByID   (internal/interface/http/handlers.go:1514 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 WooviWebhook -> Get   (internal/interface/http/handlers.go:1534 -> internal/application/coupon_service.go:124)
 WooviWebhook -> Get   (internal/interface/http/handlers.go:1534 -> internal/application/currency_service.go:32)
@@ -9439,616 +9497,626 @@ HeleketWebhook -> ParseHeleketEvent   (internal/interface/http/handlers.go:1675 
 HeleketWebhook -> IsPaid   (internal/interface/http/handlers.go:1675 -> internal/infrastructure/external/payment/webhooks.go:106)
 HeleketWebhook -> FromContext   (internal/interface/http/handlers.go:1675 -> internal/infrastructure/observability/logger.go:67)
 HeleketWebhook -> GetActiveByProvider   (internal/interface/http/handlers.go:1675 -> internal/infrastructure/persistence/postgres/gateway_repo.go:61)
-AdminListUsers -> writeError   (internal/interface/http/handlers.go:1716 -> internal/interface/http/response.go:30)
-AdminListUsers -> writeData   (internal/interface/http/handlers.go:1716 -> internal/interface/http/response.go:97)
-AdminListUsers -> ListWithCreditBalance   (internal/interface/http/handlers.go:1716 -> internal/infrastructure/persistence/postgres/user_repo.go:67)
-AdminGetUser -> Balance   (internal/interface/http/handlers.go:1725 -> internal/application/credit_service.go:18)
-AdminGetUser -> History   (internal/interface/http/handlers.go:1725 -> internal/application/credit_service.go:22)
-AdminGetUser -> writeError   (internal/interface/http/handlers.go:1725 -> internal/interface/http/response.go:30)
-AdminGetUser -> writeData   (internal/interface/http/handlers.go:1725 -> internal/interface/http/response.go:97)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/delivery_capture_cron_test.go:33)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/delivery_capture_cron_test.go:169)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/delivery_capture_cron_test.go:190)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/application/gateway_service.go:47)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/plan_service.go:23)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/application/profile_service.go:25)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/profile_service.go:32)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/review_service_test.go:66)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/review_service_test.go:90)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/application/review_service_test.go:167)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/application/vendor_service.go:97)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
-AdminGetUser -> List   (internal/interface/http/handlers.go:1725 -> internal/application/coupon_service.go:120)
-AdminAdjustCredits -> AdminAdjustment   (internal/interface/http/handlers.go:1743 -> internal/application/credit_service.go:59)
-AdminAdjustCredits -> writeError   (internal/interface/http/handlers.go:1743 -> internal/interface/http/response.go:30)
-AdminAdjustCredits -> writeData   (internal/interface/http/handlers.go:1743 -> internal/interface/http/response.go:97)
-AdminMarkOrderPaid -> WriteHeader   (internal/interface/http/handlers.go:1764 -> internal/interface/http/idempotency.go:98)
-AdminMarkOrderPaid -> writeError   (internal/interface/http/handlers.go:1764 -> internal/interface/http/response.go:30)
-AdminMarkOrderPaid -> MarkOrderPaid   (internal/interface/http/handlers.go:1764 -> internal/application/payment_receiver.go:172)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/application/coupon_service.go:124)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/application/currency_service.go:32)
-ResendWebhook -> WriteHeader   (internal/interface/http/handlers.go:1780 -> internal/interface/http/idempotency.go:98)
-ResendWebhook -> writeError   (internal/interface/http/handlers.go:1780 -> internal/interface/http/response.go:30)
-ResendWebhook -> RecordResendEvent   (internal/interface/http/handlers.go:1780 -> internal/application/email_reputation_service.go:41)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/application/invoice_service.go:132)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/application/payment.go:88)
-ResendWebhook -> Error   (internal/interface/http/handlers.go:1780 -> internal/application/storage.go:49)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/application/vendor_service.go:101)
-ResendWebhook -> VerifySvixSignature   (internal/interface/http/handlers.go:1780 -> internal/infrastructure/external/email/svix.go:38)
-ResendWebhook -> FromContext   (internal/interface/http/handlers.go:1780 -> internal/infrastructure/observability/logger.go:67)
-ResendWebhook -> Get   (internal/interface/http/handlers.go:1780 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-PublicValidateCoupon -> writeError   (internal/interface/http/handlers.go:1815 -> internal/interface/http/response.go:30)
-PublicValidateCoupon -> writeData   (internal/interface/http/handlers.go:1815 -> internal/interface/http/response.go:97)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/delivery_capture_cron_test.go:33)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/delivery_capture_cron_test.go:169)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/delivery_capture_cron_test.go:190)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/plan_service.go:23)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/profile_service.go:32)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/review_service_test.go:66)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/review_service_test.go:90)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/application/review_service_test.go:167)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1815 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-PublicValidateCoupon -> Preview   (internal/interface/http/handlers.go:1815 -> internal/application/coupon_service.go:39)
-AdminListCoupons -> writeError   (internal/interface/http/handlers.go:1850 -> internal/interface/http/response.go:30)
-AdminListCoupons -> writeData   (internal/interface/http/handlers.go:1850 -> internal/interface/http/response.go:97)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/application/gateway_service.go:47)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/application/profile_service.go:25)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/application/vendor_service.go:97)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
-AdminListCoupons -> List   (internal/interface/http/handlers.go:1850 -> internal/application/coupon_service.go:120)
-AdminCreateCoupon -> writeError   (internal/interface/http/handlers.go:1863 -> internal/interface/http/response.go:30)
-AdminCreateCoupon -> writeData   (internal/interface/http/handlers.go:1863 -> internal/interface/http/response.go:97)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/delivery_capture_cron_test.go:30)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/delivery_capture_cron_test.go:172)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/delivery_capture_cron_test.go:187)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/gateway_service.go:113)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/invoice_service.go:43)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/plan_service.go:63)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/review_service.go:37)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/review_service_test.go:32)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/review_service_test.go:87)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/review_service_test.go:170)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/api_key_service.go:64)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/vendor_service.go:41)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/admin_repo.go:46)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/api_key_repo.go:34)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/coupon_repo.go:51)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/gateway_repo.go:72)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/invoice_repo.go:22)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/order_repo.go:31)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/plan_repo.go:52)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
-AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1863 -> internal/application/coupon_service.go:99)
-AdminCreateCoupon -> logAudit   (internal/interface/http/handlers.go:1863 -> internal/interface/http/handlers.go:959)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/application/coupon_service.go:124)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/application/currency_service.go:32)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/currency_service.go:43)
-AdminUpdateCoupon -> writeError   (internal/interface/http/handlers.go:1878 -> internal/interface/http/response.go:30)
-AdminUpdateCoupon -> writeData   (internal/interface/http/handlers.go:1878 -> internal/interface/http/response.go:97)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/delivery_capture_cron_test.go:173)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/gateway_service.go:147)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/application/invoice_service.go:132)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/application/payment.go:88)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/plan_service.go:118)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/review_service_test.go:171)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/vendor_service.go:63)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/application/vendor_service.go:101)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/coupon_repo.go:66)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/gateway_repo.go:85)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/plan_repo.go:66)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
-AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
-AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1878 -> internal/application/coupon_service.go:113)
-AdminUpdateCoupon -> logAudit   (internal/interface/http/handlers.go:1878 -> internal/interface/http/handlers.go:959)
-Health -> writeJSON   (internal/interface/http/handlers.go:1896 -> internal/interface/http/response.go:24)
-PublicStatus -> writeData   (internal/interface/http/handlers.go:1907 -> internal/interface/http/response.go:97)
-PublicStatus -> Pool   (internal/interface/http/handlers.go:1907 -> internal/infrastructure/persistence/postgres/db.go:29)
-ReadyHandler -> writeJSON   (internal/interface/http/handlers.go:1991 -> internal/interface/http/response.go:24)
-MeGetOrder -> userIDFromContext   (internal/interface/http/handlers.go:2010 -> internal/interface/http/middleware.go:108)
-MeGetOrder -> writeError   (internal/interface/http/handlers.go:2010 -> internal/interface/http/response.go:30)
-MeGetOrder -> writeData   (internal/interface/http/handlers.go:2010 -> internal/interface/http/response.go:97)
-MeGetOrder -> GetByIDForUser   (internal/interface/http/handlers.go:2010 -> internal/application/order_service.go:24)
-PublicCountryPPP -> writeError   (internal/interface/http/handlers.go:2031 -> internal/interface/http/response.go:30)
-PublicCountryPPP -> writeData   (internal/interface/http/handlers.go:2031 -> internal/interface/http/response.go:97)
-PublicCountryPPP -> Close   (internal/interface/http/handlers.go:2031 -> internal/infrastructure/persistence/postgres/db.go:25)
-PublicCountryPPP -> Pool   (internal/interface/http/handlers.go:2031 -> internal/infrastructure/persistence/postgres/db.go:29)
-MeGetNotifPrefs -> userIDFromContext   (internal/interface/http/handlers.go:2064 -> internal/interface/http/middleware.go:108)
-MeGetNotifPrefs -> writeError   (internal/interface/http/handlers.go:2064 -> internal/interface/http/response.go:30)
-MeGetNotifPrefs -> writeData   (internal/interface/http/handlers.go:2064 -> internal/interface/http/response.go:97)
-MeGetNotifPrefs -> GetPrefs   (internal/interface/http/handlers.go:2064 -> internal/application/user_notif_service.go:36)
-MeUpdateNotifPrefs -> userIDFromContext   (internal/interface/http/handlers.go:2086 -> internal/interface/http/middleware.go:108)
-MeUpdateNotifPrefs -> writeError   (internal/interface/http/handlers.go:2086 -> internal/interface/http/response.go:30)
-MeUpdateNotifPrefs -> writeData   (internal/interface/http/handlers.go:2086 -> internal/interface/http/response.go:97)
-MeUpdateNotifPrefs -> GetPrefs   (internal/interface/http/handlers.go:2086 -> internal/application/user_notif_service.go:36)
-MeUpdateNotifPrefs -> UpdatePrefs   (internal/interface/http/handlers.go:2086 -> internal/application/user_notif_service.go:68)
-MeExportData -> WriteHeader   (internal/interface/http/handlers.go:2119 -> internal/interface/http/idempotency.go:98)
-MeExportData -> userIDFromContext   (internal/interface/http/handlers.go:2119 -> internal/interface/http/middleware.go:108)
-MeExportData -> writeError   (internal/interface/http/handlers.go:2119 -> internal/interface/http/response.go:30)
-MeExportData -> ExportData   (internal/interface/http/handlers.go:2119 -> internal/application/user_data_service.go:51)
-MeRequestDeletion -> WriteHeader   (internal/interface/http/handlers.go:2143 -> internal/interface/http/idempotency.go:98)
-MeRequestDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2143 -> internal/interface/http/middleware.go:108)
-MeRequestDeletion -> writeError   (internal/interface/http/handlers.go:2143 -> internal/interface/http/response.go:30)
-MeRequestDeletion -> RequestDeletion   (internal/interface/http/handlers.go:2143 -> internal/application/user_data_service.go:227)
-MeCancelDeletion -> WriteHeader   (internal/interface/http/handlers.go:2167 -> internal/interface/http/idempotency.go:98)
-MeCancelDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2167 -> internal/interface/http/middleware.go:108)
-MeCancelDeletion -> writeError   (internal/interface/http/handlers.go:2167 -> internal/interface/http/response.go:30)
-MeCancelDeletion -> CancelDeletion   (internal/interface/http/handlers.go:2167 -> internal/application/user_data_service.go:254)
-MeGetDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2188 -> internal/interface/http/middleware.go:108)
-MeGetDeletion -> writeJSON   (internal/interface/http/handlers.go:2188 -> internal/interface/http/response.go:24)
-MeGetDeletion -> writeError   (internal/interface/http/handlers.go:2188 -> internal/interface/http/response.go:30)
-MeGetDeletion -> GetDeletionStatus   (internal/interface/http/handlers.go:2188 -> internal/application/user_data_service.go:294)
-PublicJWKS -> writeJSON   (internal/interface/http/handlers.go:2211 -> internal/interface/http/response.go:24)
-PublicJWKS -> writeError   (internal/interface/http/handlers.go:2211 -> internal/interface/http/response.go:30)
-PublicJWKS -> PublicJWKS   (internal/interface/http/handlers.go:2211 -> internal/infrastructure/external/jwtkeys/keys.go:93)
-PublicABAssign -> writeError   (internal/interface/http/handlers.go:2248 -> internal/interface/http/response.go:30)
-PublicABAssign -> writeData   (internal/interface/http/handlers.go:2248 -> internal/interface/http/response.go:97)
-PublicABAssign -> GetAssignment   (internal/interface/http/handlers.go:2248 -> internal/application/abtest_service.go:42)
-PublicABAssign -> GetAssignment   (internal/interface/http/handlers.go:2248 -> internal/infrastructure/persistence/postgres/abtest_repo.go:105)
-PublicABTrack -> WriteHeader   (internal/interface/http/handlers.go:2276 -> internal/interface/http/idempotency.go:98)
-PublicABTrack -> writeError   (internal/interface/http/handlers.go:2276 -> internal/interface/http/response.go:30)
-PublicABTrack -> TrackEvent   (internal/interface/http/handlers.go:2276 -> internal/application/abtest_service.go:80)
-AdminListAB -> writeError   (internal/interface/http/handlers.go:2305 -> internal/interface/http/response.go:30)
-AdminListAB -> writeData   (internal/interface/http/handlers.go:2305 -> internal/interface/http/response.go:97)
-AdminListAB -> AdminListExperiments   (internal/interface/http/handlers.go:2305 -> internal/application/abtest_service.go:103)
-AdminCreateAB -> writeError   (internal/interface/http/handlers.go:2320 -> internal/interface/http/response.go:30)
-AdminCreateAB -> writeData   (internal/interface/http/handlers.go:2320 -> internal/interface/http/response.go:97)
-AdminCreateAB -> AdminCreateExperiment   (internal/interface/http/handlers.go:2320 -> internal/application/abtest_service.go:108)
-AdminCreateAB -> logAudit   (internal/interface/http/handlers.go:2320 -> internal/interface/http/handlers.go:959)
-AdminUpdateAB -> writeError   (internal/interface/http/handlers.go:2340 -> internal/interface/http/response.go:30)
-AdminUpdateAB -> writeData   (internal/interface/http/handlers.go:2340 -> internal/interface/http/response.go:97)
-AdminUpdateAB -> AdminUpdateExperiment   (internal/interface/http/handlers.go:2340 -> internal/application/abtest_service.go:124)
-AdminUpdateAB -> logAudit   (internal/interface/http/handlers.go:2340 -> internal/interface/http/handlers.go:959)
-MeGetMyReferral -> userIDFromContext   (internal/interface/http/handlers.go:2366 -> internal/interface/http/middleware.go:108)
-MeGetMyReferral -> writeError   (internal/interface/http/handlers.go:2366 -> internal/interface/http/response.go:30)
-MeGetMyReferral -> writeData   (internal/interface/http/handlers.go:2366 -> internal/interface/http/response.go:97)
-MeGetMyReferral -> MyStats   (internal/interface/http/handlers.go:2366 -> internal/application/referral_service.go:46)
-PublicReferralInfo -> writeError   (internal/interface/http/handlers.go:2388 -> internal/interface/http/response.go:30)
-PublicReferralInfo -> writeData   (internal/interface/http/handlers.go:2388 -> internal/interface/http/response.go:97)
-PublicReferralInfo -> PublicInfo   (internal/interface/http/handlers.go:2388 -> internal/application/referral_service.go:67)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/application/coupon_service.go:124)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/application/currency_service.go:32)
-AdminListFraudSignals -> writeError   (internal/interface/http/handlers.go:2407 -> internal/interface/http/response.go:30)
-AdminListFraudSignals -> writeData   (internal/interface/http/handlers.go:2407 -> internal/interface/http/response.go:97)
-AdminListFraudSignals -> ListSignals   (internal/interface/http/handlers.go:2407 -> internal/application/fraud_service.go:171)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/application/invoice_service.go:132)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/application/payment.go:88)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/application/vendor_service.go:101)
-AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2407 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-PublicTaxRates -> writeError   (internal/interface/http/handlers.go:2440 -> internal/interface/http/response.go:30)
-PublicTaxRates -> writeData   (internal/interface/http/handlers.go:2440 -> internal/interface/http/response.go:97)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/application/gateway_service.go:47)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/application/profile_service.go:25)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/application/vendor_service.go:97)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
-PublicTaxRates -> List   (internal/interface/http/handlers.go:2440 -> internal/application/coupon_service.go:120)
-MeListMySubscriptions -> userIDFromContext   (internal/interface/http/handlers.go:2462 -> internal/interface/http/middleware.go:108)
-MeListMySubscriptions -> writeError   (internal/interface/http/handlers.go:2462 -> internal/interface/http/response.go:30)
-MeListMySubscriptions -> writeData   (internal/interface/http/handlers.go:2462 -> internal/interface/http/response.go:97)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/delivery_capture_cron_test.go:47)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/delivery_capture_cron_test.go:193)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/review_service_test.go:100)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/subscription_service.go:106)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/user_consent_service.go:88)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/application/user_event_service.go:159)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
-MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2462 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-MeSubscribe -> userIDFromContext   (internal/interface/http/handlers.go:2483 -> internal/interface/http/middleware.go:108)
-MeSubscribe -> writeError   (internal/interface/http/handlers.go:2483 -> internal/interface/http/response.go:30)
-MeSubscribe -> writeData   (internal/interface/http/handlers.go:2483 -> internal/interface/http/response.go:97)
-MeSubscribe -> Subscribe   (internal/interface/http/handlers.go:2483 -> internal/application/subscription_service.go:55)
-MeCancelSubscription -> WriteHeader   (internal/interface/http/handlers.go:2510 -> internal/interface/http/idempotency.go:98)
-MeCancelSubscription -> userIDFromContext   (internal/interface/http/handlers.go:2510 -> internal/interface/http/middleware.go:108)
-MeCancelSubscription -> writeError   (internal/interface/http/handlers.go:2510 -> internal/interface/http/response.go:30)
-MeCancelSubscription -> Cancel   (internal/interface/http/handlers.go:2510 -> internal/application/subscription_service.go:90)
-MeCancelSubscription -> Cancel   (internal/interface/http/handlers.go:2510 -> internal/infrastructure/persistence/postgres/subscription_repo.go:135)
-PublicTrackEvent -> readAnalyticsConsentHeader   (internal/interface/http/handlers.go:2549 -> internal/interface/http/handlers.go:3038)
-PublicTrackEvent -> WriteHeader   (internal/interface/http/handlers.go:2549 -> internal/interface/http/idempotency.go:98)
-PublicTrackEvent -> userIDFromContext   (internal/interface/http/handlers.go:2549 -> internal/interface/http/middleware.go:108)
-PublicTrackEvent -> writeError   (internal/interface/http/handlers.go:2549 -> internal/interface/http/response.go:30)
-PublicTrackEvent -> IsAllowedEventType   (internal/interface/http/handlers.go:2549 -> internal/application/user_event_service.go:28)
-PublicTrackEvent -> RecordEvent   (internal/interface/http/handlers.go:2549 -> internal/application/user_event_service.go:75)
-PublicTrackEvent -> clientIP   (internal/interface/http/handlers.go:2549 -> internal/interface/http/handlers.go:101)
-MeJourney -> userIDFromContext   (internal/interface/http/handlers.go:2610 -> internal/interface/http/middleware.go:108)
-MeJourney -> writeError   (internal/interface/http/handlers.go:2610 -> internal/interface/http/response.go:30)
-MeJourney -> writeData   (internal/interface/http/handlers.go:2610 -> internal/interface/http/response.go:97)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/delivery_capture_cron_test.go:47)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/delivery_capture_cron_test.go:193)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/review_service_test.go:100)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/subscription_service.go:106)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/user_consent_service.go:88)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/application/user_event_service.go:159)
-MeJourney -> GetJourney   (internal/interface/http/handlers.go:2610 -> internal/application/user_event_service.go:166)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
-MeJourney -> ListByUser   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-MeJourney -> GetJourney   (internal/interface/http/handlers.go:2610 -> internal/infrastructure/persistence/postgres/user_event_repo.go:169)
-AdminBulkSoftDeleteOrders -> decodeBulkDelete   (internal/interface/http/handlers.go:2675 -> internal/interface/http/handlers.go:2661)
-AdminBulkSoftDeleteOrders -> principalFromContext   (internal/interface/http/handlers.go:2675 -> internal/interface/http/middleware.go:83)
-AdminBulkSoftDeleteOrders -> writeError   (internal/interface/http/handlers.go:2675 -> internal/interface/http/response.go:30)
-AdminBulkSoftDeleteOrders -> writeData   (internal/interface/http/handlers.go:2675 -> internal/interface/http/response.go:97)
-AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2675 -> internal/application/delivery_capture_cron_test.go:104)
-AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2675 -> internal/application/review_service_test.go:145)
-AdminBulkSoftDeleteOrders -> Error   (internal/interface/http/handlers.go:2675 -> internal/application/storage.go:49)
-AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2675 -> internal/infrastructure/persistence/postgres/order_repo.go:137)
-AdminBulkSoftDeleteInvoices -> decodeBulkDelete   (internal/interface/http/handlers.go:2697 -> internal/interface/http/handlers.go:2661)
-AdminBulkSoftDeleteInvoices -> principalFromContext   (internal/interface/http/handlers.go:2697 -> internal/interface/http/middleware.go:83)
-AdminBulkSoftDeleteInvoices -> writeError   (internal/interface/http/handlers.go:2697 -> internal/interface/http/response.go:30)
-AdminBulkSoftDeleteInvoices -> writeData   (internal/interface/http/handlers.go:2697 -> internal/interface/http/response.go:97)
-AdminBulkSoftDeleteInvoices -> AdminSoftDelete   (internal/interface/http/handlers.go:2697 -> internal/application/invoice_service.go:162)
-AdminBulkSoftDeleteInvoices -> Error   (internal/interface/http/handlers.go:2697 -> internal/application/storage.go:49)
-AdminBulkSoftDeleteUsers -> decodeBulkDelete   (internal/interface/http/handlers.go:2719 -> internal/interface/http/handlers.go:2661)
-AdminBulkSoftDeleteUsers -> principalFromContext   (internal/interface/http/handlers.go:2719 -> internal/interface/http/middleware.go:83)
-AdminBulkSoftDeleteUsers -> writeError   (internal/interface/http/handlers.go:2719 -> internal/interface/http/response.go:30)
-AdminBulkSoftDeleteUsers -> writeData   (internal/interface/http/handlers.go:2719 -> internal/interface/http/response.go:97)
-AdminBulkSoftDeleteUsers -> Error   (internal/interface/http/handlers.go:2719 -> internal/application/storage.go:49)
-AdminBulkSoftDeleteUsers -> SoftDeleteUser   (internal/interface/http/handlers.go:2719 -> internal/infrastructure/persistence/postgres/user_repo.go:136)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/application/coupon_service.go:124)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/application/currency_service.go:32)
-AdminTrash -> writeError   (internal/interface/http/handlers.go:2757 -> internal/interface/http/response.go:30)
-AdminTrash -> writeData   (internal/interface/http/handlers.go:2757 -> internal/interface/http/response.go:97)
-AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2757 -> internal/application/delivery_capture_cron_test.go:113)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/application/invoice_service.go:132)
-AdminTrash -> AdminListDeleted   (internal/interface/http/handlers.go:2757 -> internal/application/invoice_service.go:176)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/application/payment.go:88)
-AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2757 -> internal/application/review_service_test.go:154)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/application/vendor_service.go:101)
-AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2757 -> internal/infrastructure/persistence/postgres/invoice_repo.go:125)
-AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2757 -> internal/infrastructure/persistence/postgres/order_repo.go:119)
-AdminTrash -> Get   (internal/interface/http/handlers.go:2757 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-AdminTrash -> ListDeletedWithCreditBalance   (internal/interface/http/handlers.go:2757 -> internal/infrastructure/persistence/postgres/user_repo.go:99)
-AdminSoftDeleteOrder -> decodeDeleteBody   (internal/interface/http/handlers.go:2814 -> internal/interface/http/handlers.go:2804)
-AdminSoftDeleteOrder -> WriteHeader   (internal/interface/http/handlers.go:2814 -> internal/interface/http/idempotency.go:98)
-AdminSoftDeleteOrder -> principalFromContext   (internal/interface/http/handlers.go:2814 -> internal/interface/http/middleware.go:83)
-AdminSoftDeleteOrder -> writeError   (internal/interface/http/handlers.go:2814 -> internal/interface/http/response.go:30)
-AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2814 -> internal/application/delivery_capture_cron_test.go:104)
-AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2814 -> internal/application/review_service_test.go:145)
-AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2814 -> internal/infrastructure/persistence/postgres/order_repo.go:137)
-AdminHardDeleteOrder -> WriteHeader   (internal/interface/http/handlers.go:2834 -> internal/interface/http/idempotency.go:98)
-AdminHardDeleteOrder -> writeError   (internal/interface/http/handlers.go:2834 -> internal/interface/http/response.go:30)
-AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2834 -> internal/application/delivery_capture_cron_test.go:107)
-AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2834 -> internal/application/review_service_test.go:148)
-AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2834 -> internal/infrastructure/persistence/postgres/order_repo.go:157)
-AdminRestoreOrder -> WriteHeader   (internal/interface/http/handlers.go:2848 -> internal/interface/http/idempotency.go:98)
-AdminRestoreOrder -> writeError   (internal/interface/http/handlers.go:2848 -> internal/interface/http/response.go:30)
-AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2848 -> internal/application/delivery_capture_cron_test.go:110)
-AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2848 -> internal/application/review_service_test.go:151)
-AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2848 -> internal/infrastructure/persistence/postgres/order_repo.go:170)
-AdminSoftDeleteInvoice -> decodeDeleteBody   (internal/interface/http/handlers.go:2862 -> internal/interface/http/handlers.go:2804)
-AdminSoftDeleteInvoice -> WriteHeader   (internal/interface/http/handlers.go:2862 -> internal/interface/http/idempotency.go:98)
-AdminSoftDeleteInvoice -> principalFromContext   (internal/interface/http/handlers.go:2862 -> internal/interface/http/middleware.go:83)
-AdminSoftDeleteInvoice -> writeError   (internal/interface/http/handlers.go:2862 -> internal/interface/http/response.go:30)
-AdminSoftDeleteInvoice -> AdminSoftDelete   (internal/interface/http/handlers.go:2862 -> internal/application/invoice_service.go:162)
-AdminHardDeleteInvoice -> WriteHeader   (internal/interface/http/handlers.go:2881 -> internal/interface/http/idempotency.go:98)
-AdminHardDeleteInvoice -> writeError   (internal/interface/http/handlers.go:2881 -> internal/interface/http/response.go:30)
-AdminHardDeleteInvoice -> AdminHardDelete   (internal/interface/http/handlers.go:2881 -> internal/application/invoice_service.go:166)
-AdminRestoreInvoice -> WriteHeader   (internal/interface/http/handlers.go:2894 -> internal/interface/http/idempotency.go:98)
-AdminRestoreInvoice -> writeError   (internal/interface/http/handlers.go:2894 -> internal/interface/http/response.go:30)
-AdminRestoreInvoice -> AdminRestore   (internal/interface/http/handlers.go:2894 -> internal/application/invoice_service.go:170)
-AdminSoftDeleteUser -> decodeDeleteBody   (internal/interface/http/handlers.go:2908 -> internal/interface/http/handlers.go:2804)
-AdminSoftDeleteUser -> WriteHeader   (internal/interface/http/handlers.go:2908 -> internal/interface/http/idempotency.go:98)
-AdminSoftDeleteUser -> principalFromContext   (internal/interface/http/handlers.go:2908 -> internal/interface/http/middleware.go:83)
-AdminSoftDeleteUser -> writeError   (internal/interface/http/handlers.go:2908 -> internal/interface/http/response.go:30)
-AdminSoftDeleteUser -> SoftDeleteUser   (internal/interface/http/handlers.go:2908 -> internal/infrastructure/persistence/postgres/user_repo.go:136)
-AdminHardDeleteUser -> WriteHeader   (internal/interface/http/handlers.go:2927 -> internal/interface/http/idempotency.go:98)
-AdminHardDeleteUser -> writeError   (internal/interface/http/handlers.go:2927 -> internal/interface/http/response.go:30)
-AdminHardDeleteUser -> HardDeleteUser   (internal/interface/http/handlers.go:2927 -> internal/infrastructure/persistence/postgres/user_repo.go:155)
-AdminRestoreUser -> WriteHeader   (internal/interface/http/handlers.go:2940 -> internal/interface/http/idempotency.go:98)
-AdminRestoreUser -> writeError   (internal/interface/http/handlers.go:2940 -> internal/interface/http/response.go:30)
-AdminRestoreUser -> RestoreUser   (internal/interface/http/handlers.go:2940 -> internal/infrastructure/persistence/postgres/user_repo.go:167)
-AdminUserJourney -> writeError   (internal/interface/http/handlers.go:2957 -> internal/interface/http/response.go:30)
-AdminUserJourney -> writeData   (internal/interface/http/handlers.go:2957 -> internal/interface/http/response.go:97)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/delivery_capture_cron_test.go:47)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/delivery_capture_cron_test.go:193)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/review_service_test.go:100)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/subscription_service.go:106)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/user_consent_service.go:88)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/application/user_event_service.go:159)
-AdminUserJourney -> GetJourney   (internal/interface/http/handlers.go:2957 -> internal/application/user_event_service.go:166)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
-AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
-AdminUserJourney -> GetJourney   (internal/interface/http/handlers.go:2957 -> internal/infrastructure/persistence/postgres/user_event_repo.go:169)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/application/coupon_service.go:124)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/application/currency_service.go:32)
-AdminListVisitors -> writeError   (internal/interface/http/handlers.go:2986 -> internal/interface/http/response.go:30)
-AdminListVisitors -> writeData   (internal/interface/http/handlers.go:2986 -> internal/interface/http/response.go:97)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/application/invoice_service.go:132)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/application/payment.go:88)
-AdminListVisitors -> ListRecentVisitors   (internal/interface/http/handlers.go:2986 -> internal/application/user_event_service.go:181)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/application/vendor_service.go:101)
-AdminListVisitors -> Get   (internal/interface/http/handlers.go:2986 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-AdminListVisitors -> ListRecentVisitors   (internal/interface/http/handlers.go:2986 -> internal/infrastructure/persistence/postgres/user_event_repo.go:242)
-AdminGetVisitor -> writeError   (internal/interface/http/handlers.go:3006 -> internal/interface/http/response.go:30)
-AdminGetVisitor -> writeData   (internal/interface/http/handlers.go:3006 -> internal/interface/http/response.go:97)
-AdminGetVisitor -> ListByVisitor   (internal/interface/http/handlers.go:3006 -> internal/application/user_event_service.go:175)
-AdminGetVisitor -> GetVisitorSummary   (internal/interface/http/handlers.go:3006 -> internal/application/user_event_service.go:187)
-AdminGetVisitor -> ListByVisitor   (internal/interface/http/handlers.go:3006 -> internal/infrastructure/persistence/postgres/user_event_repo.go:123)
-AdminGetVisitor -> GetVisitorSummary   (internal/interface/http/handlers.go:3006 -> internal/infrastructure/persistence/postgres/user_event_repo.go:301)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/application/coupon_service.go:124)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/application/currency_service.go:32)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/application/invoice_service.go:132)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/application/payment.go:88)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/application/vendor_service.go:101)
-readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3038 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-PublicRecordConsent -> WriteHeader   (internal/interface/http/handlers.go:3080 -> internal/interface/http/idempotency.go:98)
-PublicRecordConsent -> userIDFromContext   (internal/interface/http/handlers.go:3080 -> internal/interface/http/middleware.go:108)
-PublicRecordConsent -> writeError   (internal/interface/http/handlers.go:3080 -> internal/interface/http/response.go:30)
-PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3080 -> internal/application/user_consent_service.go:51)
-PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3080 -> internal/infrastructure/persistence/postgres/admin_honeypot_repo.go:14)
-PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3080 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:23)
-PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3080 -> internal/infrastructure/persistence/postgres/user_event_repo.go:30)
-PublicRecordConsent -> clientIP   (internal/interface/http/handlers.go:3080 -> internal/interface/http/handlers.go:101)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/application/coupon_service.go:124)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/application/currency_service.go:32)
-PublicListPaymentMethods -> writeError   (internal/interface/http/handlers.go:3136 -> internal/interface/http/response.go:30)
-PublicListPaymentMethods -> writeData   (internal/interface/http/handlers.go:3136 -> internal/interface/http/response.go:97)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/application/invoice_service.go:132)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/application/payment.go:88)
-PublicListPaymentMethods -> ListPaymentMethods   (internal/interface/http/handlers.go:3136 -> internal/application/payment_methods.go:55)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/application/vendor_service.go:101)
-PublicListPaymentMethods -> ListMethods   (internal/interface/http/handlers.go:3136 -> internal/infrastructure/external/paymentsclient/client.go:155)
-PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3136 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/application/coupon_service.go:124)
-MeUploadProof -> uploadProofMultipart   (internal/interface/http/handlers.go:3197 -> internal/interface/http/handlers.go:3376)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/application/currency_service.go:32)
-MeUploadProof -> userIDFromContext   (internal/interface/http/handlers.go:3197 -> internal/interface/http/middleware.go:108)
-MeUploadProof -> writeError   (internal/interface/http/handlers.go:3197 -> internal/interface/http/response.go:30)
-MeUploadProof -> writeData   (internal/interface/http/handlers.go:3197 -> internal/interface/http/response.go:97)
-MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3197 -> internal/application/delivery_capture_cron_test.go:92)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/application/invoice_service.go:132)
-MeUploadProof -> GetByIDForUser   (internal/interface/http/handlers.go:3197 -> internal/application/order_service.go:24)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/application/payment.go:88)
-MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3197 -> internal/application/review_service_test.go:133)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/application/vendor_service.go:101)
-MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3197 -> internal/infrastructure/persistence/postgres/order_repo.go:458)
-MeUploadProof -> Get   (internal/interface/http/handlers.go:3197 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-AdminProofDecision -> buildProofRejectionEmail   (internal/interface/http/handlers.go:3262 -> internal/interface/http/handlers.go:3314)
-AdminProofDecision -> writeError   (internal/interface/http/handlers.go:3262 -> internal/interface/http/response.go:30)
-AdminProofDecision -> writeData   (internal/interface/http/handlers.go:3262 -> internal/interface/http/response.go:97)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/delivery_capture_cron_test.go:33)
-AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3262 -> internal/application/delivery_capture_cron_test.go:98)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/delivery_capture_cron_test.go:169)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/delivery_capture_cron_test.go:190)
-AdminProofDecision -> MarkOrderPaid   (internal/interface/http/handlers.go:3262 -> internal/application/payment_receiver.go:172)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/plan_service.go:23)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/profile_service.go:32)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/review_service_test.go:66)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/review_service_test.go:90)
-AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3262 -> internal/application/review_service_test.go:139)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/application/review_service_test.go:167)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/application/whatsapp_service.go:50)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/external/email/resend.go:31)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/external/email/sender.go:63)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/external/email/sender.go:101)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/external/notify/webhook.go:41)
-AdminProofDecision -> Send   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/external/senderclient/client.go:99)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/order_repo.go:510)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3262 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/application/coupon_service.go:124)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/application/currency_service.go:32)
-AdminListPendingProofs -> writeError   (internal/interface/http/handlers.go:3345 -> internal/interface/http/response.go:30)
-AdminListPendingProofs -> writeData   (internal/interface/http/handlers.go:3345 -> internal/interface/http/response.go:97)
-AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3345 -> internal/application/delivery_capture_cron_test.go:101)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/application/invoice_service.go:132)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/application/payment.go:88)
-AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3345 -> internal/application/review_service_test.go:142)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/application/vendor_service.go:101)
-AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3345 -> internal/infrastructure/persistence/postgres/order_repo.go:529)
-AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3345 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/application/coupon_service.go:124)
-uploadProofMultipart -> nowKeyPrefix   (internal/interface/http/handlers.go:3376 -> internal/interface/http/handlers.go:3432)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/application/currency_service.go:32)
-uploadProofMultipart -> writeError   (internal/interface/http/handlers.go:3376 -> internal/interface/http/response.go:30)
-uploadProofMultipart -> writeData   (internal/interface/http/handlers.go:3376 -> internal/interface/http/response.go:97)
-uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3376 -> internal/application/delivery_capture_cron_test.go:92)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/application/invoice_service.go:132)
-uploadProofMultipart -> GetByIDForUser   (internal/interface/http/handlers.go:3376 -> internal/application/order_service.go:24)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/application/payment.go:88)
-uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3376 -> internal/application/review_service_test.go:133)
-uploadProofMultipart -> Put   (internal/interface/http/handlers.go:3376 -> internal/application/storage.go:33)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/application/vendor_service.go:101)
-uploadProofMultipart -> Put   (internal/interface/http/handlers.go:3376 -> internal/infrastructure/external/storage/s3.go:53)
-uploadProofMultipart -> Close   (internal/interface/http/handlers.go:3376 -> internal/infrastructure/persistence/postgres/db.go:25)
-uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3376 -> internal/infrastructure/persistence/postgres/order_repo.go:458)
-uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3376 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
-MeGetProofURL -> resolveProofURL   (internal/interface/http/handlers.go:3442 -> internal/interface/http/handlers.go:3492)
-MeGetProofURL -> userIDFromContext   (internal/interface/http/handlers.go:3442 -> internal/interface/http/middleware.go:108)
-MeGetProofURL -> writeError   (internal/interface/http/handlers.go:3442 -> internal/interface/http/response.go:30)
-MeGetProofURL -> writeData   (internal/interface/http/handlers.go:3442 -> internal/interface/http/response.go:97)
-MeGetProofURL -> GetByIDForUser   (internal/interface/http/handlers.go:3442 -> internal/application/order_service.go:24)
-AdminGetProofURL -> resolveProofURL   (internal/interface/http/handlers.go:3464 -> internal/interface/http/handlers.go:3492)
-AdminGetProofURL -> writeError   (internal/interface/http/handlers.go:3464 -> internal/interface/http/response.go:30)
-AdminGetProofURL -> writeData   (internal/interface/http/handlers.go:3464 -> internal/interface/http/response.go:97)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/delivery_capture_cron_test.go:33)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/delivery_capture_cron_test.go:169)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/delivery_capture_cron_test.go:190)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/plan_service.go:23)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/profile_service.go:32)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/review_service_test.go:66)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/review_service_test.go:90)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/application/review_service_test.go:167)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3464 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-resolveProofURL -> PresignedGetURL   (internal/interface/http/handlers.go:3492 -> internal/application/storage.go:36)
-resolveProofURL -> PresignedGetURL   (internal/interface/http/handlers.go:3492 -> internal/infrastructure/external/storage/s3.go:71)
-AdminLoginEnroll2FA -> writeError   (internal/interface/http/handlers.go:3527 -> internal/interface/http/response.go:30)
-AdminLoginEnroll2FA -> writeData   (internal/interface/http/handlers.go:3527 -> internal/interface/http/response.go:97)
-AdminLoginEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3527 -> internal/application/twofa_service.go:55)
-AdminLoginEnroll2FA -> ParsePartialToken   (internal/interface/http/handlers.go:3527 -> internal/application/auth_service.go:207)
-AdminLoginEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3527 -> internal/infrastructure/external/totp/totp.go:35)
-AdminLoginEnroll2FA -> GetAdminByID   (internal/interface/http/handlers.go:3527 -> internal/application/auth_service.go:292)
-AdminLoginComplete2FA -> writeError   (internal/interface/http/handlers.go:3561 -> internal/interface/http/response.go:30)
-AdminLoginComplete2FA -> writeData   (internal/interface/http/handlers.go:3561 -> internal/interface/http/response.go:97)
-AdminLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3561 -> internal/application/user_auth_service.go:238)
-AdminLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3561 -> internal/application/auth_service.go:122)
-AdminDisable2FA -> WriteHeader   (internal/interface/http/handlers.go:3586 -> internal/interface/http/idempotency.go:98)
-AdminDisable2FA -> principalFromContext   (internal/interface/http/handlers.go:3586 -> internal/interface/http/middleware.go:83)
-AdminDisable2FA -> writeError   (internal/interface/http/handlers.go:3586 -> internal/interface/http/response.go:30)
-AdminDisable2FA -> Disable   (internal/interface/http/handlers.go:3586 -> internal/application/twofa_service.go:143)
-AdminDisable2FA -> Log   (internal/interface/http/handlers.go:3586 -> internal/application/audit_service.go:36)
-AdminBulkProofDecision -> buildProofRejectionEmail   (internal/interface/http/handlers.go:3625 -> internal/interface/http/handlers.go:3314)
-AdminBulkProofDecision -> principalFromContext   (internal/interface/http/handlers.go:3625 -> internal/interface/http/middleware.go:83)
-AdminBulkProofDecision -> writeError   (internal/interface/http/handlers.go:3625 -> internal/interface/http/response.go:30)
-AdminBulkProofDecision -> writeData   (internal/interface/http/handlers.go:3625 -> internal/interface/http/response.go:97)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/delivery_capture_cron_test.go:33)
-AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3625 -> internal/application/delivery_capture_cron_test.go:98)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/delivery_capture_cron_test.go:169)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/delivery_capture_cron_test.go:190)
-AdminBulkProofDecision -> MarkOrderPaid   (internal/interface/http/handlers.go:3625 -> internal/application/payment_receiver.go:172)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/plan_service.go:23)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/profile_service.go:32)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/review_service_test.go:66)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/review_service_test.go:90)
-AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3625 -> internal/application/review_service_test.go:139)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/application/review_service_test.go:167)
-AdminBulkProofDecision -> Error   (internal/interface/http/handlers.go:3625 -> internal/application/storage.go:49)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/application/whatsapp_service.go:50)
-AdminBulkProofDecision -> Log   (internal/interface/http/handlers.go:3625 -> internal/application/audit_service.go:36)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/external/email/resend.go:31)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/external/email/sender.go:63)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/external/email/sender.go:101)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/external/notify/webhook.go:41)
-AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/external/senderclient/client.go:99)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/order_repo.go:510)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3625 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-UserLoginComplete2FA -> writeError   (internal/interface/http/handlers.go:3705 -> internal/interface/http/response.go:30)
-UserLoginComplete2FA -> writeData   (internal/interface/http/handlers.go:3705 -> internal/interface/http/response.go:97)
-UserLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3705 -> internal/application/user_auth_service.go:238)
-UserLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3705 -> internal/application/auth_service.go:122)
-MeEnroll2FA -> userIDFromContext   (internal/interface/http/handlers.go:3729 -> internal/interface/http/middleware.go:108)
-MeEnroll2FA -> writeError   (internal/interface/http/handlers.go:3729 -> internal/interface/http/response.go:30)
-MeEnroll2FA -> writeData   (internal/interface/http/handlers.go:3729 -> internal/interface/http/response.go:97)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/delivery_capture_cron_test.go:33)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/delivery_capture_cron_test.go:169)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/delivery_capture_cron_test.go:190)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/plan_service.go:23)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/profile_service.go:32)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/review_service_test.go:66)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/review_service_test.go:90)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/application/review_service_test.go:167)
-MeEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3729 -> internal/application/twofa_service.go:55)
-MeEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/external/totp/totp.go:35)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
-MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3729 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
-MeVerify2FA -> WriteHeader   (internal/interface/http/handlers.go:3755 -> internal/interface/http/idempotency.go:98)
-MeVerify2FA -> userIDFromContext   (internal/interface/http/handlers.go:3755 -> internal/interface/http/middleware.go:108)
-MeVerify2FA -> writeError   (internal/interface/http/handlers.go:3755 -> internal/interface/http/response.go:30)
-MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3755 -> internal/application/twofa_service.go:96)
-MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3755 -> internal/infrastructure/external/totp/totp.go:51)
-MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3755 -> internal/infrastructure/external/turnstile/turnstile.go:44)
-MeDisable2FA -> WriteHeader   (internal/interface/http/handlers.go:3782 -> internal/interface/http/idempotency.go:98)
-MeDisable2FA -> userIDFromContext   (internal/interface/http/handlers.go:3782 -> internal/interface/http/middleware.go:108)
-MeDisable2FA -> writeError   (internal/interface/http/handlers.go:3782 -> internal/interface/http/response.go:30)
-MeDisable2FA -> Disable   (internal/interface/http/handlers.go:3782 -> internal/application/twofa_service.go:143)
-MeDismiss2FAPrompt -> WriteHeader   (internal/interface/http/handlers.go:3802 -> internal/interface/http/idempotency.go:98)
-MeDismiss2FAPrompt -> userIDFromContext   (internal/interface/http/handlers.go:3802 -> internal/interface/http/middleware.go:108)
-MeDismiss2FAPrompt -> writeError   (internal/interface/http/handlers.go:3802 -> internal/interface/http/response.go:30)
-MeDismiss2FAPrompt -> Pool   (internal/interface/http/handlers.go:3802 -> internal/infrastructure/persistence/postgres/db.go:29)
-MeTwoFAStatus -> computeShouldPrompt2FA   (internal/interface/http/handlers.go:3833 -> internal/interface/http/handlers.go:3853)
-MeTwoFAStatus -> userIDFromContext   (internal/interface/http/handlers.go:3833 -> internal/interface/http/middleware.go:108)
-MeTwoFAStatus -> writeError   (internal/interface/http/handlers.go:3833 -> internal/interface/http/response.go:30)
-MeTwoFAStatus -> writeData   (internal/interface/http/handlers.go:3833 -> internal/interface/http/response.go:97)
-MeTwoFAStatus -> IsEnrolled   (internal/interface/http/handlers.go:3833 -> internal/application/twofa_service.go:133)
-computeShouldPrompt2FA -> Pool   (internal/interface/http/handlers.go:3853 -> internal/infrastructure/persistence/postgres/db.go:29)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/application/coupon_service.go:124)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/application/currency_service.go:32)
+AdminListUsers -> parsePage   (internal/interface/http/handlers.go:1733 -> internal/interface/http/pagination.go:62)
+AdminListUsers -> encodeCursor   (internal/interface/http/handlers.go:1733 -> internal/interface/http/pagination.go:116)
+AdminListUsers -> writePage   (internal/interface/http/handlers.go:1733 -> internal/interface/http/pagination.go:172)
+AdminListUsers -> writeError   (internal/interface/http/handlers.go:1733 -> internal/interface/http/response.go:30)
+AdminListUsers -> writeErrorMsg   (internal/interface/http/handlers.go:1733 -> internal/interface/http/response.go:118)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/application/invoice_service.go:132)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/application/payment.go:88)
+AdminListUsers -> Error   (internal/interface/http/handlers.go:1733 -> internal/application/storage.go:49)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/application/vendor_service.go:101)
+AdminListUsers -> Get   (internal/interface/http/handlers.go:1733 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+AdminListUsers -> ListPageWithCreditBalance   (internal/interface/http/handlers.go:1733 -> internal/infrastructure/persistence/postgres/user_repo.go:110)
+AdminGetUser -> Balance   (internal/interface/http/handlers.go:1766 -> internal/application/credit_service.go:18)
+AdminGetUser -> History   (internal/interface/http/handlers.go:1766 -> internal/application/credit_service.go:22)
+AdminGetUser -> writeError   (internal/interface/http/handlers.go:1766 -> internal/interface/http/response.go:30)
+AdminGetUser -> writeData   (internal/interface/http/handlers.go:1766 -> internal/interface/http/response.go:97)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/delivery_capture_cron_test.go:33)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/delivery_capture_cron_test.go:169)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/delivery_capture_cron_test.go:190)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/application/gateway_service.go:47)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/plan_service.go:23)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/application/profile_service.go:25)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/profile_service.go:32)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/review_service_test.go:66)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/review_service_test.go:90)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/application/review_service_test.go:167)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/application/vendor_service.go:97)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+AdminGetUser -> GetByID   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
+AdminGetUser -> List   (internal/interface/http/handlers.go:1766 -> internal/application/coupon_service.go:120)
+AdminAdjustCredits -> AdminAdjustment   (internal/interface/http/handlers.go:1784 -> internal/application/credit_service.go:59)
+AdminAdjustCredits -> writeError   (internal/interface/http/handlers.go:1784 -> internal/interface/http/response.go:30)
+AdminAdjustCredits -> writeData   (internal/interface/http/handlers.go:1784 -> internal/interface/http/response.go:97)
+AdminMarkOrderPaid -> WriteHeader   (internal/interface/http/handlers.go:1805 -> internal/interface/http/idempotency.go:98)
+AdminMarkOrderPaid -> writeError   (internal/interface/http/handlers.go:1805 -> internal/interface/http/response.go:30)
+AdminMarkOrderPaid -> MarkOrderPaid   (internal/interface/http/handlers.go:1805 -> internal/application/payment_receiver.go:172)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/application/coupon_service.go:124)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/application/currency_service.go:32)
+ResendWebhook -> WriteHeader   (internal/interface/http/handlers.go:1821 -> internal/interface/http/idempotency.go:98)
+ResendWebhook -> writeError   (internal/interface/http/handlers.go:1821 -> internal/interface/http/response.go:30)
+ResendWebhook -> RecordResendEvent   (internal/interface/http/handlers.go:1821 -> internal/application/email_reputation_service.go:41)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/application/invoice_service.go:132)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/application/payment.go:88)
+ResendWebhook -> Error   (internal/interface/http/handlers.go:1821 -> internal/application/storage.go:49)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/application/vendor_service.go:101)
+ResendWebhook -> VerifySvixSignature   (internal/interface/http/handlers.go:1821 -> internal/infrastructure/external/email/svix.go:38)
+ResendWebhook -> FromContext   (internal/interface/http/handlers.go:1821 -> internal/infrastructure/observability/logger.go:67)
+ResendWebhook -> Get   (internal/interface/http/handlers.go:1821 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+PublicValidateCoupon -> writeError   (internal/interface/http/handlers.go:1856 -> internal/interface/http/response.go:30)
+PublicValidateCoupon -> writeData   (internal/interface/http/handlers.go:1856 -> internal/interface/http/response.go:97)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/delivery_capture_cron_test.go:33)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/delivery_capture_cron_test.go:169)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/delivery_capture_cron_test.go:190)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/plan_service.go:23)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/profile_service.go:32)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/review_service_test.go:66)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/review_service_test.go:90)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/application/review_service_test.go:167)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+PublicValidateCoupon -> Preview   (internal/interface/http/handlers.go:1856 -> internal/application/coupon_service.go:39)
+PublicValidateCoupon -> GetByID   (internal/interface/http/handlers.go:1856 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+AdminListCoupons -> writeError   (internal/interface/http/handlers.go:1891 -> internal/interface/http/response.go:30)
+AdminListCoupons -> writeData   (internal/interface/http/handlers.go:1891 -> internal/interface/http/response.go:97)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/application/gateway_service.go:47)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/application/profile_service.go:25)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/application/vendor_service.go:97)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
+AdminListCoupons -> List   (internal/interface/http/handlers.go:1891 -> internal/application/coupon_service.go:120)
+AdminCreateCoupon -> writeError   (internal/interface/http/handlers.go:1904 -> internal/interface/http/response.go:30)
+AdminCreateCoupon -> writeData   (internal/interface/http/handlers.go:1904 -> internal/interface/http/response.go:97)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/delivery_capture_cron_test.go:30)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/delivery_capture_cron_test.go:172)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/delivery_capture_cron_test.go:187)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/gateway_service.go:113)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/invoice_service.go:43)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/plan_service.go:63)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/review_service.go:37)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/review_service_test.go:32)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/review_service_test.go:87)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/review_service_test.go:170)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/api_key_service.go:64)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/vendor_service.go:41)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/admin_repo.go:46)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/api_key_repo.go:34)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/coupon_repo.go:51)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/gateway_repo.go:72)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/invoice_repo.go:22)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/order_repo.go:31)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/plan_repo.go:52)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/profile_repo.go:17)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
+AdminCreateCoupon -> Create   (internal/interface/http/handlers.go:1904 -> internal/application/coupon_service.go:99)
+AdminCreateCoupon -> logAudit   (internal/interface/http/handlers.go:1904 -> internal/interface/http/handlers.go:959)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/application/coupon_service.go:124)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/application/currency_service.go:32)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/currency_service.go:43)
+AdminUpdateCoupon -> writeError   (internal/interface/http/handlers.go:1919 -> internal/interface/http/response.go:30)
+AdminUpdateCoupon -> writeData   (internal/interface/http/handlers.go:1919 -> internal/interface/http/response.go:97)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/delivery_capture_cron_test.go:173)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/gateway_service.go:147)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/application/invoice_service.go:132)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/application/payment.go:88)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/plan_service.go:118)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/review_service_test.go:171)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/vendor_service.go:63)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/application/vendor_service.go:101)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/coupon_repo.go:66)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/gateway_repo.go:85)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/plan_repo.go:66)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/subscription_repo.go:114)
+AdminUpdateCoupon -> Get   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/infrastructure/persistence/postgres/vendor_repo.go:70)
+AdminUpdateCoupon -> Update   (internal/interface/http/handlers.go:1919 -> internal/application/coupon_service.go:113)
+AdminUpdateCoupon -> logAudit   (internal/interface/http/handlers.go:1919 -> internal/interface/http/handlers.go:959)
+Health -> writeJSON   (internal/interface/http/handlers.go:1937 -> internal/interface/http/response.go:24)
+PublicStatus -> writeData   (internal/interface/http/handlers.go:1948 -> internal/interface/http/response.go:97)
+PublicStatus -> Pool   (internal/interface/http/handlers.go:1948 -> internal/infrastructure/persistence/postgres/db.go:29)
+ReadyHandler -> writeJSON   (internal/interface/http/handlers.go:2032 -> internal/interface/http/response.go:24)
+MeGetOrder -> userIDFromContext   (internal/interface/http/handlers.go:2051 -> internal/interface/http/middleware.go:108)
+MeGetOrder -> writeError   (internal/interface/http/handlers.go:2051 -> internal/interface/http/response.go:30)
+MeGetOrder -> writeData   (internal/interface/http/handlers.go:2051 -> internal/interface/http/response.go:97)
+MeGetOrder -> GetByIDForUser   (internal/interface/http/handlers.go:2051 -> internal/application/order_service.go:24)
+PublicCountryPPP -> writeError   (internal/interface/http/handlers.go:2072 -> internal/interface/http/response.go:30)
+PublicCountryPPP -> writeData   (internal/interface/http/handlers.go:2072 -> internal/interface/http/response.go:97)
+PublicCountryPPP -> Close   (internal/interface/http/handlers.go:2072 -> internal/infrastructure/persistence/postgres/db.go:25)
+PublicCountryPPP -> Pool   (internal/interface/http/handlers.go:2072 -> internal/infrastructure/persistence/postgres/db.go:29)
+MeGetNotifPrefs -> userIDFromContext   (internal/interface/http/handlers.go:2105 -> internal/interface/http/middleware.go:108)
+MeGetNotifPrefs -> writeError   (internal/interface/http/handlers.go:2105 -> internal/interface/http/response.go:30)
+MeGetNotifPrefs -> writeData   (internal/interface/http/handlers.go:2105 -> internal/interface/http/response.go:97)
+MeGetNotifPrefs -> GetPrefs   (internal/interface/http/handlers.go:2105 -> internal/application/user_notif_service.go:36)
+MeUpdateNotifPrefs -> userIDFromContext   (internal/interface/http/handlers.go:2127 -> internal/interface/http/middleware.go:108)
+MeUpdateNotifPrefs -> writeError   (internal/interface/http/handlers.go:2127 -> internal/interface/http/response.go:30)
+MeUpdateNotifPrefs -> writeData   (internal/interface/http/handlers.go:2127 -> internal/interface/http/response.go:97)
+MeUpdateNotifPrefs -> GetPrefs   (internal/interface/http/handlers.go:2127 -> internal/application/user_notif_service.go:36)
+MeUpdateNotifPrefs -> UpdatePrefs   (internal/interface/http/handlers.go:2127 -> internal/application/user_notif_service.go:68)
+MeExportData -> WriteHeader   (internal/interface/http/handlers.go:2160 -> internal/interface/http/idempotency.go:98)
+MeExportData -> userIDFromContext   (internal/interface/http/handlers.go:2160 -> internal/interface/http/middleware.go:108)
+MeExportData -> writeError   (internal/interface/http/handlers.go:2160 -> internal/interface/http/response.go:30)
+MeExportData -> ExportData   (internal/interface/http/handlers.go:2160 -> internal/application/user_data_service.go:51)
+MeRequestDeletion -> WriteHeader   (internal/interface/http/handlers.go:2184 -> internal/interface/http/idempotency.go:98)
+MeRequestDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2184 -> internal/interface/http/middleware.go:108)
+MeRequestDeletion -> writeError   (internal/interface/http/handlers.go:2184 -> internal/interface/http/response.go:30)
+MeRequestDeletion -> RequestDeletion   (internal/interface/http/handlers.go:2184 -> internal/application/user_data_service.go:227)
+MeCancelDeletion -> WriteHeader   (internal/interface/http/handlers.go:2208 -> internal/interface/http/idempotency.go:98)
+MeCancelDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2208 -> internal/interface/http/middleware.go:108)
+MeCancelDeletion -> writeError   (internal/interface/http/handlers.go:2208 -> internal/interface/http/response.go:30)
+MeCancelDeletion -> CancelDeletion   (internal/interface/http/handlers.go:2208 -> internal/application/user_data_service.go:254)
+MeGetDeletion -> userIDFromContext   (internal/interface/http/handlers.go:2229 -> internal/interface/http/middleware.go:108)
+MeGetDeletion -> writeJSON   (internal/interface/http/handlers.go:2229 -> internal/interface/http/response.go:24)
+MeGetDeletion -> writeError   (internal/interface/http/handlers.go:2229 -> internal/interface/http/response.go:30)
+MeGetDeletion -> GetDeletionStatus   (internal/interface/http/handlers.go:2229 -> internal/application/user_data_service.go:294)
+PublicJWKS -> writeJSON   (internal/interface/http/handlers.go:2252 -> internal/interface/http/response.go:24)
+PublicJWKS -> writeError   (internal/interface/http/handlers.go:2252 -> internal/interface/http/response.go:30)
+PublicJWKS -> PublicJWKS   (internal/interface/http/handlers.go:2252 -> internal/infrastructure/external/jwtkeys/keys.go:93)
+PublicABAssign -> writeError   (internal/interface/http/handlers.go:2289 -> internal/interface/http/response.go:30)
+PublicABAssign -> writeData   (internal/interface/http/handlers.go:2289 -> internal/interface/http/response.go:97)
+PublicABAssign -> GetAssignment   (internal/interface/http/handlers.go:2289 -> internal/application/abtest_service.go:42)
+PublicABAssign -> GetAssignment   (internal/interface/http/handlers.go:2289 -> internal/infrastructure/persistence/postgres/abtest_repo.go:105)
+PublicABTrack -> WriteHeader   (internal/interface/http/handlers.go:2317 -> internal/interface/http/idempotency.go:98)
+PublicABTrack -> writeError   (internal/interface/http/handlers.go:2317 -> internal/interface/http/response.go:30)
+PublicABTrack -> TrackEvent   (internal/interface/http/handlers.go:2317 -> internal/application/abtest_service.go:80)
+AdminListAB -> writeError   (internal/interface/http/handlers.go:2346 -> internal/interface/http/response.go:30)
+AdminListAB -> writeData   (internal/interface/http/handlers.go:2346 -> internal/interface/http/response.go:97)
+AdminListAB -> AdminListExperiments   (internal/interface/http/handlers.go:2346 -> internal/application/abtest_service.go:103)
+AdminCreateAB -> writeError   (internal/interface/http/handlers.go:2361 -> internal/interface/http/response.go:30)
+AdminCreateAB -> writeData   (internal/interface/http/handlers.go:2361 -> internal/interface/http/response.go:97)
+AdminCreateAB -> AdminCreateExperiment   (internal/interface/http/handlers.go:2361 -> internal/application/abtest_service.go:108)
+AdminCreateAB -> logAudit   (internal/interface/http/handlers.go:2361 -> internal/interface/http/handlers.go:959)
+AdminUpdateAB -> writeError   (internal/interface/http/handlers.go:2381 -> internal/interface/http/response.go:30)
+AdminUpdateAB -> writeData   (internal/interface/http/handlers.go:2381 -> internal/interface/http/response.go:97)
+AdminUpdateAB -> AdminUpdateExperiment   (internal/interface/http/handlers.go:2381 -> internal/application/abtest_service.go:124)
+AdminUpdateAB -> logAudit   (internal/interface/http/handlers.go:2381 -> internal/interface/http/handlers.go:959)
+MeGetMyReferral -> userIDFromContext   (internal/interface/http/handlers.go:2407 -> internal/interface/http/middleware.go:108)
+MeGetMyReferral -> writeError   (internal/interface/http/handlers.go:2407 -> internal/interface/http/response.go:30)
+MeGetMyReferral -> writeData   (internal/interface/http/handlers.go:2407 -> internal/interface/http/response.go:97)
+MeGetMyReferral -> MyStats   (internal/interface/http/handlers.go:2407 -> internal/application/referral_service.go:46)
+PublicReferralInfo -> writeError   (internal/interface/http/handlers.go:2429 -> internal/interface/http/response.go:30)
+PublicReferralInfo -> writeData   (internal/interface/http/handlers.go:2429 -> internal/interface/http/response.go:97)
+PublicReferralInfo -> PublicInfo   (internal/interface/http/handlers.go:2429 -> internal/application/referral_service.go:67)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/application/coupon_service.go:124)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/application/currency_service.go:32)
+AdminListFraudSignals -> writeError   (internal/interface/http/handlers.go:2448 -> internal/interface/http/response.go:30)
+AdminListFraudSignals -> writeData   (internal/interface/http/handlers.go:2448 -> internal/interface/http/response.go:97)
+AdminListFraudSignals -> ListSignals   (internal/interface/http/handlers.go:2448 -> internal/application/fraud_service.go:171)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/application/invoice_service.go:132)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/application/payment.go:88)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/application/vendor_service.go:101)
+AdminListFraudSignals -> Get   (internal/interface/http/handlers.go:2448 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+PublicTaxRates -> writeError   (internal/interface/http/handlers.go:2481 -> internal/interface/http/response.go:30)
+PublicTaxRates -> writeData   (internal/interface/http/handlers.go:2481 -> internal/interface/http/response.go:97)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/application/gateway_service.go:47)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/application/profile_service.go:25)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/application/vendor_service.go:97)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/audit_repo.go:27)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/country_ppp_repo.go:39)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/coupon_repo.go:83)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/role_repo.go:31)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/tax_rate_repo.go:44)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/infrastructure/persistence/postgres/vendor_repo.go:53)
+PublicTaxRates -> List   (internal/interface/http/handlers.go:2481 -> internal/application/coupon_service.go:120)
+MeListMySubscriptions -> userIDFromContext   (internal/interface/http/handlers.go:2503 -> internal/interface/http/middleware.go:108)
+MeListMySubscriptions -> writeError   (internal/interface/http/handlers.go:2503 -> internal/interface/http/response.go:30)
+MeListMySubscriptions -> writeData   (internal/interface/http/handlers.go:2503 -> internal/interface/http/response.go:97)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/delivery_capture_cron_test.go:47)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/delivery_capture_cron_test.go:193)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/review_service_test.go:100)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/subscription_service.go:106)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/user_consent_service.go:88)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/application/user_event_service.go:159)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
+MeListMySubscriptions -> ListByUser   (internal/interface/http/handlers.go:2503 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
+MeSubscribe -> userIDFromContext   (internal/interface/http/handlers.go:2524 -> internal/interface/http/middleware.go:108)
+MeSubscribe -> writeError   (internal/interface/http/handlers.go:2524 -> internal/interface/http/response.go:30)
+MeSubscribe -> writeData   (internal/interface/http/handlers.go:2524 -> internal/interface/http/response.go:97)
+MeSubscribe -> Subscribe   (internal/interface/http/handlers.go:2524 -> internal/application/subscription_service.go:55)
+MeCancelSubscription -> WriteHeader   (internal/interface/http/handlers.go:2551 -> internal/interface/http/idempotency.go:98)
+MeCancelSubscription -> userIDFromContext   (internal/interface/http/handlers.go:2551 -> internal/interface/http/middleware.go:108)
+MeCancelSubscription -> writeError   (internal/interface/http/handlers.go:2551 -> internal/interface/http/response.go:30)
+MeCancelSubscription -> Cancel   (internal/interface/http/handlers.go:2551 -> internal/application/subscription_service.go:90)
+MeCancelSubscription -> Cancel   (internal/interface/http/handlers.go:2551 -> internal/infrastructure/persistence/postgres/subscription_repo.go:135)
+PublicTrackEvent -> readAnalyticsConsentHeader   (internal/interface/http/handlers.go:2592 -> internal/interface/http/handlers.go:3081)
+PublicTrackEvent -> WriteHeader   (internal/interface/http/handlers.go:2592 -> internal/interface/http/idempotency.go:98)
+PublicTrackEvent -> userIDFromContext   (internal/interface/http/handlers.go:2592 -> internal/interface/http/middleware.go:108)
+PublicTrackEvent -> writeError   (internal/interface/http/handlers.go:2592 -> internal/interface/http/response.go:30)
+PublicTrackEvent -> IsAllowedEventType   (internal/interface/http/handlers.go:2592 -> internal/application/user_event_service.go:28)
+PublicTrackEvent -> RecordEvent   (internal/interface/http/handlers.go:2592 -> internal/application/user_event_service.go:75)
+PublicTrackEvent -> clientIP   (internal/interface/http/handlers.go:2592 -> internal/interface/http/handlers.go:101)
+MeJourney -> userIDFromContext   (internal/interface/http/handlers.go:2653 -> internal/interface/http/middleware.go:108)
+MeJourney -> writeError   (internal/interface/http/handlers.go:2653 -> internal/interface/http/response.go:30)
+MeJourney -> writeData   (internal/interface/http/handlers.go:2653 -> internal/interface/http/response.go:97)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/delivery_capture_cron_test.go:47)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/delivery_capture_cron_test.go:193)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/review_service_test.go:100)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/subscription_service.go:106)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/user_consent_service.go:88)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/application/user_event_service.go:159)
+MeJourney -> GetJourney   (internal/interface/http/handlers.go:2653 -> internal/application/user_event_service.go:166)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
+MeJourney -> ListByUser   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
+MeJourney -> GetJourney   (internal/interface/http/handlers.go:2653 -> internal/infrastructure/persistence/postgres/user_event_repo.go:169)
+AdminBulkSoftDeleteOrders -> decodeBulkDelete   (internal/interface/http/handlers.go:2718 -> internal/interface/http/handlers.go:2704)
+AdminBulkSoftDeleteOrders -> principalFromContext   (internal/interface/http/handlers.go:2718 -> internal/interface/http/middleware.go:83)
+AdminBulkSoftDeleteOrders -> writeError   (internal/interface/http/handlers.go:2718 -> internal/interface/http/response.go:30)
+AdminBulkSoftDeleteOrders -> writeData   (internal/interface/http/handlers.go:2718 -> internal/interface/http/response.go:97)
+AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2718 -> internal/application/delivery_capture_cron_test.go:104)
+AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2718 -> internal/application/review_service_test.go:145)
+AdminBulkSoftDeleteOrders -> Error   (internal/interface/http/handlers.go:2718 -> internal/application/storage.go:49)
+AdminBulkSoftDeleteOrders -> SoftDeleteOrder   (internal/interface/http/handlers.go:2718 -> internal/infrastructure/persistence/postgres/order_repo.go:137)
+AdminBulkSoftDeleteInvoices -> decodeBulkDelete   (internal/interface/http/handlers.go:2740 -> internal/interface/http/handlers.go:2704)
+AdminBulkSoftDeleteInvoices -> principalFromContext   (internal/interface/http/handlers.go:2740 -> internal/interface/http/middleware.go:83)
+AdminBulkSoftDeleteInvoices -> writeError   (internal/interface/http/handlers.go:2740 -> internal/interface/http/response.go:30)
+AdminBulkSoftDeleteInvoices -> writeData   (internal/interface/http/handlers.go:2740 -> internal/interface/http/response.go:97)
+AdminBulkSoftDeleteInvoices -> AdminSoftDelete   (internal/interface/http/handlers.go:2740 -> internal/application/invoice_service.go:162)
+AdminBulkSoftDeleteInvoices -> Error   (internal/interface/http/handlers.go:2740 -> internal/application/storage.go:49)
+AdminBulkSoftDeleteUsers -> decodeBulkDelete   (internal/interface/http/handlers.go:2762 -> internal/interface/http/handlers.go:2704)
+AdminBulkSoftDeleteUsers -> principalFromContext   (internal/interface/http/handlers.go:2762 -> internal/interface/http/middleware.go:83)
+AdminBulkSoftDeleteUsers -> writeError   (internal/interface/http/handlers.go:2762 -> internal/interface/http/response.go:30)
+AdminBulkSoftDeleteUsers -> writeData   (internal/interface/http/handlers.go:2762 -> internal/interface/http/response.go:97)
+AdminBulkSoftDeleteUsers -> Error   (internal/interface/http/handlers.go:2762 -> internal/application/storage.go:49)
+AdminBulkSoftDeleteUsers -> SoftDeleteUser   (internal/interface/http/handlers.go:2762 -> internal/infrastructure/persistence/postgres/user_repo.go:218)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/application/coupon_service.go:124)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/application/currency_service.go:32)
+AdminTrash -> writeError   (internal/interface/http/handlers.go:2800 -> internal/interface/http/response.go:30)
+AdminTrash -> writeData   (internal/interface/http/handlers.go:2800 -> internal/interface/http/response.go:97)
+AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2800 -> internal/application/delivery_capture_cron_test.go:113)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/application/invoice_service.go:132)
+AdminTrash -> AdminListDeleted   (internal/interface/http/handlers.go:2800 -> internal/application/invoice_service.go:176)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/application/payment.go:88)
+AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2800 -> internal/application/review_service_test.go:154)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/application/vendor_service.go:101)
+AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2800 -> internal/infrastructure/persistence/postgres/invoice_repo.go:125)
+AdminTrash -> ListDeletedView   (internal/interface/http/handlers.go:2800 -> internal/infrastructure/persistence/postgres/order_repo.go:119)
+AdminTrash -> Get   (internal/interface/http/handlers.go:2800 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+AdminTrash -> ListDeletedWithCreditBalance   (internal/interface/http/handlers.go:2800 -> internal/infrastructure/persistence/postgres/user_repo.go:181)
+AdminSoftDeleteOrder -> decodeDeleteBody   (internal/interface/http/handlers.go:2857 -> internal/interface/http/handlers.go:2847)
+AdminSoftDeleteOrder -> WriteHeader   (internal/interface/http/handlers.go:2857 -> internal/interface/http/idempotency.go:98)
+AdminSoftDeleteOrder -> principalFromContext   (internal/interface/http/handlers.go:2857 -> internal/interface/http/middleware.go:83)
+AdminSoftDeleteOrder -> writeError   (internal/interface/http/handlers.go:2857 -> internal/interface/http/response.go:30)
+AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2857 -> internal/application/delivery_capture_cron_test.go:104)
+AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2857 -> internal/application/review_service_test.go:145)
+AdminSoftDeleteOrder -> SoftDeleteOrder   (internal/interface/http/handlers.go:2857 -> internal/infrastructure/persistence/postgres/order_repo.go:137)
+AdminHardDeleteOrder -> WriteHeader   (internal/interface/http/handlers.go:2877 -> internal/interface/http/idempotency.go:98)
+AdminHardDeleteOrder -> writeError   (internal/interface/http/handlers.go:2877 -> internal/interface/http/response.go:30)
+AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2877 -> internal/application/delivery_capture_cron_test.go:107)
+AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2877 -> internal/application/review_service_test.go:148)
+AdminHardDeleteOrder -> HardDeleteOrder   (internal/interface/http/handlers.go:2877 -> internal/infrastructure/persistence/postgres/order_repo.go:157)
+AdminRestoreOrder -> WriteHeader   (internal/interface/http/handlers.go:2891 -> internal/interface/http/idempotency.go:98)
+AdminRestoreOrder -> writeError   (internal/interface/http/handlers.go:2891 -> internal/interface/http/response.go:30)
+AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2891 -> internal/application/delivery_capture_cron_test.go:110)
+AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2891 -> internal/application/review_service_test.go:151)
+AdminRestoreOrder -> RestoreOrder   (internal/interface/http/handlers.go:2891 -> internal/infrastructure/persistence/postgres/order_repo.go:170)
+AdminSoftDeleteInvoice -> decodeDeleteBody   (internal/interface/http/handlers.go:2905 -> internal/interface/http/handlers.go:2847)
+AdminSoftDeleteInvoice -> WriteHeader   (internal/interface/http/handlers.go:2905 -> internal/interface/http/idempotency.go:98)
+AdminSoftDeleteInvoice -> principalFromContext   (internal/interface/http/handlers.go:2905 -> internal/interface/http/middleware.go:83)
+AdminSoftDeleteInvoice -> writeError   (internal/interface/http/handlers.go:2905 -> internal/interface/http/response.go:30)
+AdminSoftDeleteInvoice -> AdminSoftDelete   (internal/interface/http/handlers.go:2905 -> internal/application/invoice_service.go:162)
+AdminHardDeleteInvoice -> WriteHeader   (internal/interface/http/handlers.go:2924 -> internal/interface/http/idempotency.go:98)
+AdminHardDeleteInvoice -> writeError   (internal/interface/http/handlers.go:2924 -> internal/interface/http/response.go:30)
+AdminHardDeleteInvoice -> AdminHardDelete   (internal/interface/http/handlers.go:2924 -> internal/application/invoice_service.go:166)
+AdminRestoreInvoice -> WriteHeader   (internal/interface/http/handlers.go:2937 -> internal/interface/http/idempotency.go:98)
+AdminRestoreInvoice -> writeError   (internal/interface/http/handlers.go:2937 -> internal/interface/http/response.go:30)
+AdminRestoreInvoice -> AdminRestore   (internal/interface/http/handlers.go:2937 -> internal/application/invoice_service.go:170)
+AdminSoftDeleteUser -> decodeDeleteBody   (internal/interface/http/handlers.go:2951 -> internal/interface/http/handlers.go:2847)
+AdminSoftDeleteUser -> WriteHeader   (internal/interface/http/handlers.go:2951 -> internal/interface/http/idempotency.go:98)
+AdminSoftDeleteUser -> principalFromContext   (internal/interface/http/handlers.go:2951 -> internal/interface/http/middleware.go:83)
+AdminSoftDeleteUser -> writeError   (internal/interface/http/handlers.go:2951 -> internal/interface/http/response.go:30)
+AdminSoftDeleteUser -> SoftDeleteUser   (internal/interface/http/handlers.go:2951 -> internal/infrastructure/persistence/postgres/user_repo.go:218)
+AdminHardDeleteUser -> WriteHeader   (internal/interface/http/handlers.go:2970 -> internal/interface/http/idempotency.go:98)
+AdminHardDeleteUser -> writeError   (internal/interface/http/handlers.go:2970 -> internal/interface/http/response.go:30)
+AdminHardDeleteUser -> HardDeleteUser   (internal/interface/http/handlers.go:2970 -> internal/infrastructure/persistence/postgres/user_repo.go:237)
+AdminRestoreUser -> WriteHeader   (internal/interface/http/handlers.go:2983 -> internal/interface/http/idempotency.go:98)
+AdminRestoreUser -> writeError   (internal/interface/http/handlers.go:2983 -> internal/interface/http/response.go:30)
+AdminRestoreUser -> RestoreUser   (internal/interface/http/handlers.go:2983 -> internal/infrastructure/persistence/postgres/user_repo.go:249)
+AdminUserJourney -> writeError   (internal/interface/http/handlers.go:3000 -> internal/interface/http/response.go:30)
+AdminUserJourney -> writeData   (internal/interface/http/handlers.go:3000 -> internal/interface/http/response.go:97)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/delivery_capture_cron_test.go:47)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/delivery_capture_cron_test.go:193)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/review_service_test.go:100)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/subscription_service.go:106)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/user_consent_service.go:88)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/application/user_event_service.go:159)
+AdminUserJourney -> GetJourney   (internal/interface/http/handlers.go:3000 -> internal/application/user_event_service.go:166)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/api_key_repo.go:61)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/credit_repo.go:95)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/invoice_repo.go:48)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/order_repo.go:92)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/profile_repo.go:35)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/subscription_repo.go:68)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/ticket_repo.go:36)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:48)
+AdminUserJourney -> ListByUser   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/user_event_repo.go:146)
+AdminUserJourney -> GetJourney   (internal/interface/http/handlers.go:3000 -> internal/infrastructure/persistence/postgres/user_event_repo.go:169)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/application/coupon_service.go:124)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/application/currency_service.go:32)
+AdminListVisitors -> writeError   (internal/interface/http/handlers.go:3029 -> internal/interface/http/response.go:30)
+AdminListVisitors -> writeData   (internal/interface/http/handlers.go:3029 -> internal/interface/http/response.go:97)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/application/invoice_service.go:132)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/application/payment.go:88)
+AdminListVisitors -> ListRecentVisitors   (internal/interface/http/handlers.go:3029 -> internal/application/user_event_service.go:181)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/application/vendor_service.go:101)
+AdminListVisitors -> Get   (internal/interface/http/handlers.go:3029 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+AdminListVisitors -> ListRecentVisitors   (internal/interface/http/handlers.go:3029 -> internal/infrastructure/persistence/postgres/user_event_repo.go:242)
+AdminGetVisitor -> writeError   (internal/interface/http/handlers.go:3049 -> internal/interface/http/response.go:30)
+AdminGetVisitor -> writeData   (internal/interface/http/handlers.go:3049 -> internal/interface/http/response.go:97)
+AdminGetVisitor -> ListByVisitor   (internal/interface/http/handlers.go:3049 -> internal/application/user_event_service.go:175)
+AdminGetVisitor -> GetVisitorSummary   (internal/interface/http/handlers.go:3049 -> internal/application/user_event_service.go:187)
+AdminGetVisitor -> ListByVisitor   (internal/interface/http/handlers.go:3049 -> internal/infrastructure/persistence/postgres/user_event_repo.go:123)
+AdminGetVisitor -> GetVisitorSummary   (internal/interface/http/handlers.go:3049 -> internal/infrastructure/persistence/postgres/user_event_repo.go:301)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/application/coupon_service.go:124)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/application/currency_service.go:32)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/application/invoice_service.go:132)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/application/payment.go:88)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/application/vendor_service.go:101)
+readAnalyticsConsentHeader -> Get   (internal/interface/http/handlers.go:3081 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+PublicRecordConsent -> WriteHeader   (internal/interface/http/handlers.go:3124 -> internal/interface/http/idempotency.go:98)
+PublicRecordConsent -> userIDFromContext   (internal/interface/http/handlers.go:3124 -> internal/interface/http/middleware.go:108)
+PublicRecordConsent -> writeError   (internal/interface/http/handlers.go:3124 -> internal/interface/http/response.go:30)
+PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3124 -> internal/application/user_consent_service.go:51)
+PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3124 -> internal/infrastructure/persistence/postgres/admin_honeypot_repo.go:14)
+PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3124 -> internal/infrastructure/persistence/postgres/user_consent_repo.go:23)
+PublicRecordConsent -> Record   (internal/interface/http/handlers.go:3124 -> internal/infrastructure/persistence/postgres/user_event_repo.go:30)
+PublicRecordConsent -> clientIP   (internal/interface/http/handlers.go:3124 -> internal/interface/http/handlers.go:101)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/application/coupon_service.go:124)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/application/currency_service.go:32)
+PublicListPaymentMethods -> writeError   (internal/interface/http/handlers.go:3181 -> internal/interface/http/response.go:30)
+PublicListPaymentMethods -> writeData   (internal/interface/http/handlers.go:3181 -> internal/interface/http/response.go:97)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/application/invoice_service.go:132)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/application/payment.go:88)
+PublicListPaymentMethods -> ListPaymentMethods   (internal/interface/http/handlers.go:3181 -> internal/application/payment_methods.go:55)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/application/vendor_service.go:101)
+PublicListPaymentMethods -> ListMethods   (internal/interface/http/handlers.go:3181 -> internal/infrastructure/external/paymentsclient/client.go:155)
+PublicListPaymentMethods -> Get   (internal/interface/http/handlers.go:3181 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/application/coupon_service.go:124)
+MeUploadProof -> uploadProofMultipart   (internal/interface/http/handlers.go:3242 -> internal/interface/http/handlers.go:3421)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/application/currency_service.go:32)
+MeUploadProof -> userIDFromContext   (internal/interface/http/handlers.go:3242 -> internal/interface/http/middleware.go:108)
+MeUploadProof -> writeError   (internal/interface/http/handlers.go:3242 -> internal/interface/http/response.go:30)
+MeUploadProof -> writeData   (internal/interface/http/handlers.go:3242 -> internal/interface/http/response.go:97)
+MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3242 -> internal/application/delivery_capture_cron_test.go:92)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/application/invoice_service.go:132)
+MeUploadProof -> GetByIDForUser   (internal/interface/http/handlers.go:3242 -> internal/application/order_service.go:24)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/application/payment.go:88)
+MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3242 -> internal/application/review_service_test.go:133)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/application/vendor_service.go:101)
+MeUploadProof -> SetProof   (internal/interface/http/handlers.go:3242 -> internal/infrastructure/persistence/postgres/order_repo.go:458)
+MeUploadProof -> Get   (internal/interface/http/handlers.go:3242 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+AdminProofDecision -> buildProofRejectionEmail   (internal/interface/http/handlers.go:3307 -> internal/interface/http/handlers.go:3359)
+AdminProofDecision -> writeError   (internal/interface/http/handlers.go:3307 -> internal/interface/http/response.go:30)
+AdminProofDecision -> writeData   (internal/interface/http/handlers.go:3307 -> internal/interface/http/response.go:97)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/delivery_capture_cron_test.go:33)
+AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3307 -> internal/application/delivery_capture_cron_test.go:98)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/delivery_capture_cron_test.go:169)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/delivery_capture_cron_test.go:190)
+AdminProofDecision -> MarkOrderPaid   (internal/interface/http/handlers.go:3307 -> internal/application/payment_receiver.go:172)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/plan_service.go:23)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/profile_service.go:32)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/review_service_test.go:66)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/review_service_test.go:90)
+AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3307 -> internal/application/review_service_test.go:139)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/application/review_service_test.go:167)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/application/whatsapp_service.go:50)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/external/email/resend.go:31)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/external/email/sender.go:63)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/external/email/sender.go:101)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/external/notify/webhook.go:41)
+AdminProofDecision -> Send   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/external/senderclient/client.go:99)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+AdminProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/order_repo.go:510)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+AdminProofDecision -> GetByID   (internal/interface/http/handlers.go:3307 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/application/coupon_service.go:124)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/application/currency_service.go:32)
+AdminListPendingProofs -> writeError   (internal/interface/http/handlers.go:3390 -> internal/interface/http/response.go:30)
+AdminListPendingProofs -> writeData   (internal/interface/http/handlers.go:3390 -> internal/interface/http/response.go:97)
+AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3390 -> internal/application/delivery_capture_cron_test.go:101)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/application/invoice_service.go:132)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/application/payment.go:88)
+AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3390 -> internal/application/review_service_test.go:142)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/application/vendor_service.go:101)
+AdminListPendingProofs -> ListPendingProofs   (internal/interface/http/handlers.go:3390 -> internal/infrastructure/persistence/postgres/order_repo.go:529)
+AdminListPendingProofs -> Get   (internal/interface/http/handlers.go:3390 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/application/coupon_service.go:124)
+uploadProofMultipart -> nowKeyPrefix   (internal/interface/http/handlers.go:3421 -> internal/interface/http/handlers.go:3477)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/application/currency_service.go:32)
+uploadProofMultipart -> writeError   (internal/interface/http/handlers.go:3421 -> internal/interface/http/response.go:30)
+uploadProofMultipart -> writeData   (internal/interface/http/handlers.go:3421 -> internal/interface/http/response.go:97)
+uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3421 -> internal/application/delivery_capture_cron_test.go:92)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/application/invoice_service.go:132)
+uploadProofMultipart -> GetByIDForUser   (internal/interface/http/handlers.go:3421 -> internal/application/order_service.go:24)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/application/payment.go:88)
+uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3421 -> internal/application/review_service_test.go:133)
+uploadProofMultipart -> Put   (internal/interface/http/handlers.go:3421 -> internal/application/storage.go:33)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/application/vendor_service.go:101)
+uploadProofMultipart -> Put   (internal/interface/http/handlers.go:3421 -> internal/infrastructure/external/storage/s3.go:53)
+uploadProofMultipart -> Close   (internal/interface/http/handlers.go:3421 -> internal/infrastructure/persistence/postgres/db.go:25)
+uploadProofMultipart -> SetProof   (internal/interface/http/handlers.go:3421 -> internal/infrastructure/persistence/postgres/order_repo.go:458)
+uploadProofMultipart -> Get   (internal/interface/http/handlers.go:3421 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+MeGetProofURL -> resolveProofURL   (internal/interface/http/handlers.go:3487 -> internal/interface/http/handlers.go:3537)
+MeGetProofURL -> userIDFromContext   (internal/interface/http/handlers.go:3487 -> internal/interface/http/middleware.go:108)
+MeGetProofURL -> writeError   (internal/interface/http/handlers.go:3487 -> internal/interface/http/response.go:30)
+MeGetProofURL -> writeData   (internal/interface/http/handlers.go:3487 -> internal/interface/http/response.go:97)
+MeGetProofURL -> GetByIDForUser   (internal/interface/http/handlers.go:3487 -> internal/application/order_service.go:24)
+AdminGetProofURL -> resolveProofURL   (internal/interface/http/handlers.go:3509 -> internal/interface/http/handlers.go:3537)
+AdminGetProofURL -> writeError   (internal/interface/http/handlers.go:3509 -> internal/interface/http/response.go:30)
+AdminGetProofURL -> writeData   (internal/interface/http/handlers.go:3509 -> internal/interface/http/response.go:97)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/delivery_capture_cron_test.go:33)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/delivery_capture_cron_test.go:169)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/delivery_capture_cron_test.go:190)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/plan_service.go:23)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/profile_service.go:32)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/review_service_test.go:66)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/review_service_test.go:90)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/application/review_service_test.go:167)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+AdminGetProofURL -> GetByID   (internal/interface/http/handlers.go:3509 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+resolveProofURL -> PresignedGetURL   (internal/interface/http/handlers.go:3537 -> internal/application/storage.go:36)
+resolveProofURL -> PresignedGetURL   (internal/interface/http/handlers.go:3537 -> internal/infrastructure/external/storage/s3.go:71)
+AdminLoginEnroll2FA -> writeError   (internal/interface/http/handlers.go:3572 -> internal/interface/http/response.go:30)
+AdminLoginEnroll2FA -> writeData   (internal/interface/http/handlers.go:3572 -> internal/interface/http/response.go:97)
+AdminLoginEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3572 -> internal/application/twofa_service.go:55)
+AdminLoginEnroll2FA -> ParsePartialToken   (internal/interface/http/handlers.go:3572 -> internal/application/auth_service.go:207)
+AdminLoginEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3572 -> internal/infrastructure/external/totp/totp.go:35)
+AdminLoginEnroll2FA -> GetAdminByID   (internal/interface/http/handlers.go:3572 -> internal/application/auth_service.go:292)
+AdminLoginComplete2FA -> writeError   (internal/interface/http/handlers.go:3606 -> internal/interface/http/response.go:30)
+AdminLoginComplete2FA -> writeData   (internal/interface/http/handlers.go:3606 -> internal/interface/http/response.go:97)
+AdminLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3606 -> internal/application/user_auth_service.go:238)
+AdminLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3606 -> internal/application/auth_service.go:122)
+AdminDisable2FA -> WriteHeader   (internal/interface/http/handlers.go:3631 -> internal/interface/http/idempotency.go:98)
+AdminDisable2FA -> principalFromContext   (internal/interface/http/handlers.go:3631 -> internal/interface/http/middleware.go:83)
+AdminDisable2FA -> writeError   (internal/interface/http/handlers.go:3631 -> internal/interface/http/response.go:30)
+AdminDisable2FA -> Disable   (internal/interface/http/handlers.go:3631 -> internal/application/twofa_service.go:143)
+AdminDisable2FA -> Log   (internal/interface/http/handlers.go:3631 -> internal/application/audit_service.go:36)
+AdminBulkProofDecision -> buildProofRejectionEmail   (internal/interface/http/handlers.go:3670 -> internal/interface/http/handlers.go:3359)
+AdminBulkProofDecision -> principalFromContext   (internal/interface/http/handlers.go:3670 -> internal/interface/http/middleware.go:83)
+AdminBulkProofDecision -> writeError   (internal/interface/http/handlers.go:3670 -> internal/interface/http/response.go:30)
+AdminBulkProofDecision -> writeData   (internal/interface/http/handlers.go:3670 -> internal/interface/http/response.go:97)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/delivery_capture_cron_test.go:33)
+AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3670 -> internal/application/delivery_capture_cron_test.go:98)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/delivery_capture_cron_test.go:169)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/delivery_capture_cron_test.go:190)
+AdminBulkProofDecision -> MarkOrderPaid   (internal/interface/http/handlers.go:3670 -> internal/application/payment_receiver.go:172)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/plan_service.go:23)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/profile_service.go:32)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/review_service_test.go:66)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/review_service_test.go:90)
+AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3670 -> internal/application/review_service_test.go:139)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/application/review_service_test.go:167)
+AdminBulkProofDecision -> Error   (internal/interface/http/handlers.go:3670 -> internal/application/storage.go:49)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/application/whatsapp_service.go:50)
+AdminBulkProofDecision -> Log   (internal/interface/http/handlers.go:3670 -> internal/application/audit_service.go:36)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/external/email/resend.go:31)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/external/email/sender.go:63)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/external/email/sender.go:101)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/external/notify/webhook.go:41)
+AdminBulkProofDecision -> Send   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/external/senderclient/client.go:99)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+AdminBulkProofDecision -> SetProofStatus   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/order_repo.go:510)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+AdminBulkProofDecision -> GetByID   (internal/interface/http/handlers.go:3670 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+UserLoginComplete2FA -> writeError   (internal/interface/http/handlers.go:3750 -> internal/interface/http/response.go:30)
+UserLoginComplete2FA -> writeData   (internal/interface/http/handlers.go:3750 -> internal/interface/http/response.go:97)
+UserLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3750 -> internal/application/user_auth_service.go:238)
+UserLoginComplete2FA -> CompleteLoginWith2FA   (internal/interface/http/handlers.go:3750 -> internal/application/auth_service.go:122)
+MeEnroll2FA -> userIDFromContext   (internal/interface/http/handlers.go:3774 -> internal/interface/http/middleware.go:108)
+MeEnroll2FA -> writeError   (internal/interface/http/handlers.go:3774 -> internal/interface/http/response.go:30)
+MeEnroll2FA -> writeData   (internal/interface/http/handlers.go:3774 -> internal/interface/http/response.go:97)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/delivery_capture_cron_test.go:33)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/delivery_capture_cron_test.go:169)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/delivery_capture_cron_test.go:190)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/plan_service.go:23)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/profile_service.go:32)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/review_service_test.go:66)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/review_service_test.go:90)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/application/review_service_test.go:167)
+MeEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3774 -> internal/application/twofa_service.go:55)
+MeEnroll2FA -> Enroll   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/external/totp/totp.go:35)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/admin_repo.go:24)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/gateway_repo.go:41)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/invoice_repo.go:38)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/order_repo.go:82)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/plan_repo.go:41)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/profile_repo.go:25)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
+MeEnroll2FA -> GetByID   (internal/interface/http/handlers.go:3774 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
+MeVerify2FA -> WriteHeader   (internal/interface/http/handlers.go:3800 -> internal/interface/http/idempotency.go:98)
+MeVerify2FA -> userIDFromContext   (internal/interface/http/handlers.go:3800 -> internal/interface/http/middleware.go:108)
+MeVerify2FA -> writeError   (internal/interface/http/handlers.go:3800 -> internal/interface/http/response.go:30)
+MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3800 -> internal/application/twofa_service.go:96)
+MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3800 -> internal/infrastructure/external/totp/totp.go:51)
+MeVerify2FA -> Verify   (internal/interface/http/handlers.go:3800 -> internal/infrastructure/external/turnstile/turnstile.go:44)
+MeDisable2FA -> WriteHeader   (internal/interface/http/handlers.go:3827 -> internal/interface/http/idempotency.go:98)
+MeDisable2FA -> userIDFromContext   (internal/interface/http/handlers.go:3827 -> internal/interface/http/middleware.go:108)
+MeDisable2FA -> writeError   (internal/interface/http/handlers.go:3827 -> internal/interface/http/response.go:30)
+MeDisable2FA -> Disable   (internal/interface/http/handlers.go:3827 -> internal/application/twofa_service.go:143)
+MeDismiss2FAPrompt -> WriteHeader   (internal/interface/http/handlers.go:3847 -> internal/interface/http/idempotency.go:98)
+MeDismiss2FAPrompt -> userIDFromContext   (internal/interface/http/handlers.go:3847 -> internal/interface/http/middleware.go:108)
+MeDismiss2FAPrompt -> writeError   (internal/interface/http/handlers.go:3847 -> internal/interface/http/response.go:30)
+MeDismiss2FAPrompt -> Pool   (internal/interface/http/handlers.go:3847 -> internal/infrastructure/persistence/postgres/db.go:29)
+MeTwoFAStatus -> computeShouldPrompt2FA   (internal/interface/http/handlers.go:3878 -> internal/interface/http/handlers.go:3898)
+MeTwoFAStatus -> userIDFromContext   (internal/interface/http/handlers.go:3878 -> internal/interface/http/middleware.go:108)
+MeTwoFAStatus -> writeError   (internal/interface/http/handlers.go:3878 -> internal/interface/http/response.go:30)
+MeTwoFAStatus -> writeData   (internal/interface/http/handlers.go:3878 -> internal/interface/http/response.go:97)
+MeTwoFAStatus -> IsEnrolled   (internal/interface/http/handlers.go:3878 -> internal/application/twofa_service.go:133)
+computeShouldPrompt2FA -> Pool   (internal/interface/http/handlers.go:3898 -> internal/infrastructure/persistence/postgres/db.go:29)
 MeListAPIKeys -> userIDFromContext   (internal/interface/http/handlers_api_keys.go:26 -> internal/interface/http/middleware.go:108)
 MeListAPIKeys -> writeError   (internal/interface/http/handlers_api_keys.go:26 -> internal/interface/http/response.go:30)
 MeListAPIKeys -> writeData   (internal/interface/http/handlers_api_keys.go:26 -> internal/interface/http/response.go:97)
@@ -10079,7 +10147,7 @@ MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> i
 MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 MeCreateAPIKey -> Create   (internal/interface/http/handlers_api_keys.go:47 -> internal/application/coupon_service.go:99)
 MeRevokeAPIKey -> WriteHeader   (internal/interface/http/handlers_api_keys.go:74 -> internal/interface/http/idempotency.go:98)
@@ -10108,7 +10176,7 @@ PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:1
 PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 PublicV2OrderStatus -> GetByID   (internal/interface/http/handlers_api_keys.go:126 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminIssueRefund -> principalFromContext   (internal/interface/http/handlers_refunds.go:19 -> internal/interface/http/middleware.go:83)
 AdminIssueRefund -> writeError   (internal/interface/http/handlers_refunds.go:19 -> internal/interface/http/response.go:30)
@@ -10131,7 +10199,7 @@ AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 ->
 AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 AdminIssueRefund -> GetByID   (internal/interface/http/handlers_refunds.go:19 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 AdminIssueRefund -> logAudit   (internal/interface/http/handlers_refunds.go:19 -> internal/interface/http/handlers.go:959)
 AdminListOrderRefunds -> writeError   (internal/interface/http/handlers_refunds.go:61 -> internal/interface/http/response.go:30)
@@ -10248,6 +10316,28 @@ ObservabilityMiddleware -> FromContext   (internal/interface/http/observability.
 ObservabilityMiddleware -> WithTraceID   (internal/interface/http/observability.go:24 -> internal/infrastructure/observability/logger.go:78)
 ObservabilityMiddleware -> WithRequestID   (internal/interface/http/observability.go:24 -> internal/infrastructure/observability/logger.go:94)
 ObservabilityMiddleware -> Get   (internal/interface/http/observability.go:24 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/application/coupon_service.go:124)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/application/currency_service.go:32)
+parsePage -> decodeCursor   (internal/interface/http/pagination.go:62 -> internal/interface/http/pagination.go:131)
+parsePage -> writePage   (internal/interface/http/pagination.go:62 -> internal/interface/http/pagination.go:172)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/application/invoice_service.go:132)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/application/payment.go:88)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/application/vendor_service.go:101)
+parsePage -> Get   (internal/interface/http/pagination.go:62 -> internal/infrastructure/persistence/postgres/twofa_repo.go:29)
+decodeCursor -> writePage   (internal/interface/http/pagination.go:131 -> internal/interface/http/pagination.go:172)
+writePage -> writeJSON   (internal/interface/http/pagination.go:172 -> internal/interface/http/response.go:24)
+TestParsePageDefaults -> HasCursor   (internal/interface/http/pagination_test.go:15 -> internal/interface/http/pagination.go:38)
+TestParsePageDefaults -> parsePage   (internal/interface/http/pagination_test.go:15 -> internal/interface/http/pagination.go:62)
+TestParsePageDefaults -> Error   (internal/interface/http/pagination_test.go:15 -> internal/application/storage.go:49)
+TestParsePageLimitBoundaries -> parsePage   (internal/interface/http/pagination_test.go:35 -> internal/interface/http/pagination.go:62)
+TestCursorRoundTrip -> encodeCursor   (internal/interface/http/pagination_test.go:77 -> internal/interface/http/pagination.go:116)
+TestCursorRoundTrip -> decodeCursor   (internal/interface/http/pagination_test.go:77 -> internal/interface/http/pagination.go:131)
+TestDecodeCursorRejectsGarbage -> decodeCursor   (internal/interface/http/pagination_test.go:99 -> internal/interface/http/pagination.go:131)
+TestDecodeCursorRejectsGarbage -> encodeRaw   (internal/interface/http/pagination_test.go:99 -> internal/interface/http/pagination_test.go:159)
+TestParsePageRejectsBadCursor -> parsePage   (internal/interface/http/pagination_test.go:122 -> internal/interface/http/pagination.go:62)
+TestParsePageRejectsBadCursor -> Error   (internal/interface/http/pagination_test.go:122 -> internal/application/storage.go:49)
+TestParsePageTrimsQuery -> parsePage   (internal/interface/http/pagination_test.go:134 -> internal/interface/http/pagination.go:62)
+TestParsePageRejectsControlCharsInSearch -> parsePage   (internal/interface/http/pagination_test.go:171 -> internal/interface/http/pagination.go:62)
 Middleware -> WriteHeader   (internal/interface/http/ratelimit.go:43 -> internal/interface/http/idempotency.go:98)
 Middleware -> Write   (internal/interface/http/ratelimit.go:43 -> internal/interface/http/idempotency.go:103)
 Middleware -> allow   (internal/interface/http/ratelimit.go:43 -> internal/interface/http/ratelimit.go:63)
@@ -10293,6 +10383,14 @@ writeError -> New   (internal/interface/http/response.go:30 -> internal/infrastr
 writeError -> New   (internal/interface/http/response.go:30 -> internal/infrastructure/external/storage/s3.go:34)
 writeError -> New   (internal/interface/http/response.go:30 -> internal/infrastructure/persistence/postgres/db.go:13)
 writeData -> writeJSON   (internal/interface/http/response.go:97 -> internal/interface/http/response.go:24)
+writeData -> writeError   (internal/interface/http/response.go:97 -> internal/interface/http/response.go:30)
+writeErrorMsg -> writeJSON   (internal/interface/http/response.go:118 -> internal/interface/http/response.go:24)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/auth/revocation_cache.go:60)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/external/email/sender.go:35)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/external/paymentsclient/client.go:54)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/external/senderclient/client.go:59)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/external/storage/s3.go:34)
+writeErrorMsg -> New   (internal/interface/http/response.go:118 -> internal/infrastructure/persistence/postgres/db.go:13)
 TestWriteError_PgUniqueViolation_Returns409 -> Get   (internal/interface/http/response_test.go:26 -> internal/application/coupon_service.go:124)
 TestWriteError_PgUniqueViolation_Returns409 -> Get   (internal/interface/http/response_test.go:26 -> internal/application/currency_service.go:32)
 TestWriteError_PgUniqueViolation_Returns409 -> writeError   (internal/interface/http/response_test.go:26 -> internal/interface/http/response.go:30)
@@ -10343,7 +10441,7 @@ MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> int
 MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 MeCreateReview -> Create   (internal/interface/http/review_handlers.go:17 -> internal/application/coupon_service.go:99)
 MeGetReviewForOrder -> userIDFromContext   (internal/interface/http/review_handlers.go:52 -> internal/interface/http/middleware.go:108)
@@ -10367,7 +10465,7 @@ MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 
 MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/review_repo.go:142)
 MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/subscription_repo.go:57)
 MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/ticket_repo.go:25)
-MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:41)
+MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/user_repo.go:43)
 MeGetReviewForOrder -> GetByID   (internal/interface/http/review_handlers.go:52 -> internal/infrastructure/persistence/postgres/vendor_repo.go:44)
 PublicReviewsForPlan -> writeError   (internal/interface/http/review_handlers.go:85 -> internal/interface/http/response.go:30)
 PublicReviewsForPlan -> writeData   (internal/interface/http/review_handlers.go:85 -> internal/interface/http/response.go:97)
@@ -10401,7 +10499,7 @@ PublicReviewsForCategory -> AggregateByCategory   (internal/interface/http/revie
 PublicReviewsForCategory -> AggregateByCategory   (internal/interface/http/review_handlers.go:159 -> internal/application/review_service_test.go:56)
 PublicReviewsForCategory -> AggregateByCategory   (internal/interface/http/review_handlers.go:159 -> internal/infrastructure/persistence/postgres/review_repo.go:108)
 NewRouter -> Get   (internal/interface/http/router.go:21 -> internal/application/coupon_service.go:124)
-NewRouter -> ReadyHandler   (internal/interface/http/router.go:21 -> internal/interface/http/handlers.go:1991)
+NewRouter -> ReadyHandler   (internal/interface/http/router.go:21 -> internal/interface/http/handlers.go:2032)
 NewRouter -> Get   (internal/interface/http/router.go:21 -> internal/application/currency_service.go:32)
 NewRouter -> IdempotencyMiddleware   (internal/interface/http/router.go:21 -> internal/interface/http/idempotency.go:28)
 NewRouter -> InternalTokenAuth   (internal/interface/http/router.go:21 -> internal/interface/http/internal_handlers.go:29)
@@ -10604,7 +10702,7 @@ AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> 
 AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/review_repo.go:19)
 AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/subscription_repo.go:41)
 AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/ticket_repo.go:17)
-AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/user_repo.go:21)
+AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/user_repo.go:23)
 AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/infrastructure/persistence/postgres/vendor_repo.go:27)
 AdminCreateVendor -> Create   (internal/interface/http/vendor_handlers.go:31 -> internal/application/coupon_service.go:99)
 AdminCreateVendor -> logAudit   (internal/interface/http/vendor_handlers.go:31 -> internal/interface/http/handlers.go:959)

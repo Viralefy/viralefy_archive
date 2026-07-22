@@ -10,16 +10,16 @@
 | Serviço | Linguagem | Papel | Arquivos | N (funções) | M (entradas) | M==N | Sem doc |
 |---|---|---|---|---|---|---|---|
 | `viralefy_api_rust` | Rust | borda | 10 | 39 | 39 | ✅ | 16 |
-| `viralefy_core` | Go | domínio | 148 | 1206 | 1206 | ✅ | 690 |
+| `viralefy_core` | Go | domínio | 151 | 1227 | 1227 | ✅ | 691 |
 | `viralefy_auth` | Go | domínio | 26 | 169 | 169 | ✅ | 98 |
 | `viralefy_payments` | Go | domínio | 27 | 151 | 151 | ✅ | 96 |
 | `viralefy_sender` | Go | domínio | 20 | 63 | 63 | ✅ | 17 |
 | `viralefy_api` | Go | legado | 134 | 1077 | 1077 | ✅ | 635 |
 | `viralefy_front` | TypeScript (Next.js) | frontend | 147 | 588 | 588 | ✅ | 451 |
-| `viralefy_backoffice` | TypeScript (Next.js) | frontend | 46 | 181 | 181 | ✅ | 152 |
-| `viralefy_ops` | Shell | control plane | 74 | 234 | 234 | ✅ | 112 |
+| `viralefy_backoffice` | TypeScript (Next.js) | frontend | 46 | 185 | 185 | ✅ | 154 |
+| `viralefy_ops` | Shell | control plane | 75 | 235 | 235 | ✅ | 113 |
 | `viralefy_archive` | Markdown + Shell/Python | archive | 2 | 25 | 25 | ✅ | 20 |
-| **TOTAL** | — | 10 repos | — | **3733** | **3733** | ✅ | — |
+| **TOTAL** | — | 10 repos | — | **3759** | **3759** | ✅ | — |
 
 ## Grafo de serviços
 
@@ -94,7 +94,7 @@ Dispatcher/borda de segurança: único serviço exposto (atrás de Caddy + Coraz
 Motor de domínio: catálogo, checkout, usuários, pedidos, gateways, recargas, suporte, reviews, A/B, fraude, anti-abuso, multi-moeda e webhooks. Sucessor do monolito viralefy_api.
 
 - **Remote:** `github.com/Viralefy/viralefy_core`
-- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_core.md`](INDEX_FUNCTIONS_viralefy_core.md) — 1206 entradas
+- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_core.md`](INDEX_FUNCTIONS_viralefy_core.md) — 1227 entradas
 - **Pastas top-level:**
   - `cmd/` — binário do serviço + cronjobs (reconcile, user-deletion, orders-anonymize, test-cleanup, migrate-proofs)
   - `internal/domain/` — entidades, value objects e regras de negócio
@@ -160,7 +160,7 @@ Loja pública: vitrine de planos de seguidores, i18n por país e checkout com ca
 Painel admin: CRUD de planos, gateways de pagamento e pedidos.
 
 - **Remote:** `github.com/Viralefy/viralefy_backoffice`
-- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_backoffice.md`](INDEX_FUNCTIONS_viralefy_backoffice.md) — 181 entradas
+- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_backoffice.md`](INDEX_FUNCTIONS_viralefy_backoffice.md) — 185 entradas
 - **Pastas top-level:**
   - `src/` — app router, componentes e libs do painel
   - `tests/` — suites do painel
@@ -170,7 +170,7 @@ Painel admin: CRUD de planos, gateways de pagamento e pedidos.
 Interface única de operação: instala em /viralefy/*, sobe via systemd com isolamento por usuário, expõe via Caddy com TLS, mantém segredo em /etc/viralefy/.env e roda o test kit.
 
 - **Remote:** `github.com/Viralefy/viralefy_ops`
-- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_ops.md`](INDEX_FUNCTIONS_viralefy_ops.md) — 234 entradas
+- **Índice de funções:** [`INDEX_FUNCTIONS_viralefy_ops.md`](INDEX_FUNCTIONS_viralefy_ops.md) — 235 entradas
 - **Pastas top-level:**
   - `bin/` — CLI de operação (bootstrap, install, update, doctor, test)
   - `installer/` — passos de instalação por serviço

@@ -5,11 +5,11 @@
 
 | Métrica | Valor |
 |---|---|
-| Arquivos com função indexada | 74 (de 154 varridos) |
-| **N — funções declaradas no código** | **234** |
-| **M — entradas neste índice** | **234** |
+| Arquivos com função indexada | 75 (de 155 varridos) |
+| **N — funções declaradas no código** | **235** |
+| **M — entradas neste índice** | **235** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 112 (47.9%) |
+| Funções sem doc-comment (§3) | 113 (48.1%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -68,12 +68,12 @@ flowchart LR
 | `assert_body_has` | func | ⚠ SEM DOC | — → retorno | — | — | — | 114 |
 | `assert_json_field` | func | ⚠ SEM DOC | test → interno | assert_json_field | assert_json_field | — | 125 |
 | `flow_register` | func | ─── Flow 1: Register ───────────────────────────────────────────────────── | — → retorno | — | — | — | 143 |
-| `flow_login` | func | ─── Flow 2: Login ──────────────────────────────────────────────────────── | — → retorno | — | — | — | 188 |
-| `flow_login_wrong_password` | func | ─── Flow 3: Login 401 sanity ───────────────────────────────────────────── | — → interno | ok, ok, ok | — | — | 217 |
-| `flow_checkout` | func | ─── Flow 4: Checkout ───────────────────────────────────────────────────── | — → retorno | — | — | — | 248 |
-| `flow_pages_with_gdpr` | func | ─── Flow 5: Páginas com cookies (regression round 26) ──────────────────── | — → retorno | — | — | — | 309 |
-| `flow_db_invariant_softdelete_reuse` | func | ─── Flow: DB invariant — UNIQUE parcial do email (regression bug 2026-06-15) Bug em prod 2026-06-15: user soft-deletado bloqueava recadastro com mesmo email (409 CONFLICT). | — → db | check | — | db | 335 |
-| `flow_selfcheck` | func | ─── Self-check (skill §22.8) ───────────────────────────────────────────── | — → retorno | — | — | — | 366 |
+| `flow_login` | func | ─── Flow 2: Login ──────────────────────────────────────────────────────── | — → retorno | — | — | — | 192 |
+| `flow_login_wrong_password` | func | ─── Flow 3: Login 401 sanity ───────────────────────────────────────────── | — → interno | ok, ok, ok | — | — | 221 |
+| `flow_checkout` | func | ─── Flow 4: Checkout ───────────────────────────────────────────────────── | — → retorno | — | — | — | 252 |
+| `flow_pages_with_gdpr` | func | ─── Flow 5: Páginas com cookies (regression round 26) ──────────────────── | — → retorno | — | — | — | 313 |
+| `flow_db_invariant_softdelete_reuse` | func | ─── Flow: DB invariant — UNIQUE parcial do email (regression bug 2026-06-15) Bug em prod 2026-06-15: user soft-deletado bloqueava recadastro com mesmo email (409 CONFLICT). | — → db | check | — | db | 339 |
+| `flow_selfcheck` | func | ─── Self-check (skill §22.8) ───────────────────────────────────────────── | — → retorno | — | — | — | 370 |
 
 ### `bin/viralefy-install` — camada `cmd`
 
@@ -87,6 +87,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `mapper` | func | ⚠ SEM DOC | — → retorno | — | — | — | 9 |
+
+### `bin/viralefy-purge-legacy-test-users` — camada `cmd`
+
+| Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
+|---|---|---|---|---|---|---|---|
+| `q` | func | ⚠ SEM DOC | — → db | — | — | db | 40 |
 
 ### `bin/viralefy-restore-drill` — camada `cmd`
 
@@ -260,7 +266,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `main` | func | orquestra a geração do índice de funcionalidades (§39) do workspace | test+cmd → arquivo | extractCalls, extractDoc, layerOf, parseFile, renderGlobalIndex, renderMapa, renderServiceIndex, serviceRegistry, sliceBody, walkSourceFiles +5 | main, main, main | arquivo | 38 |
+| `main` | func | orquestra a geração do índice de funcionalidades (§39) do workspace | test+cmd → arquivo | detectEffects, extractCalls, extractDoc, layerOf, parseFile, renderGlobalIndex, renderMapa, renderServiceIndex, serviceRegistry, sliceBody +5 | main, main, main | arquivo | 38 |
 
 ### `lib/index/detect-effects.mjs` — camada `ui`
 
@@ -667,10 +673,10 @@ note -> note   (bin/viralefy-critical-flows:83 -> bin/viralefy-smoke:70)
 note -> note   (bin/viralefy-critical-flows:83 -> bin/viralefy-test:131)
 http_call -> http_call   (bin/viralefy-critical-flows:87 -> tests/lib.sh:135)
 assert_json_field -> assert_json_field   (bin/viralefy-critical-flows:125 -> tests/lib.sh:203)
-flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:217 -> bin/viralefy-critical-flows:71)
-flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:217 -> bin/viralefy-smoke:68)
-flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:217 -> bin/viralefy-status:10)
-flow_db_invariant_softdelete_reuse -> check   (bin/viralefy-critical-flows:335 -> tests/smoke/observability-stack.sh:13)
+flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:221 -> bin/viralefy-critical-flows:71)
+flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:221 -> bin/viralefy-smoke:68)
+flow_login_wrong_password -> ok   (bin/viralefy-critical-flows:221 -> bin/viralefy-status:10)
+flow_db_invariant_softdelete_reuse -> check   (bin/viralefy-critical-flows:339 -> tests/smoke/observability-stack.sh:13)
 main -> main   (bin/viralefy-install:48 -> tests/full-route-suite.py:458)
 main -> main   (bin/viralefy-install:48 -> tests/simulated/run.py:551)
 main -> main   (bin/viralefy-install:48 -> lib/index/build-index.mjs:38)
@@ -699,6 +705,7 @@ build_node -> build_node   (installer/50-build.sh:50 -> bin/viralefy-update:218)
 log -> log   (installer/lib.sh:53 -> bin/viralefy-update:81)
 warn -> warn   (installer/lib.sh:55 -> bin/viralefy-status:12)
 err -> err   (installer/lib.sh:56 -> bin/viralefy-test:132)
+main -> detectEffects   (lib/index/build-index.mjs:38 -> lib/index/detect-effects.mjs:28)
 main -> extractCalls   (lib/index/build-index.mjs:38 -> lib/index/extract-calls.mjs:29)
 main -> extractDoc   (lib/index/build-index.mjs:38 -> lib/index/extract-doc.mjs:38)
 main -> layerOf   (lib/index/build-index.mjs:38 -> lib/index/layer-of.mjs:35)
@@ -713,7 +720,6 @@ main -> main   (lib/index/build-index.mjs:38 -> tests/full-route-suite.py:458)
 main -> main   (lib/index/build-index.mjs:38 -> bin/viralefy-install:48)
 main -> main   (lib/index/build-index.mjs:38 -> tests/simulated/run.py:551)
 main -> buildCallGraph   (lib/index/build-index.mjs:38 -> lib/index/build-call-graph.mjs:19)
-main -> detectEffects   (lib/index/build-index.mjs:38 -> lib/index/detect-effects.mjs:28)
 extractDoc -> field   (lib/index/extract-doc.mjs:38 -> lib/index/extract-doc.mjs:15)
 byShebang -> parsePython   (lib/index/parse-file.mjs:18 -> lib/index/parse-python.mjs:14)
 byShebang -> parseShell   (lib/index/parse-file.mjs:18 -> lib/index/parse-shell.mjs:16)

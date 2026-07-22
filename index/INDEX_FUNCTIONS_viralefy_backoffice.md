@@ -6,10 +6,10 @@
 | Métrica | Valor |
 |---|---|
 | Arquivos com função indexada | 46 (de 49 varridos) |
-| **N — funções declaradas no código** | **181** |
-| **M — entradas neste índice** | **181** |
+| **N — funções declaradas no código** | **185** |
+| **M — entradas neste índice** | **185** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 152 (84.0%) |
+| Funções sem doc-comment (§3) | 154 (83.2%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -29,16 +29,14 @@ flowchart LR
   m7["src/app/invoices/[id]"]
   m8["src/app/admins"]
   m9["src/app/currencies"]
-  m10["src/lib"]
-  m11["src/app/invoices"]
-  m12["src/app/users/[id]"]
-  m13["src/app/users"]
+  m10["src/app/users"]
+  m11["src/app/users/[id]"]
+  m12["src/lib"]
+  m13["src/app/invoices"]
   m14["src/app/tickets"]
   m15["src/app/plans/[id]/edit"]
   m16["src/app/reviews"]
   m17["src/app/tickets/[id]"]
-  m18["src/app/api/auth/sso"]
-  m19["src/app/sso/callback"]
   m0 -->|8| m1
   m0 -->|8| m2
   m0 -->|8| m3
@@ -47,61 +45,61 @@ flowchart LR
   m5 -->|7| m4
   m8 -->|6| m5
   m4 -->|6| m9
-  m2 -->|6| m10
+  m10 -->|6| m11
+  m10 -->|6| m7
+  m2 -->|6| m12
+  m8 -->|5| m10
   m8 -->|5| m9
   m8 -->|5| m4
-  m8 -->|5| m11
+  m8 -->|5| m13
   m7 -->|5| m6
   m5 -->|5| m8
   m1 -->|4| m0
   m1 -->|4| m2
   m1 -->|4| m3
+  m4 -->|4| m10
   m4 -->|4| m8
-  m4 -->|4| m11
+  m4 -->|4| m13
   m3 -->|4| m0
   m3 -->|4| m1
   m3 -->|4| m2
-  m7 -->|4| m12
-  m7 -->|4| m13
+  m7 -->|4| m11
+  m13 -->|4| m10
   m6 -->|4| m14
-  m6 -->|4| m12
-  m6 -->|4| m13
+  m6 -->|4| m11
   m6 -->|4| m15
   m6 -->|4| m16
   m6 -->|4| m17
+  m5 -->|4| m10
   m5 -->|4| m9
-  m5 -->|4| m11
+  m5 -->|4| m13
   m17 -->|4| m14
-  m17 -->|4| m12
-  m17 -->|4| m13
+  m17 -->|4| m11
   m17 -->|4| m7
   m17 -->|4| m6
   m17 -->|4| m15
   m17 -->|4| m16
-  m12 -->|4| m13
-  m12 -->|4| m7
+  m11 -->|4| m7
+  m10 -->|4| m14
+  m10 -->|4| m6
+  m10 -->|4| m15
+  m10 -->|4| m16
+  m10 -->|4| m17
   m2 -->|4| m0
   m2 -->|4| m1
   m2 -->|4| m3
   m9 -->|3| m4
-  m7 -->|3| m11
-  m11 -->|3| m7
-  m13 -->|3| m12
+  m7 -->|3| m13
   m13 -->|3| m7
+  m10 -->|3| m13
   m2 -->|3| m8
   m2 -->|3| m4
   m2 -->|3| m5
-  m8 -->|2| m10
+  m8 -->|2| m12
   m8 -->|2| m2
-  m18 -->|2| m19
-  m9 -->|2| m8
-  m9 -->|2| m11
-  m9 -->|2| m5
-  m4 -->|2| m15
-  m7 -->|2| m14
 ```
 
-> Grafo por módulo: 148 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 88 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
+> Grafo por módulo: 152 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 92 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
 
 ## Funções
 
@@ -129,11 +127,11 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `AdminsPage` | func | Página de gestão de admins. | externo (borda) → interno | getRole, can | — | — | 12 |
-| `reload` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload | handleSoft, handleRestore, reload, save, reload, save, toggleActive, remove, handleCreate, handleUpdateRole +8 | — | 24 |
-| `handleCreate` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload, handleCreate | handleCreate | — | 48 |
-| `handleUpdateRole` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload | handleResetTwoFA | — | 63 |
-| `handleDelete` | func | ⚠ SEM DOC | ui+interface → interno | handleDelete, reload, reload, reload, reload, reload | handleDelete, handleResetTwoFA | — | 77 |
-| `handleResetTwoFA` | func | ⚠ SEM DOC | externo (borda) → interno | handleDelete, reload, reload, reload, handleUpdateRole, reload, handleDelete, reload | — | — | 91 |
+| `reload` | func | ⚠ SEM DOC | interface+ui → interno | reload, reload, reload, reload, reload | reload, handleSoft, handleRestore, reload, save, reload, save, toggleActive, remove, handleCreate +9 | — | 24 |
+| `handleCreate` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload, reload, handleCreate | handleCreate | — | 48 |
+| `handleUpdateRole` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload, reload | handleResetTwoFA | — | 63 |
+| `handleDelete` | func | ⚠ SEM DOC | ui+interface → interno | reload, handleDelete, reload, reload, reload, reload, reload | handleDelete, handleResetTwoFA | — | 77 |
+| `handleResetTwoFA` | func | ⚠ SEM DOC | externo (borda) → interno | reload, handleDelete, reload, reload, reload, handleUpdateRole, reload, handleDelete, reload | — | — | 91 |
 | `RoleBadge` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 255 |
 | `CreateAdminModal` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 279 |
 
@@ -203,8 +201,8 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `CurrenciesPage` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 7 |
-| `reload` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload | handleSoft, handleRestore, save, reload, reload, save, toggleActive, remove, handleCreate, handleUpdateRole +8 | — | 12 |
-| `save` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, save, reload, save, reload | save, remove, save | — | 20 |
+| `reload` | func | ⚠ SEM DOC | interface+ui → interno | reload, reload, reload, reload, reload | reload, handleSoft, handleRestore, save, reload, reload, save, toggleActive, remove, handleCreate +9 | — | 12 |
+| `save` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, save, reload, save, reload | save, remove, save | — | 20 |
 
 ### `src/app/dashboard/page.tsx` — camada `interface`
 
@@ -223,7 +221,7 @@ flowchart LR
 | `fromGateway` | func | ⚠ SEM DOC | interface → retorno | — | startEdit | — | 215 |
 | `CurrencyChip` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 235 |
 | `GatewaysPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 256 |
-| `reload` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload | handleSoft, handleRestore, reload, save, reload, save, toggleActive, remove, handleCreate, handleUpdateRole +8 | — | 264 |
+| `reload` | func | ⚠ SEM DOC | interface+ui → interno | reload, reload, reload, reload, reload | reload, handleSoft, handleRestore, reload, save, reload, save, toggleActive, remove, handleCreate +9 | — | 264 |
 | `startNew` | func | ⚠ SEM DOC | externo (borda) → interno | emptyFormFor | — | — | 277 |
 | `startEdit` | func | ⚠ SEM DOC | interface → interno | fromGateway | remove | — | 283 |
 | `cancelForm` | func | ⚠ SEM DOC | interface → retorno | — | save | — | 289 |
@@ -231,9 +229,9 @@ flowchart LR
 | `toggleCurrency` | func | ⚠ SEM DOC | interface → retorno | — | remove | — | 311 |
 | `setConfigField` | func | ⚠ SEM DOC | interface → retorno | — | remove | — | 319 |
 | `validate` | func | ⚠ SEM DOC | interface → retorno | — | save | — | 324 |
-| `save` | func | ⚠ SEM DOC | interface → interno | reload, save, reload, reload, cancelForm, validate, reload, save, reload | save, remove, save | — | 334 |
-| `toggleActive` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload, toggleActive | remove, toggleActive, remove | — | 369 |
-| `remove` | func | ⚠ SEM DOC | ui+interface → interno | reload, save, reload, reload, startEdit, changeProvider, toggleCurrency, setConfigField, save, toggleActive +5 | Turnstile, remove | — | 384 |
+| `save` | func | ⚠ SEM DOC | interface → interno | reload, reload, save, reload, reload, cancelForm, validate, reload, save, reload | save, remove, save | — | 334 |
+| `toggleActive` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, reload, reload, toggleActive | remove, toggleActive, remove | — | 369 |
+| `remove` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, save, reload, reload, startEdit, changeProvider, toggleCurrency, setConfigField, save +6 | Turnstile, remove | — | 384 |
 
 ### `src/app/honeypot/page.tsx` — camada `interface`
 
@@ -247,10 +245,10 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `usd` | func | Detalhe de uma recarga de crédito (invoice). | interface → interno | usd, usd, usd | usd, onAdjust, usd, load, markPaid, usd, markPaid | — | 14 |
+| `usd` | func | Detalhe de uma recarga de crédito (invoice). | interface → interno | usd, usd, usd | usd, onAdjust, usd, reload, markPaid, usd, markPaid | — | 14 |
 | `InvoiceDetailPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 25 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, load, markPaid, load, saveStatus +5 | — | 34 |
-| `markPaid` | func | ⚠ SEM DOC | interface → interno | load, usd, load, usd, load, usd, load, usd, markPaid, load +4 | markPaid, markPaid | — | 44 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, UsersAdminPage, goNext, goPrev, reload +8 | — | 34 |
+| `markPaid` | func | ⚠ SEM DOC | interface → interno | load, usd, load, usd, usd, load, usd, markPaid, load, markPaid +3 | markPaid, markPaid | — | 44 |
 | `Section` | func | ⚠ SEM DOC | interface → interno | Section | Section | — | 173 |
 | `KV` | func | ⚠ SEM DOC | interface → interno | KV | KV | — | 182 |
 
@@ -258,10 +256,10 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `usd` | func | ⚠ SEM DOC | interface → interno | usd, usd, usd | usd, onAdjust, usd, load, usd, markPaid, markPaid | — | 18 |
+| `usd` | func | ⚠ SEM DOC | interface → interno | usd, usd, usd | usd, onAdjust, usd, reload, usd, markPaid, markPaid | — | 18 |
 | `InvoicesPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 20 |
-| `reload` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload | handleSoft, handleRestore, reload, save, reload, reload, save, toggleActive, remove, handleCreate +8 | — | 28 |
-| `markPaid` | func | ⚠ SEM DOC | interface → interno | usd, usd, reload, reload, reload, usd, markPaid, usd, reload, markPaid +1 | markPaid, markPaid | — | 36 |
+| `reload` | func | ⚠ SEM DOC | interface+ui → interno | reload, reload, reload, reload, reload | reload, handleSoft, handleRestore, reload, save, reload, reload, save, toggleActive, remove +9 | — | 28 |
+| `markPaid` | func | ⚠ SEM DOC | interface → interno | usd, usd, reload, reload, reload, reload, usd, markPaid, usd, reload +2 | markPaid, markPaid | — | 36 |
 
 ### `src/app/layout.tsx` — camada `interface`
 
@@ -281,10 +279,10 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `platformURL` | func | ⚠ SEM DOC | interface → retorno | — | capture | — | 21 |
 | `OrderDetailPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 27 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, load, load, markPaid, saveStatus +5 | — | 41 |
-| `saveStatus` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load, load | — | — | 66 |
-| `markPaid` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, markPaid, markPaid, load, load, load, load | markPaid, markPaid | — | 82 |
-| `capture` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, platformURL, load, load, load, load | — | — | 102 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, UsersAdminPage, goNext, goPrev, reload +8 | — | 41 |
+| `saveStatus` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load | — | — | 66 |
+| `markPaid` | func | ⚠ SEM DOC | interface → interno | load, load, load, markPaid, markPaid, load, load, load, load | markPaid, markPaid | — | 82 |
+| `capture` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, platformURL, load, load, load, load | — | — | 102 |
 | `RefundModal` | func | RefundModal — formulário modal pra issue refund. | externo (borda) → retorno | — | — | — | 390 |
 | `submit` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 414 |
 | `ProofCard` | func | ProofCard mostra o comprovante anexado pelo cliente + botões approve/ reject. | externo (borda) → retorno | — | — | — | 542 |
@@ -311,7 +309,7 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `PlanEditPage` | func | Editor completo de plano. | externo (borda) → interno | can | — | — | 16 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, load, load, markPaid, load +5 | — | 28 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, UsersAdminPage, goNext, goPrev, reload +8 | — | 28 |
 | `collectPrices` | func | ⚠ SEM DOC | interface → interno | collectPrices | save, collectPrices, handleCreate | — | 48 |
 | `save` | func | ⚠ SEM DOC | interface → interno | save, save, collectPrices, collectPrices | save, save, remove | — | 57 |
 
@@ -320,12 +318,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `PlansPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 9 |
-| `reload` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload | handleSoft, handleRestore, reload, save, reload, reload, save, toggleActive, remove, handleCreate +8 | — | 17 |
+| `reload` | func | ⚠ SEM DOC | interface+ui → interno | reload, reload, reload, reload, reload | reload, handleSoft, handleRestore, reload, save, reload, reload, save, toggleActive, remove +9 | — | 17 |
 | `labelFor` | func | ⚠ SEM DOC | interface → retorno | — | remove | — | 27 |
 | `collectPrices` | func | ⚠ SEM DOC | interface → interno | collectPrices | collectPrices, save, handleCreate | — | 31 |
-| `handleCreate` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, handleCreate, reload, collectPrices, reload, collectPrices | handleCreate | — | 40 |
-| `toggleActive` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, toggleActive, reload, reload | toggleActive, remove, remove | — | 62 |
-| `remove` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, toggleActive, remove, reload, reload, labelFor, toggleActive | Turnstile, remove | — | 67 |
+| `handleCreate` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, handleCreate, reload, collectPrices, reload, collectPrices | handleCreate | — | 40 |
+| `toggleActive` | func | ⚠ SEM DOC | interface → interno | reload, reload, reload, reload, toggleActive, reload, reload | toggleActive, remove, remove | — | 62 |
+| `remove` | func | ⚠ SEM DOC | ui+interface → interno | reload, reload, reload, reload, toggleActive, remove, reload, reload, labelFor, toggleActive | Turnstile, remove | — | 67 |
 
 ### `src/app/reviews/page.tsx` — camada `interface`
 
@@ -333,7 +331,7 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | `stars` | func | ⚠ SEM DOC | interface → retorno | — | toggle | — | 18 |
 | `ReviewsAdminPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 23 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, load, load, markPaid, load +5 | — | 30 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, UsersAdminPage, goNext, goPrev, reload +8 | — | 30 |
 | `toggle` | func | ⚠ SEM DOC | externo (borda) → interno | stars | — | — | 41 |
 
 ### `src/app/sso/callback/page.tsx` — camada `interface`
@@ -349,17 +347,17 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `TicketAdminThread` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 13 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, load, load, markPaid, load +5 | — | 21 |
-| `onReply` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load, load | — | — | 35 |
-| `setStatus` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load, load | setPriority, OrdersPage | — | 52 |
-| `setPriority` | func | ⚠ SEM DOC | externo (borda) → interno | setStatus, load, load, load, load, load, load, load, load | — | — | 57 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, load, onAdjust, UsersAdminPage, goNext, goPrev, reload +8 | — | 21 |
+| `onReply` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load | — | — | 35 |
+| `setStatus` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | setPriority, OrdersPage | — | 52 |
+| `setPriority` | func | ⚠ SEM DOC | externo (borda) → interno | setStatus, load, load, load, load, load, load, load | — | — | 57 |
 
 ### `src/app/tickets/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `TicketsAdminPage` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 23 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, onAdjust, load, load, markPaid, load, saveStatus +5 | — | 28 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, onAdjust, UsersAdminPage, goNext, goPrev, reload, load +8 | — | 28 |
 
 ### `src/app/trash/page.tsx` — camada `interface`
 
@@ -378,18 +376,20 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `usd` | func | Créditos são canonicamente USD-cents. | interface → interno | usd, usd, usd | onAdjust, usd, load, usd, markPaid, usd, markPaid | — | 20 |
+| `usd` | func | Créditos são canonicamente USD-cents. | interface → interno | usd, usd, usd | onAdjust, usd, reload, usd, markPaid, usd, markPaid | — | 20 |
 | `UserDetailPage` | func | ⚠ SEM DOC | externo (borda) → interno | can | — | — | 24 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load, load | onReply, setStatus, setPriority, load, onAdjust, load, load, markPaid, load, saveStatus +5 | — | 32 |
-| `onAdjust` | func | Ajuste de saldo. | externo (borda) → interno | load, usd, load, usd, load, usd, load, usd, load, load +2 | — | — | 49 |
+| `load` | func | ⚠ SEM DOC | interface → interno | load, load, load, load, load, load | onReply, setStatus, setPriority, load, onAdjust, UsersAdminPage, goNext, goPrev, reload, load +8 | — | 32 |
+| `onAdjust` | func | Ajuste de saldo. | externo (borda) → interno | load, usd, load, usd, usd, load, usd, load, load, load +1 | — | — | 49 |
 
 ### `src/app/users/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `usd` | func | Saldo de créditos é canônico em USD; mostrar como "$ 12.50". | interface → interno | usd, usd, usd | usd, onAdjust, load, usd, markPaid, usd, markPaid | — | 10 |
-| `UsersAdminPage` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 14 |
-| `load` | func | ⚠ SEM DOC | interface → interno | load, usd, load, usd, usd, load, usd, load, load, load +1 | onReply, setStatus, setPriority, load, load, onAdjust, load, markPaid, load, saveStatus +5 | — | 20 |
+| `usd` | func | Saldo de créditos é canônico em USD; mostrar como "$ 12.50". | interface → interno | usd, usd, usd | usd, onAdjust, reload, usd, markPaid, usd, markPaid | — | 10 |
+| `UsersAdminPage` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load | — | — | 16 |
+| `goNext` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load | — | — | 69 |
+| `goPrev` | func | ⚠ SEM DOC | externo (borda) → interno | load, load, load, load, load, load, load | — | — | 77 |
+| `reload` | func | ⚠ SEM DOC | ui+interface → interno | load, usd, load, usd, reload, reload, reload, usd, load, usd +6 | handleSoft, handleRestore, reload, save, reload, reload, save, toggleActive, remove, handleCreate +9 | — | 85 |
 
 ### `src/components/AdminShell.tsx` — camada `ui`
 
@@ -410,9 +410,9 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `DeleteActions` | func | ⚠ SEM DOC | — → interno | can, isSuperadmin | — | — | 32 |
-| `handleSoft` | func | ⚠ SEM DOC | — → interno | reload, reload, reload, reload, reload | — | — | 50 |
+| `handleSoft` | func | ⚠ SEM DOC | — → interno | reload, reload, reload, reload, reload, reload | — | — | 50 |
 | `handleHard` | func | ⚠ SEM DOC | — → retorno | — | — | — | 68 |
-| `handleRestore` | func | ⚠ SEM DOC | — → interno | reload, reload, reload, reload, reload | — | — | 86 |
+| `handleRestore` | func | ⚠ SEM DOC | — → interno | reload, reload, reload, reload, reload, reload | — | — | 86 |
 
 ### `src/components/JourneyPanel.tsx` — camada `ui`
 
@@ -441,12 +441,14 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `dispatchSessionExpired` | func | ⚠ SEM DOC | ui → http-out | invalidateAuthCache | request | http-out | 11 |
-| `buildUrl` | func | Rotas de auth (/v1/auth/*) NÃO passam pelo proxy do core: login/2fa vão pra route handlers dedicados (/api/auth/login, /api/auth/2fa) que setam cookie. | ui → interno | request, login | request | — | 37 |
-| `request` | func | ⚠ SEM DOC | ui+interface → http-out | dispatchSessionExpired, buildUrl, enrollAdmin2FA, completeAdmin2FA, isMockAuthEnabled | buildUrl, middleware | http-out | 47 |
-| `enrollAdmin2FA` | func | ⚠ SEM DOC | ui → retorno | — | request | — | 266 |
-| `completeAdmin2FA` | func | ⚠ SEM DOC | ui → retorno | — | request | — | 275 |
-| `login` | func | ⚠ SEM DOC | ui+test → retorno | — | buildUrl, assert_authgate | — | 288 |
+| `dispatchSessionExpired` | func | ⚠ SEM DOC | ui → http-out | invalidateAuthCache | request, requestRaw | http-out | 11 |
+| `buildUrl` | func | Rotas de auth (/v1/auth/*) NÃO passam pelo proxy do core: login/2fa vão pra route handlers dedicados (/api/auth/login, /api/auth/2fa) que setam cookie. | ui → interno | request, login | request, requestRaw | — | 37 |
+| `request` | func | ⚠ SEM DOC | ui+interface → http-out | dispatchSessionExpired, buildUrl, isMockAuthEnabled | buildUrl, middleware | http-out | 47 |
+| `requestRaw` | func | Faz a mesma request de `request`, mas devolve o corpo INTEIRO (sem desembrulhar `data`). | — → http-out | dispatchSessionExpired, buildUrl, isMockAuthEnabled | — | http-out | 94 |
+| `requestPage` | func | Igual a `request`, mas preserva o `meta` da resposta paginada. | — → interno | enrollAdmin2FA, completeAdmin2FA | — | — | 134 |
+| `enrollAdmin2FA` | func | ⚠ SEM DOC | ui → retorno | — | requestPage | — | 316 |
+| `completeAdmin2FA` | func | ⚠ SEM DOC | ui → retorno | — | requestPage | — | 325 |
+| `login` | func | ⚠ SEM DOC | ui+test → retorno | — | buildUrl, assert_authgate | — | 338 |
 
 ### `src/lib/auth.ts` — camada `ui`
 
@@ -472,7 +474,7 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `isMockAuthEnabled` | func | MOCK_AUTH é exposto ao client via next.config.ts -> env. | ui → retorno | — | AdminShell, request | — | 27 |
+| `isMockAuthEnabled` | func | MOCK_AUTH é exposto ao client via next.config.ts -> env. | ui → retorno | — | AdminShell, request, requestRaw | — | 27 |
 | `mockRequest` | func | Roteia GET requests do client mock para a fixture apropriada. | — → retorno | — | — | — | 75 |
 
 ### `src/lib/session-cookie.ts` — camada `ui`
@@ -522,27 +524,32 @@ flowchart LR
 ```text
 AdminsPage -> getRole   (src/app/admins/page.tsx:12 -> src/lib/auth.ts:36)
 AdminsPage -> can   (src/app/admins/page.tsx:12 -> src/lib/auth.ts:50)
+reload -> reload   (src/app/admins/page.tsx:24 -> src/app/users/page.tsx:85)
 reload -> reload   (src/app/admins/page.tsx:24 -> src/app/currencies/page.tsx:12)
 reload -> reload   (src/app/admins/page.tsx:24 -> src/app/gateways/page.tsx:264)
 reload -> reload   (src/app/admins/page.tsx:24 -> src/app/invoices/page.tsx:28)
 reload -> reload   (src/app/admins/page.tsx:24 -> src/app/plans/page.tsx:17)
+handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/users/page.tsx:85)
 handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/currencies/page.tsx:12)
 handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/gateways/page.tsx:264)
 handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/admins/page.tsx:24)
 handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/invoices/page.tsx:28)
 handleCreate -> reload   (src/app/admins/page.tsx:48 -> src/app/plans/page.tsx:17)
 handleCreate -> handleCreate   (src/app/admins/page.tsx:48 -> src/app/plans/page.tsx:40)
+handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/users/page.tsx:85)
 handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/currencies/page.tsx:12)
 handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/gateways/page.tsx:264)
 handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/admins/page.tsx:24)
 handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/invoices/page.tsx:28)
 handleUpdateRole -> reload   (src/app/admins/page.tsx:63 -> src/app/plans/page.tsx:17)
+handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/users/page.tsx:85)
 handleDelete -> handleDelete   (src/app/admins/page.tsx:77 -> src/components/BulkActionsBar.tsx:32)
 handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/currencies/page.tsx:12)
 handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/gateways/page.tsx:264)
 handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/admins/page.tsx:24)
 handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/invoices/page.tsx:28)
 handleDelete -> reload   (src/app/admins/page.tsx:77 -> src/app/plans/page.tsx:17)
+handleResetTwoFA -> reload   (src/app/admins/page.tsx:91 -> src/app/users/page.tsx:85)
 handleResetTwoFA -> handleDelete   (src/app/admins/page.tsx:91 -> src/components/BulkActionsBar.tsx:32)
 handleResetTwoFA -> reload   (src/app/admins/page.tsx:91 -> src/app/currencies/page.tsx:12)
 handleResetTwoFA -> reload   (src/app/admins/page.tsx:91 -> src/app/gateways/page.tsx:264)
@@ -590,10 +597,12 @@ POST -> looksLikeJWT   (src/app/api/auth/sso/route.ts:31 -> src/app/api/auth/sso
 POST -> looksLikeJWT   (src/app/api/auth/sso/route.ts:31 -> src/app/sso/callback/page.tsx:37)
 GET -> GET   (src/app/api/metrics/route.ts:19 -> src/app/api/auth/me/route.ts:19)
 handle -> originGuard   (src/app/api/proxy/[...path]/route.ts:59 -> src/app/api/proxy/[...path]/route.ts:35)
+reload -> reload   (src/app/currencies/page.tsx:12 -> src/app/users/page.tsx:85)
 reload -> reload   (src/app/currencies/page.tsx:12 -> src/app/gateways/page.tsx:264)
 reload -> reload   (src/app/currencies/page.tsx:12 -> src/app/admins/page.tsx:24)
 reload -> reload   (src/app/currencies/page.tsx:12 -> src/app/invoices/page.tsx:28)
 reload -> reload   (src/app/currencies/page.tsx:12 -> src/app/plans/page.tsx:17)
+save -> reload   (src/app/currencies/page.tsx:20 -> src/app/users/page.tsx:85)
 save -> reload   (src/app/currencies/page.tsx:20 -> src/app/currencies/page.tsx:12)
 save -> reload   (src/app/currencies/page.tsx:20 -> src/app/gateways/page.tsx:264)
 save -> reload   (src/app/currencies/page.tsx:20 -> src/app/admins/page.tsx:24)
@@ -602,12 +611,14 @@ save -> reload   (src/app/currencies/page.tsx:20 -> src/app/invoices/page.tsx:28
 save -> save   (src/app/currencies/page.tsx:20 -> src/app/plans/[id]/edit/page.tsx:57)
 save -> reload   (src/app/currencies/page.tsx:20 -> src/app/plans/page.tsx:17)
 GatewaysPage -> can   (src/app/gateways/page.tsx:256 -> src/lib/auth.ts:50)
+reload -> reload   (src/app/gateways/page.tsx:264 -> src/app/users/page.tsx:85)
 reload -> reload   (src/app/gateways/page.tsx:264 -> src/app/currencies/page.tsx:12)
 reload -> reload   (src/app/gateways/page.tsx:264 -> src/app/admins/page.tsx:24)
 reload -> reload   (src/app/gateways/page.tsx:264 -> src/app/invoices/page.tsx:28)
 reload -> reload   (src/app/gateways/page.tsx:264 -> src/app/plans/page.tsx:17)
 startNew -> emptyFormFor   (src/app/gateways/page.tsx:277 -> src/app/gateways/page.tsx:201)
 startEdit -> fromGateway   (src/app/gateways/page.tsx:283 -> src/app/gateways/page.tsx:215)
+save -> reload   (src/app/gateways/page.tsx:334 -> src/app/users/page.tsx:85)
 save -> reload   (src/app/gateways/page.tsx:334 -> src/app/currencies/page.tsx:12)
 save -> save   (src/app/gateways/page.tsx:334 -> src/app/currencies/page.tsx:20)
 save -> reload   (src/app/gateways/page.tsx:334 -> src/app/gateways/page.tsx:264)
@@ -617,12 +628,14 @@ save -> validate   (src/app/gateways/page.tsx:334 -> src/app/gateways/page.tsx:3
 save -> reload   (src/app/gateways/page.tsx:334 -> src/app/invoices/page.tsx:28)
 save -> save   (src/app/gateways/page.tsx:334 -> src/app/plans/[id]/edit/page.tsx:57)
 save -> reload   (src/app/gateways/page.tsx:334 -> src/app/plans/page.tsx:17)
+toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/users/page.tsx:85)
 toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/currencies/page.tsx:12)
 toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/gateways/page.tsx:264)
 toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/admins/page.tsx:24)
 toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/invoices/page.tsx:28)
 toggleActive -> reload   (src/app/gateways/page.tsx:369 -> src/app/plans/page.tsx:17)
 toggleActive -> toggleActive   (src/app/gateways/page.tsx:369 -> src/app/plans/page.tsx:62)
+remove -> reload   (src/app/gateways/page.tsx:384 -> src/app/users/page.tsx:85)
 remove -> reload   (src/app/gateways/page.tsx:384 -> src/app/currencies/page.tsx:12)
 remove -> save   (src/app/gateways/page.tsx:384 -> src/app/currencies/page.tsx:20)
 remove -> reload   (src/app/gateways/page.tsx:384 -> src/app/gateways/page.tsx:264)
@@ -659,7 +672,6 @@ usd -> usd   (src/app/invoices/[id]/page.tsx:14 -> src/app/invoices/page.tsx:18)
 InvoiceDetailPage -> can   (src/app/invoices/[id]/page.tsx:25 -> src/lib/auth.ts:50)
 load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/users/page.tsx:20)
 load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/plans/[id]/edit/page.tsx:28)
 load -> load   (src/app/invoices/[id]/page.tsx:34 -> src/app/reviews/page.tsx:30)
@@ -668,7 +680,6 @@ markPaid -> load   (src/app/invoices/[id]/page.tsx:44 -> src/app/tickets/page.ts
 markPaid -> usd   (src/app/invoices/[id]/page.tsx:44 -> src/app/users/[id]/page.tsx:20)
 markPaid -> load   (src/app/invoices/[id]/page.tsx:44 -> src/app/users/[id]/page.tsx:32)
 markPaid -> usd   (src/app/invoices/[id]/page.tsx:44 -> src/app/users/page.tsx:10)
-markPaid -> load   (src/app/invoices/[id]/page.tsx:44 -> src/app/users/page.tsx:20)
 markPaid -> usd   (src/app/invoices/[id]/page.tsx:44 -> src/app/invoices/[id]/page.tsx:14)
 markPaid -> load   (src/app/invoices/[id]/page.tsx:44 -> src/app/invoices/[id]/page.tsx:34)
 markPaid -> usd   (src/app/invoices/[id]/page.tsx:44 -> src/app/invoices/page.tsx:18)
@@ -684,12 +695,14 @@ usd -> usd   (src/app/invoices/page.tsx:18 -> src/app/users/[id]/page.tsx:20)
 usd -> usd   (src/app/invoices/page.tsx:18 -> src/app/users/page.tsx:10)
 usd -> usd   (src/app/invoices/page.tsx:18 -> src/app/invoices/[id]/page.tsx:14)
 InvoicesPage -> can   (src/app/invoices/page.tsx:20 -> src/lib/auth.ts:50)
+reload -> reload   (src/app/invoices/page.tsx:28 -> src/app/users/page.tsx:85)
 reload -> reload   (src/app/invoices/page.tsx:28 -> src/app/currencies/page.tsx:12)
 reload -> reload   (src/app/invoices/page.tsx:28 -> src/app/gateways/page.tsx:264)
 reload -> reload   (src/app/invoices/page.tsx:28 -> src/app/admins/page.tsx:24)
 reload -> reload   (src/app/invoices/page.tsx:28 -> src/app/plans/page.tsx:17)
 markPaid -> usd   (src/app/invoices/page.tsx:36 -> src/app/users/[id]/page.tsx:20)
 markPaid -> usd   (src/app/invoices/page.tsx:36 -> src/app/users/page.tsx:10)
+markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/users/page.tsx:85)
 markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/currencies/page.tsx:12)
 markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/gateways/page.tsx:264)
 markPaid -> reload   (src/app/invoices/page.tsx:36 -> src/app/admins/page.tsx:24)
@@ -703,14 +716,12 @@ RootLayout -> headers   (src/app/layout.tsx:25 -> next.config.ts:39)
 OrderDetailPage -> can   (src/app/orders/[id]/page.tsx:27 -> src/lib/auth.ts:50)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/users/page.tsx:20)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/plans/[id]/edit/page.tsx:28)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/reviews/page.tsx:30)
 load -> load   (src/app/orders/[id]/page.tsx:41 -> src/app/tickets/[id]/page.tsx:21)
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/tickets/page.tsx:28)
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/users/[id]/page.tsx:32)
-saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/users/page.tsx:20)
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/invoices/[id]/page.tsx:34)
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/orders/[id]/page.tsx:41)
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -718,7 +729,6 @@ saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/reviews/page.ts
 saveStatus -> load   (src/app/orders/[id]/page.tsx:66 -> src/app/tickets/[id]/page.tsx:21)
 markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/tickets/page.tsx:28)
 markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/users/[id]/page.tsx:32)
-markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/users/page.tsx:20)
 markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/invoices/[id]/page.tsx:34)
 markPaid -> markPaid   (src/app/orders/[id]/page.tsx:82 -> src/app/invoices/[id]/page.tsx:44)
 markPaid -> markPaid   (src/app/orders/[id]/page.tsx:82 -> src/app/invoices/page.tsx:36)
@@ -728,7 +738,6 @@ markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/reviews/page.tsx:
 markPaid -> load   (src/app/orders/[id]/page.tsx:82 -> src/app/tickets/[id]/page.tsx:21)
 capture -> load   (src/app/orders/[id]/page.tsx:102 -> src/app/tickets/page.tsx:28)
 capture -> load   (src/app/orders/[id]/page.tsx:102 -> src/app/users/[id]/page.tsx:32)
-capture -> load   (src/app/orders/[id]/page.tsx:102 -> src/app/users/page.tsx:20)
 capture -> load   (src/app/orders/[id]/page.tsx:102 -> src/app/invoices/[id]/page.tsx:34)
 capture -> platformURL   (src/app/orders/[id]/page.tsx:102 -> src/app/orders/[id]/page.tsx:21)
 capture -> load   (src/app/orders/[id]/page.tsx:102 -> src/app/orders/[id]/page.tsx:41)
@@ -742,7 +751,6 @@ Home -> isAuthenticated   (src/app/page.tsx:7 -> src/lib/auth.ts:69)
 PlanEditPage -> can   (src/app/plans/[id]/edit/page.tsx:16 -> src/lib/auth.ts:50)
 load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/users/page.tsx:20)
 load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/plans/[id]/edit/page.tsx:28 -> src/app/reviews/page.tsx:30)
@@ -753,11 +761,13 @@ save -> save   (src/app/plans/[id]/edit/page.tsx:57 -> src/app/gateways/page.tsx
 save -> collectPrices   (src/app/plans/[id]/edit/page.tsx:57 -> src/app/plans/[id]/edit/page.tsx:48)
 save -> collectPrices   (src/app/plans/[id]/edit/page.tsx:57 -> src/app/plans/page.tsx:31)
 PlansPage -> can   (src/app/plans/page.tsx:9 -> src/lib/auth.ts:50)
+reload -> reload   (src/app/plans/page.tsx:17 -> src/app/users/page.tsx:85)
 reload -> reload   (src/app/plans/page.tsx:17 -> src/app/currencies/page.tsx:12)
 reload -> reload   (src/app/plans/page.tsx:17 -> src/app/gateways/page.tsx:264)
 reload -> reload   (src/app/plans/page.tsx:17 -> src/app/admins/page.tsx:24)
 reload -> reload   (src/app/plans/page.tsx:17 -> src/app/invoices/page.tsx:28)
 collectPrices -> collectPrices   (src/app/plans/page.tsx:31 -> src/app/plans/[id]/edit/page.tsx:48)
+handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/users/page.tsx:85)
 handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/currencies/page.tsx:12)
 handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/gateways/page.tsx:264)
 handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/admins/page.tsx:24)
@@ -766,12 +776,14 @@ handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/invoices/page.tsx
 handleCreate -> collectPrices   (src/app/plans/page.tsx:40 -> src/app/plans/[id]/edit/page.tsx:48)
 handleCreate -> reload   (src/app/plans/page.tsx:40 -> src/app/plans/page.tsx:17)
 handleCreate -> collectPrices   (src/app/plans/page.tsx:40 -> src/app/plans/page.tsx:31)
+toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/users/page.tsx:85)
 toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/currencies/page.tsx:12)
 toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/gateways/page.tsx:264)
 toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/admins/page.tsx:24)
 toggleActive -> toggleActive   (src/app/plans/page.tsx:62 -> src/app/gateways/page.tsx:369)
 toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/invoices/page.tsx:28)
 toggleActive -> reload   (src/app/plans/page.tsx:62 -> src/app/plans/page.tsx:17)
+remove -> reload   (src/app/plans/page.tsx:67 -> src/app/users/page.tsx:85)
 remove -> reload   (src/app/plans/page.tsx:67 -> src/app/currencies/page.tsx:12)
 remove -> reload   (src/app/plans/page.tsx:67 -> src/app/gateways/page.tsx:264)
 remove -> reload   (src/app/plans/page.tsx:67 -> src/app/admins/page.tsx:24)
@@ -784,7 +796,6 @@ remove -> toggleActive   (src/app/plans/page.tsx:67 -> src/app/plans/page.tsx:62
 ReviewsAdminPage -> can   (src/app/reviews/page.tsx:23 -> src/lib/auth.ts:50)
 load -> load   (src/app/reviews/page.tsx:30 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/reviews/page.tsx:30 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/reviews/page.tsx:30 -> src/app/users/page.tsx:20)
 load -> load   (src/app/reviews/page.tsx:30 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/reviews/page.tsx:30 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/reviews/page.tsx:30 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -798,14 +809,12 @@ SSOCallbackPage -> parseAdmin   (src/app/sso/callback/page.tsx:66 -> src/app/sso
 TicketAdminThread -> can   (src/app/tickets/[id]/page.tsx:13 -> src/lib/auth.ts:50)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/tickets/page.tsx:28)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/users/page.tsx:20)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/plans/[id]/edit/page.tsx:28)
 load -> load   (src/app/tickets/[id]/page.tsx:21 -> src/app/reviews/page.tsx:30)
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/tickets/page.tsx:28)
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/users/[id]/page.tsx:32)
-onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/users/page.tsx:20)
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/invoices/[id]/page.tsx:34)
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/orders/[id]/page.tsx:41)
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -813,7 +822,6 @@ onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/reviews/page.tsx:
 onReply -> load   (src/app/tickets/[id]/page.tsx:35 -> src/app/tickets/[id]/page.tsx:21)
 setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/tickets/page.tsx:28)
 setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/users/[id]/page.tsx:32)
-setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/users/page.tsx:20)
 setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/invoices/[id]/page.tsx:34)
 setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/orders/[id]/page.tsx:41)
 setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -822,14 +830,12 @@ setStatus -> load   (src/app/tickets/[id]/page.tsx:52 -> src/app/tickets/[id]/pa
 setPriority -> setStatus   (src/app/tickets/[id]/page.tsx:57 -> src/app/tickets/[id]/page.tsx:52)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/tickets/page.tsx:28)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/users/[id]/page.tsx:32)
-setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/users/page.tsx:20)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/invoices/[id]/page.tsx:34)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/orders/[id]/page.tsx:41)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/plans/[id]/edit/page.tsx:28)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/reviews/page.tsx:30)
 setPriority -> load   (src/app/tickets/[id]/page.tsx:57 -> src/app/tickets/[id]/page.tsx:21)
 load -> load   (src/app/tickets/page.tsx:28 -> src/app/users/[id]/page.tsx:32)
-load -> load   (src/app/tickets/page.tsx:28 -> src/app/users/page.tsx:20)
 load -> load   (src/app/tickets/page.tsx:28 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/tickets/page.tsx:28 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/tickets/page.tsx:28 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -871,7 +877,6 @@ usd -> usd   (src/app/users/[id]/page.tsx:20 -> src/app/invoices/[id]/page.tsx:1
 usd -> usd   (src/app/users/[id]/page.tsx:20 -> src/app/invoices/page.tsx:18)
 UserDetailPage -> can   (src/app/users/[id]/page.tsx:24 -> src/lib/auth.ts:50)
 load -> load   (src/app/users/[id]/page.tsx:32 -> src/app/tickets/page.tsx:28)
-load -> load   (src/app/users/[id]/page.tsx:32 -> src/app/users/page.tsx:20)
 load -> load   (src/app/users/[id]/page.tsx:32 -> src/app/invoices/[id]/page.tsx:34)
 load -> load   (src/app/users/[id]/page.tsx:32 -> src/app/orders/[id]/page.tsx:41)
 load -> load   (src/app/users/[id]/page.tsx:32 -> src/app/plans/[id]/edit/page.tsx:28)
@@ -881,7 +886,6 @@ onAdjust -> load   (src/app/users/[id]/page.tsx:49 -> src/app/tickets/page.tsx:2
 onAdjust -> usd   (src/app/users/[id]/page.tsx:49 -> src/app/users/[id]/page.tsx:20)
 onAdjust -> load   (src/app/users/[id]/page.tsx:49 -> src/app/users/[id]/page.tsx:32)
 onAdjust -> usd   (src/app/users/[id]/page.tsx:49 -> src/app/users/page.tsx:10)
-onAdjust -> load   (src/app/users/[id]/page.tsx:49 -> src/app/users/page.tsx:20)
 onAdjust -> usd   (src/app/users/[id]/page.tsx:49 -> src/app/invoices/[id]/page.tsx:14)
 onAdjust -> load   (src/app/users/[id]/page.tsx:49 -> src/app/invoices/[id]/page.tsx:34)
 onAdjust -> usd   (src/app/users/[id]/page.tsx:49 -> src/app/invoices/page.tsx:18)
@@ -892,17 +896,43 @@ onAdjust -> load   (src/app/users/[id]/page.tsx:49 -> src/app/tickets/[id]/page.
 usd -> usd   (src/app/users/page.tsx:10 -> src/app/users/[id]/page.tsx:20)
 usd -> usd   (src/app/users/page.tsx:10 -> src/app/invoices/[id]/page.tsx:14)
 usd -> usd   (src/app/users/page.tsx:10 -> src/app/invoices/page.tsx:18)
-load -> load   (src/app/users/page.tsx:20 -> src/app/tickets/page.tsx:28)
-load -> usd   (src/app/users/page.tsx:20 -> src/app/users/[id]/page.tsx:20)
-load -> load   (src/app/users/page.tsx:20 -> src/app/users/[id]/page.tsx:32)
-load -> usd   (src/app/users/page.tsx:20 -> src/app/users/page.tsx:10)
-load -> usd   (src/app/users/page.tsx:20 -> src/app/invoices/[id]/page.tsx:14)
-load -> load   (src/app/users/page.tsx:20 -> src/app/invoices/[id]/page.tsx:34)
-load -> usd   (src/app/users/page.tsx:20 -> src/app/invoices/page.tsx:18)
-load -> load   (src/app/users/page.tsx:20 -> src/app/orders/[id]/page.tsx:41)
-load -> load   (src/app/users/page.tsx:20 -> src/app/plans/[id]/edit/page.tsx:28)
-load -> load   (src/app/users/page.tsx:20 -> src/app/reviews/page.tsx:30)
-load -> load   (src/app/users/page.tsx:20 -> src/app/tickets/[id]/page.tsx:21)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/tickets/page.tsx:28)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/users/[id]/page.tsx:32)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/invoices/[id]/page.tsx:34)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/orders/[id]/page.tsx:41)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/plans/[id]/edit/page.tsx:28)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/reviews/page.tsx:30)
+UsersAdminPage -> load   (src/app/users/page.tsx:16 -> src/app/tickets/[id]/page.tsx:21)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/tickets/page.tsx:28)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/users/[id]/page.tsx:32)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/invoices/[id]/page.tsx:34)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/orders/[id]/page.tsx:41)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/plans/[id]/edit/page.tsx:28)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/reviews/page.tsx:30)
+goNext -> load   (src/app/users/page.tsx:69 -> src/app/tickets/[id]/page.tsx:21)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/tickets/page.tsx:28)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/users/[id]/page.tsx:32)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/invoices/[id]/page.tsx:34)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/orders/[id]/page.tsx:41)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/plans/[id]/edit/page.tsx:28)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/reviews/page.tsx:30)
+goPrev -> load   (src/app/users/page.tsx:77 -> src/app/tickets/[id]/page.tsx:21)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/tickets/page.tsx:28)
+reload -> usd   (src/app/users/page.tsx:85 -> src/app/users/[id]/page.tsx:20)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/users/[id]/page.tsx:32)
+reload -> usd   (src/app/users/page.tsx:85 -> src/app/users/page.tsx:10)
+reload -> reload   (src/app/users/page.tsx:85 -> src/app/currencies/page.tsx:12)
+reload -> reload   (src/app/users/page.tsx:85 -> src/app/gateways/page.tsx:264)
+reload -> reload   (src/app/users/page.tsx:85 -> src/app/admins/page.tsx:24)
+reload -> usd   (src/app/users/page.tsx:85 -> src/app/invoices/[id]/page.tsx:14)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/invoices/[id]/page.tsx:34)
+reload -> usd   (src/app/users/page.tsx:85 -> src/app/invoices/page.tsx:18)
+reload -> reload   (src/app/users/page.tsx:85 -> src/app/invoices/page.tsx:28)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/orders/[id]/page.tsx:41)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/plans/[id]/edit/page.tsx:28)
+reload -> reload   (src/app/users/page.tsx:85 -> src/app/plans/page.tsx:17)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/reviews/page.tsx:30)
+reload -> load   (src/app/users/page.tsx:85 -> src/app/tickets/[id]/page.tsx:21)
 AdminShell -> isAuthenticated   (src/components/AdminShell.tsx:31 -> src/lib/auth.ts:69)
 AdminShell -> isMockAuthEnabled   (src/components/AdminShell.tsx:31 -> src/lib/mock-auth.ts:27)
 onExpired -> isSuperadmin   (src/components/AdminShell.tsx:78 -> src/lib/auth.ts:58)
@@ -910,11 +940,13 @@ onExpired -> clearSession   (src/components/AdminShell.tsx:78 -> src/lib/auth.ts
 handleDelete -> handleDelete   (src/components/BulkActionsBar.tsx:32 -> src/app/admins/page.tsx:77)
 DeleteActions -> can   (src/components/DeleteActions.tsx:32 -> src/lib/auth.ts:50)
 DeleteActions -> isSuperadmin   (src/components/DeleteActions.tsx:32 -> src/lib/auth.ts:58)
+handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/users/page.tsx:85)
 handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/currencies/page.tsx:12)
 handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/gateways/page.tsx:264)
 handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/admins/page.tsx:24)
 handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/invoices/page.tsx:28)
 handleSoft -> reload   (src/components/DeleteActions.tsx:50 -> src/app/plans/page.tsx:17)
+handleRestore -> reload   (src/components/DeleteActions.tsx:86 -> src/app/users/page.tsx:85)
 handleRestore -> reload   (src/components/DeleteActions.tsx:86 -> src/app/currencies/page.tsx:12)
 handleRestore -> reload   (src/components/DeleteActions.tsx:86 -> src/app/gateways/page.tsx:264)
 handleRestore -> reload   (src/components/DeleteActions.tsx:86 -> src/app/admins/page.tsx:24)
@@ -944,12 +976,15 @@ Turnstile -> remove   (src/components/Turnstile.tsx:49 -> src/app/gateways/page.
 Turnstile -> remove   (src/components/Turnstile.tsx:49 -> src/app/plans/page.tsx:67)
 dispatchSessionExpired -> invalidateAuthCache   (src/lib/api.ts:11 -> src/lib/auth.ts:92)
 buildUrl -> request   (src/lib/api.ts:37 -> src/lib/api.ts:47)
-buildUrl -> login   (src/lib/api.ts:37 -> src/lib/api.ts:288)
+buildUrl -> login   (src/lib/api.ts:37 -> src/lib/api.ts:338)
 request -> dispatchSessionExpired   (src/lib/api.ts:47 -> src/lib/api.ts:11)
 request -> buildUrl   (src/lib/api.ts:47 -> src/lib/api.ts:37)
-request -> enrollAdmin2FA   (src/lib/api.ts:47 -> src/lib/api.ts:266)
-request -> completeAdmin2FA   (src/lib/api.ts:47 -> src/lib/api.ts:275)
 request -> isMockAuthEnabled   (src/lib/api.ts:47 -> src/lib/mock-auth.ts:27)
+requestRaw -> dispatchSessionExpired   (src/lib/api.ts:94 -> src/lib/api.ts:11)
+requestRaw -> buildUrl   (src/lib/api.ts:94 -> src/lib/api.ts:37)
+requestRaw -> isMockAuthEnabled   (src/lib/api.ts:94 -> src/lib/mock-auth.ts:27)
+requestPage -> enrollAdmin2FA   (src/lib/api.ts:134 -> src/lib/api.ts:316)
+requestPage -> completeAdmin2FA   (src/lib/api.ts:134 -> src/lib/api.ts:325)
 can -> getRole   (src/lib/auth.ts:50 -> src/lib/auth.ts:36)
 can -> getPermissions   (src/lib/auth.ts:50 -> src/lib/auth.ts:41)
 isSuperadmin -> getRole   (src/lib/auth.ts:58 -> src/lib/auth.ts:36)
@@ -958,6 +993,6 @@ middleware -> headers   (src/middleware.ts:83 -> next.config.ts:39)
 middleware -> request   (src/middleware.ts:83 -> src/lib/api.ts:47)
 middleware -> sanitizePath   (src/middleware.ts:83 -> src/lib/metrics.ts:88)
 middleware -> buildCsp   (src/middleware.ts:83 -> src/middleware.ts:62)
-assert_authgate -> login   (tests/pentest/forms.sh:207 -> src/lib/api.ts:288)
+assert_authgate -> login   (tests/pentest/forms.sh:207 -> src/lib/api.ts:338)
 isCommentLine -> stripCommentsAndStrings   (tests/unit/no-pt-regression.test.mjs:33 -> tests/unit/no-pt-regression.test.mjs:28)
 ```
