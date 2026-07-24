@@ -19,10 +19,12 @@ mesmo com DSN vazio. Ou seja: o gargalo de orgânico **e** pago era o mesmo arqu
 
 ## O que foi feito
 
-1. **CSP estática (hash) + remover nonce** — `BOOTSTRAP_JS` (tema+moeda) é o único
-   inline, autorizado por `'sha256-…'`; `'strict-dynamic'` removido (incompatível com
+1. **CSP estática + remover nonce** — `'strict-dynamic'` removido (incompatível com
    ISR); GTM vira script externo. `src/lib/theme-bootstrap.ts` novo; `src/lib/csp.ts`
-   deletado; `JsonLdScript` sem nonce.
+   deletado; `JsonLdScript` sem nonce. **`script-src` precisa de `'unsafe-inline'`**:
+   o App Router emite inline `__next_f` por página que hash estático não cobre e nonce
+   forçaria dinâmico — custo inevitável do ISR (ver ADR-0016; downgrade honesto vs
+   round 25). Mantém allowlist de host + demais diretivas.
 2. **Sentry gated** — `withSentryConfig` só com `SENTRY_AUTH_TOKEN`/DSN; SDK fora do
    bundle (0 chunks mencionam "sentry").
 3. **Restructure `app/[locale]/`** — novo root layout lê `params.locale` (sem
@@ -43,9 +45,21 @@ mesmo com DSN vazio. Ou seja: o gargalo de orgânico **e** pago era o mesmo arqu
   `/pricing`, e **todas** as categorias testadas (us, br, de, jp, kr, ng). Antes: `no-store`.
 - `<html lang>` correto por URL: `/`=en, `/us`=en-US, `/br`=pt-BR, `/jp`=ja-JP.
 - `<meta description>` agora **dentro do `<head>`** (antes ia pro body).
-- CSP: `script-src 'self' 'sha256-…' <hosts>` — sem nonce/strict-dynamic/unsafe-inline.
-- Testes: unit 508/508; emulated i18n 7/0; a11y 5/0 (`<html lang>` ok); pentest
+- CSP: `script-src 'self' 'unsafe-inline' <hosts>` — sem nonce/strict-dynamic/wildcard.
+- Testes: unit 507/507; emulated i18n 7/0; a11y 5/0 (`<html lang>` ok); pentest
   frontend tudo verde (9 fails são `000` para a API ausente no ambiente local).
+
+## CI (PR #1, branch `perf/front-locale-isr`)
+
+- **CI (build-test + gitleaks): VERDE** — o gate obrigatório. (`main` sem branch protection.)
+- **lighthouse: vermelho, mas PRÉ-EXISTENTE e MELHORADO.** `main` já falhava (3/3 runs
+  de 2026-07-21). Antes do meu commit as páginas nem carregavam sob CSP-sem-unsafe-inline
+  (todas as categorias NULAS); agora pontuam. O que resta é `errors-in-console`, causado
+  pela CI buscar a API de PROD (`https://api.viralefy.com`) a partir de `localhost` →
+  **CORS** (TODO do próprio `lighthouse.yml`: trocar por `test:api-stub`; o stub regrediu
+  por motivo não isolado — fora de escopo deste PR).
+- **npm-audit: vermelho, PRÉ-EXISTENTE.** Advisory MODERATE de `@opentelemetry/core`
+  (transitivo via `@sentry/nextjs`); deps inalteradas por este PR; não falha o workflow CI.
 
 ## Aberto / débito
 

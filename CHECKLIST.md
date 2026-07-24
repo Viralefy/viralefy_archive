@@ -14,13 +14,16 @@ Branch `perf/front-locale-isr`. Detalhe: `task/2026-07-24-front-isr-organico-pag
       `revalidate` morto, metadata no `<body>`, Sentry no bundle
 - [x] Restructure `app/[locale]/` (novo root layout via `params.locale`); middleware
       **rewrite** preservando URLs públicas; `src/i18n/locales.ts`
-- [x] CSP estática com `'sha256-'` (BOOTSTRAP_JS); nonce/`strict-dynamic` removidos;
-      `csp.ts` deletado; GTM externo; Sentry gated (0 chunks com "sentry")
+- [x] CSP estática; nonce/`strict-dynamic` removidos; `csp.ts` deletado; GTM externo;
+      Sentry gated (0 chunks com "sentry"). **script-src precisa de `'unsafe-inline'`**
+      (inline `__next_f` por página; custo do ISR no App Router — ADR-0016)
 - [x] generateStaticParams **bottom-up**; country (130) + **todas** categorias (650)
       pré-renderizadas → ISR HIT; slug featured×planos (API no build)
 - [x] pricing/cities/vs/[competitor] migradas `x-locale` → `params.locale`
 - [x] `security.test.mjs` reescrito (contrato hash) + guarda de deriva
-- [x] Build verde (4861 páginas); unit 508/508; i18n 7/0; a11y 5/0; pentest FE verde
+- [x] Build verde (4861 páginas); unit 507/507; i18n 7/0; a11y 5/0; pentest FE verde
+- [x] PR #1 aberto; **CI (build-test+gitleaks) VERDE**; lighthouse/npm-audit vermelhos
+      são PRÉ-EXISTENTES e não-bloqueantes (LH: CORS à API de prod na CI; audit: OTel via Sentry)
 - [x] Verificado: `/`, `/us`, `/br`, `/jp`, `/pricing`, categorias (us/br/de/jp/kr/ng)
       todas `x-nextjs-cache: HIT`; `<html lang>` correto por URL; meta no `<head>`
 
