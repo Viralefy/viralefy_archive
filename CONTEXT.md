@@ -1,6 +1,6 @@
 # Viralefy — CONTEXT.md (snapshot atual)
 
-**Última atualização:** 2026-07-21 (índice de funcionalidades §39 + CI verde nos 10 repos — ver `task/2026-07-21-indice-funcionalidades.md`)
+**Última atualização:** 2026-07-24 (front: ISR real via segmento `[locale]` + CSP estática — todas as landing pages orgânicas/pagas agora `x-nextjs-cache: HIT`; ver `task/2026-07-24-front-isr-organico-pago.md`, ADR-0015/0016. Branch `perf/front-locale-isr`.)
 
 Este arquivo é o "leia primeiro" pra qualquer próxima sessão. Estado
 factual sem narrativa.

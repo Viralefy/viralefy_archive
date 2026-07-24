@@ -262,50 +262,50 @@ Monolito Go original (planos, checkout, pedidos, gateways). Congelado: o domíni
 
 Loja pública: vitrine de planos de seguidores, i18n por país e checkout com cadastro.
 
-- **Funções indexadas:** 588 (N=588, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
-- **Sem doc-comment (§3):** 451
-- **Pontos de entrada (camada `interface`/`cmd`):** 198
+- **Funções indexadas:** 584 (N=584, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
+- **Sem doc-comment (§3):** 440
+- **Pontos de entrada (camada `interface`/`cmd`):** 197
   - `register` — instrumentation.ts:4
-  - `siteUrl` — src/app/[country]/[category]/[slug]/page.tsx:37
-  - `getPlans` — src/app/[country]/[category]/[slug]/page.tsx:41
-  - `getReviews` — src/app/[country]/[category]/[slug]/page.tsx:55
-  - `qtyFromSlug` — src/app/[country]/[category]/[slug]/page.tsx:69
-  - `generateMetadata` — src/app/[country]/[category]/[slug]/page.tsx:74
-  - `planNarrative` — src/app/[country]/[category]/[slug]/page.tsx:143
-  - `describeSize` — src/app/[country]/[category]/[slug]/page.tsx:169
-  - `describeSizePt` — src/app/[country]/[category]/[slug]/page.tsx:176
-  - `describeSizeEs` — src/app/[country]/[category]/[slug]/page.tsx:183
-  - `windowFor` — src/app/[country]/[category]/[slug]/page.tsx:190
-  - `windowForPt` — src/app/[country]/[category]/[slug]/page.tsx:195
-  - `PlanPage` — src/app/[country]/[category]/[slug]/page.tsx:201
-  - `ReviewStars` — src/app/[country]/[category]/[slug]/page.tsx:372
-  - `ReviewsSection` — src/app/[country]/[category]/[slug]/page.tsx:403
-  - `ReviewCard` — src/app/[country]/[category]/[slug]/page.tsx:429
-  - `siteUrl` — src/app/[country]/[category]/page.tsx:45
-  - `generateMetadata` — src/app/[country]/[category]/page.tsx:49
-  - `getPlans` — src/app/[country]/[category]/page.tsx:86
-  - `CategoryPage` — src/app/[country]/[category]/page.tsx:97
-  - `generateStaticParams` — src/app/[country]/page.tsx:25
-  - `siteUrl` — src/app/[country]/page.tsx:31
-  - `generateMetadata` — src/app/[country]/page.tsx:35
-  - `getPlans` — src/app/[country]/page.tsx:74
-  - `CountryPage` — src/app/[country]/page.tsx:85
-  - `formatDate` — src/app/account/api-keys/page.tsx:18
-  - `APIKeysPage` — src/app/account/api-keys/page.tsx:27
-  - `load` — src/app/account/api-keys/page.tsx:38
-  - `handleCreate` — src/app/account/api-keys/page.tsx:57
-  - `handleRevoke` — src/app/account/api-keys/page.tsx:79
-  - `copyPlain` — src/app/account/api-keys/page.tsx:97
-  - `closeModal` — src/app/account/api-keys/page.tsx:108
-  - `CreditsPage` — src/app/account/credits/page.tsx:25
-  - `load` — src/app/account/credits/page.tsx:35
-  - `onRecharge` — src/app/account/credits/page.tsx:57
-  - `CustomAmount` — src/app/account/credits/page.tsx:210
-  - `DataPage` — src/app/account/data/page.tsx:27
-  - `onExport` — src/app/account/data/page.tsx:54
-  - `onRequestDeletion` — src/app/account/data/page.tsx:83
-  - `onCancelDeletion` — src/app/account/data/page.tsx:104
-  - _+158 outros — lista completa no índice fino._
+  - `generateStaticParams` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:41
+  - `siteUrl` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:64
+  - `getPlans` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:68
+  - `getReviews` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:82
+  - `qtyFromSlug` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:96
+  - `generateMetadata` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:101
+  - `planNarrative` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:170
+  - `describeSize` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:196
+  - `describeSizePt` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:203
+  - `describeSizeEs` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:210
+  - `windowFor` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:217
+  - `windowForPt` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:222
+  - `PlanPage` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:228
+  - `ReviewStars` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:399
+  - `ReviewsSection` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:430
+  - `ReviewCard` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:456
+  - `generateStaticParams` — src/app/[locale]/[country]/[category]/page.tsx:47
+  - `siteUrl` — src/app/[locale]/[country]/[category]/page.tsx:60
+  - `generateMetadata` — src/app/[locale]/[country]/[category]/page.tsx:64
+  - `getPlans` — src/app/[locale]/[country]/[category]/page.tsx:101
+  - `CategoryPage` — src/app/[locale]/[country]/[category]/page.tsx:112
+  - `generateStaticParams` — src/app/[locale]/[country]/page.tsx:31
+  - `siteUrl` — src/app/[locale]/[country]/page.tsx:37
+  - `generateMetadata` — src/app/[locale]/[country]/page.tsx:41
+  - `getPlans` — src/app/[locale]/[country]/page.tsx:80
+  - `CountryPage` — src/app/[locale]/[country]/page.tsx:91
+  - `formatDate` — src/app/[locale]/account/api-keys/page.tsx:18
+  - `APIKeysPage` — src/app/[locale]/account/api-keys/page.tsx:27
+  - `load` — src/app/[locale]/account/api-keys/page.tsx:38
+  - `handleCreate` — src/app/[locale]/account/api-keys/page.tsx:57
+  - `handleRevoke` — src/app/[locale]/account/api-keys/page.tsx:79
+  - `copyPlain` — src/app/[locale]/account/api-keys/page.tsx:97
+  - `closeModal` — src/app/[locale]/account/api-keys/page.tsx:108
+  - `CreditsPage` — src/app/[locale]/account/credits/page.tsx:25
+  - `load` — src/app/[locale]/account/credits/page.tsx:35
+  - `onRecharge` — src/app/[locale]/account/credits/page.tsx:57
+  - `CustomAmount` — src/app/[locale]/account/credits/page.tsx:210
+  - `DataPage` — src/app/[locale]/account/data/page.tsx:27
+  - `onExport` — src/app/[locale]/account/data/page.tsx:54
+  - _+157 outros — lista completa no índice fino._
 - **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 63
 
 ### `viralefy_backoffice`

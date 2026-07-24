@@ -29,6 +29,8 @@ Formato: [MADR](https://adr.github.io/madr/) — Markdown Any Decision Record.
 | [ADR-0012](0012-json-ld-graph-canonical.md) | JSON-LD via `@graph` canonical com Org + WebSite globais | accepted |
 | [ADR-0013](0013-rtl-logical-properties.md) | RTL via CSS logical properties | accepted |
 | [ADR-0014](0014-i18n-accept-language.md) | i18n por `Accept-Language` em rotas globais (sem country prefix) | accepted |
+| [ADR-0015](0015-front-locale-segment-isr.md) | Segmento `[locale]` + CSP estática para destravar o ISR do front | accepted |
+| [ADR-0016](0016-front-strict-dynamic-removal.md) | CSP estática (hash) e remoção do `'strict-dynamic'` no front | accepted |
 
 ## Quando criar uma nova ADR
 
