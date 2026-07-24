@@ -48,11 +48,11 @@ O `<html>` só é renderizado pelo root layout, e para variar `lang` por URL de 
    (`pt-br`, `en`, `ja-jp`). hreflang/canonical/sitemap seguem emitindo URLs **sem
    prefixo** — nada muda no SEO indexado. Guard: se o path já começa com um locale
    (path físico interno), não reescreve de novo.
-3. **As 3 outras dependências dinâmicas saem do root:** nonce → CSP estática com
-   `'sha256-…'` do único inline (`BOOTSTRAP_JS`, tema+moeda); tema → bootstrap inline
-   lê cookie/localStorage antes do paint (`suppressHydrationWarning`); moeda → client
-   (Providers já lê `getStoredCurrency`). A remoção do `'strict-dynamic'` que isso
-   exige está em [ADR-0016].
+3. **As 3 outras dependências dinâmicas saem do root:** nonce → CSP **estática**
+   (o Next emite inline `__next_f` por página que só `'unsafe-inline'` cobre sem nonce;
+   trade-off em [ADR-0016]); tema → bootstrap inline lê cookie/localStorage antes do
+   paint (`suppressHydrationWarning`); moeda → client (Providers já lê
+   `getStoredCurrency`).
 4. **`generateStaticParams` é BOTTOM-UP** nas rotas dinâmicas aninhadas: cada rota
    devolve o par COMPLETO (`{locale, country, …}`). O Next 15 **não propaga** de forma
    confiável o param do `[locale]` pai (layout) para o `generateStaticParams` do filho
