@@ -22,10 +22,15 @@ Branch `perf/front-locale-isr`. Detalhe: `task/2026-07-24-front-isr-organico-pag
 - [x] pricing/cities/vs/[competitor] migradas `x-locale` → `params.locale`
 - [x] `security.test.mjs` reescrito (contrato hash) + guarda de deriva
 - [x] Build verde (4861 páginas); unit 507/507; i18n 7/0; a11y 5/0; pentest FE verde
-- [x] PR #1 aberto; **build-test + gitleaks + lighthouse VERDES**. LH consertado nesta
-      task (stub em vez da API de prod + connect-src derivada do env). npm-audit vermelho é
-      PRÉ-EXISTENTE/não-bloqueante (`continue-on-error`): body-parser via @lhci/cli (CI-only,
-      não-prod) + OTel via Sentry (gated); fix só com `--force` (quebra tooling). Higiene à parte.
+- [x] PR #1: **CI 100% verde** — build-test, gitleaks, lighthouse E npm-audit.
+- [x] lighthouse consertado (stub + connect-src derivada do env).
+- [x] **npm-audit consertado**: next 15.5.18→15.5.21 (8 highs) + overrides (postcss/sharp/
+      fast-uri/brace-expansion) → prod 0 high; gate reescrito prod-scoped (`scripts/audit-ci.mjs`)
+      e **promovido a bloqueante**. Dev-tooling fora (Renovate).
+- [x] **Regressão corrigida**: matcher do middleware reescrevia arquivos public/ (chave
+      IndexNow `.txt`, llms.txt) → 404; agora exclui qualquer extensão. Smoke 54/0.
+- [~] Tradeoffs aceitos (não-bug): unsafe-inline (ISR no App Router), slug ISR precisa API
+      no build de prod, 404 EN estático, warning deprecated-API do LH (informativo).
 - [x] Verificado: `/`, `/us`, `/br`, `/jp`, `/pricing`, categorias (us/br/de/jp/kr/ng)
       todas `x-nextjs-cache: HIT`; `<html lang>` correto por URL; meta no `<head>`
 

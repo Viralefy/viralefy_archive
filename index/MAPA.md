@@ -262,9 +262,9 @@ Monolito Go original (planos, checkout, pedidos, gateways). Congelado: o domíni
 
 Loja pública: vitrine de planos de seguidores, i18n por país e checkout com cadastro.
 
-- **Funções indexadas:** 584 (N=584, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
-- **Sem doc-comment (§3):** 440
-- **Pontos de entrada (camada `interface`/`cmd`):** 197
+- **Funções indexadas:** 593 (N=593, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
+- **Sem doc-comment (§3):** 441
+- **Pontos de entrada (camada `interface`/`cmd`):** 200
   - `register` — instrumentation.ts:4
   - `generateStaticParams` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:41
   - `siteUrl` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:64
@@ -305,8 +305,8 @@ Loja pública: vitrine de planos de seguidores, i18n por país e checkout com ca
   - `CustomAmount` — src/app/[locale]/account/credits/page.tsx:210
   - `DataPage` — src/app/[locale]/account/data/page.tsx:27
   - `onExport` — src/app/[locale]/account/data/page.tsx:54
-  - _+157 outros — lista completa no índice fino._
-- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 63
+  - _+160 outros — lista completa no índice fino._
+- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 64
 
 ### `viralefy_backoffice`
 
