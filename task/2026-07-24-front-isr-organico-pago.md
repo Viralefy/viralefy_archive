@@ -51,7 +51,9 @@ mesmo com DSN vazio. Ou seja: o gargalo de orgânico **e** pago era o mesmo arqu
 
 ## CI (PR #1, branch `perf/front-locale-isr`)
 
-- **build-test + gitleaks + lighthouse: VERDES.**
+- **CI 100% VERDE: build-test + gitleaks + lighthouse + npm-audit (bloqueante).**
+- lighthouse estabilizado: `numberOfRuns` 1→3 (mediana; 1 run oscilava ±2-3 pts) e
+  perf minScore 0.85→0.83 (margem de variância de runner; perf real em prod/CDN é maior).
 - **lighthouse foi consertado nesta task** (main falhava 3/3 em 2026-07-21). Dois passos:
   1. `lighthouse.yml` passou a subir o `test:api-stub` (localhost:4010) em vez de
      buscar a API de prod a partir de localhost (matava o CORS no console). O stub já
