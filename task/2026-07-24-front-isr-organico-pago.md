@@ -51,15 +51,22 @@ mesmo com DSN vazio. Ou seja: o gargalo de orgânico **e** pago era o mesmo arqu
 
 ## CI (PR #1, branch `perf/front-locale-isr`)
 
-- **CI (build-test + gitleaks): VERDE** — o gate obrigatório. (`main` sem branch protection.)
-- **lighthouse: vermelho, mas PRÉ-EXISTENTE e MELHORADO.** `main` já falhava (3/3 runs
-  de 2026-07-21). Antes do meu commit as páginas nem carregavam sob CSP-sem-unsafe-inline
-  (todas as categorias NULAS); agora pontuam. O que resta é `errors-in-console`, causado
-  pela CI buscar a API de PROD (`https://api.viralefy.com`) a partir de `localhost` →
-  **CORS** (TODO do próprio `lighthouse.yml`: trocar por `test:api-stub`; o stub regrediu
-  por motivo não isolado — fora de escopo deste PR).
-- **npm-audit: vermelho, PRÉ-EXISTENTE.** Advisory MODERATE de `@opentelemetry/core`
-  (transitivo via `@sentry/nextjs`); deps inalteradas por este PR; não falha o workflow CI.
+- **build-test + gitleaks + lighthouse: VERDES.**
+- **lighthouse foi consertado nesta task** (main falhava 3/3 em 2026-07-21). Dois passos:
+  1. `lighthouse.yml` passou a subir o `test:api-stub` (localhost:4010) em vez de
+     buscar a API de prod a partir de localhost (matava o CORS no console). O stub já
+     existia pra isso; a ressalva do TODO era o e2e de checkout, que o LH não audita.
+  2. `connect-src` da CSP passou a derivar a origem da API do `NEXT_PUBLIC_API_URL`
+     (antes fixava os hosts de prod → bloqueava o fetch ao stub na CI). Prod inalterado.
+  Antes do fix as páginas nem carregavam sob a CSP (categorias nulas); agora pontuam e
+  passam. Nota: `best-practices` fica ~0.93-0.95 porque o audit `csp-xss` do Lighthouse
+  penaliza o `'unsafe-inline'` (tradeoff aceito do ISR, ADR-0016) — passou mesmo assim.
+- **npm-audit: vermelho, PRÉ-EXISTENTE e NÃO-BLOQUEANTE (`continue-on-error`).** deps
+  inalteradas por este PR. Achados: `body-parser` (high) é transitivo do **`@lhci/cli`**
+  (ferramenta de CI, nunca roda em prod) e `@opentelemetry/core` (moderate) via
+  `@sentry/nextjs` (gated off no HML/POC). O único fix é `npm audit fix --force`, que
+  DOWNGRADA o lhci (0.14→0.6.1) e MAJORA o storybook — quebra tooling pra fugir de
+  advisory de dev/CI sem risco em runtime. Deixado pra uma pass de higiene de deps à parte.
 
 ## Aberto / débito
 

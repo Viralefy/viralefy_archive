@@ -22,8 +22,10 @@ Branch `perf/front-locale-isr`. Detalhe: `task/2026-07-24-front-isr-organico-pag
 - [x] pricing/cities/vs/[competitor] migradas `x-locale` → `params.locale`
 - [x] `security.test.mjs` reescrito (contrato hash) + guarda de deriva
 - [x] Build verde (4861 páginas); unit 507/507; i18n 7/0; a11y 5/0; pentest FE verde
-- [x] PR #1 aberto; **CI (build-test+gitleaks) VERDE**; lighthouse/npm-audit vermelhos
-      são PRÉ-EXISTENTES e não-bloqueantes (LH: CORS à API de prod na CI; audit: OTel via Sentry)
+- [x] PR #1 aberto; **build-test + gitleaks + lighthouse VERDES**. LH consertado nesta
+      task (stub em vez da API de prod + connect-src derivada do env). npm-audit vermelho é
+      PRÉ-EXISTENTE/não-bloqueante (`continue-on-error`): body-parser via @lhci/cli (CI-only,
+      não-prod) + OTel via Sentry (gated); fix só com `--force` (quebra tooling). Higiene à parte.
 - [x] Verificado: `/`, `/us`, `/br`, `/jp`, `/pricing`, categorias (us/br/de/jp/kr/ng)
       todas `x-nextjs-cache: HIT`; `<html lang>` correto por URL; meta no `<head>`
 
