@@ -262,9 +262,9 @@ Monolito Go original (planos, checkout, pedidos, gateways). Congelado: o domíni
 
 Loja pública: vitrine de planos de seguidores, i18n por país e checkout com cadastro.
 
-- **Funções indexadas:** 593 (N=593, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
+- **Funções indexadas:** 598 (N=598, M==N ✅) — [índice fino](INDEX_FUNCTIONS_viralefy_front.md)
 - **Sem doc-comment (§3):** 441
-- **Pontos de entrada (camada `interface`/`cmd`):** 200
+- **Pontos de entrada (camada `interface`/`cmd`):** 202
   - `register` — instrumentation.ts:4
   - `generateStaticParams` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:41
   - `siteUrl` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:64
@@ -279,14 +279,15 @@ Loja pública: vitrine de planos de seguidores, i18n por país e checkout com ca
   - `windowFor` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:217
   - `windowForPt` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:222
   - `PlanPage` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:228
-  - `ReviewStars` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:399
-  - `ReviewsSection` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:430
-  - `ReviewCard` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:456
+  - `ReviewStars` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:424
+  - `ReviewsSection` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:455
+  - `ReviewCard` — src/app/[locale]/[country]/[category]/[slug]/page.tsx:481
   - `generateStaticParams` — src/app/[locale]/[country]/[category]/page.tsx:47
   - `siteUrl` — src/app/[locale]/[country]/[category]/page.tsx:60
   - `generateMetadata` — src/app/[locale]/[country]/[category]/page.tsx:64
   - `getPlans` — src/app/[locale]/[country]/[category]/page.tsx:101
   - `CategoryPage` — src/app/[locale]/[country]/[category]/page.tsx:112
+  - `planLinks` — src/app/[locale]/[country]/[category]/page.tsx:138
   - `generateStaticParams` — src/app/[locale]/[country]/page.tsx:31
   - `siteUrl` — src/app/[locale]/[country]/page.tsx:37
   - `generateMetadata` — src/app/[locale]/[country]/page.tsx:41
@@ -304,9 +305,8 @@ Loja pública: vitrine de planos de seguidores, i18n por país e checkout com ca
   - `onRecharge` — src/app/[locale]/account/credits/page.tsx:57
   - `CustomAmount` — src/app/[locale]/account/credits/page.tsx:210
   - `DataPage` — src/app/[locale]/account/data/page.tsx:27
-  - `onExport` — src/app/[locale]/account/data/page.tsx:54
-  - _+160 outros — lista completa no índice fino._
-- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 64
+  - _+162 outros — lista completa no índice fino._
+- **Saídas com efeito externo (db/http-out/evento/email/arquivo):** 63
 
 ### `viralefy_backoffice`
 

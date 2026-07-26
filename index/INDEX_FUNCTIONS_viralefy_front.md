@@ -6,10 +6,10 @@
 | Métrica | Valor |
 |---|---|
 | Arquivos com função indexada | 149 (de 186 varridos) |
-| **N — funções declaradas no código** | **593** |
-| **M — entradas neste índice** | **593** |
+| **N — funções declaradas no código** | **598** |
+| **M — entradas neste índice** | **598** |
 | Invariante `M == N` | ✅ OK |
-| Funções sem doc-comment (§3) | 441 (74.4%) |
+| Funções sem doc-comment (§3) | 441 (73.7%) |
 
 Colunas: `de onde vem → pra onde vai` é derivada (camada dos chamadores → efeitos detectados);
 `chama (out)` / `é chamada por (in)` vêm do grafo resolvido por nome. As listas inline são
@@ -24,19 +24,19 @@ flowchart LR
   m2["src/i18n"]
   m3["tests/unit"]
   m4["tests/emulated"]
-  m5["src/app/[locale]/[country]/[category]/[slug]"]
-  m6["src/app/[locale]/[country]/[category]"]
+  m5["src/app/[locale]/[country]/[category]"]
+  m6["src/app/[locale]/[country]/[category]/[slug]"]
   m7["src/app/[locale]/cities/[city]"]
   m8["src/app/[locale]/vs/[competitor]"]
   m9["src/app/[locale]/login"]
   m10["src/app/[locale]/register"]
   m11["src/app/[locale]/pricing"]
   m12["tests/smoke"]
-  m13["src/app/[locale]/[country]"]
-  m14["src/app/[locale]/account/data"]
-  m15["src/app/[locale]"]
-  m16["src/app/[locale]/account/security/2fa"]
-  m17["src/app/[locale]/help/[slug]"]
+  m13["src/app/[locale]/help/[slug]"]
+  m14["src/app/[locale]/[country]"]
+  m15["src/app/[locale]/account/data"]
+  m16["src/app/[locale]"]
+  m17["src/app/[locale]/account/security/2fa"]
   m18["src/app"]
   m19["src/app/og/[...slug]"]
   m20["src/app/[locale]/account/notifications"]
@@ -45,19 +45,21 @@ flowchart LR
   m23["src/app/[locale]/legal/cookies"]
   m24["src/app/[locale]/vs"]
   m25["src/app/[locale]/cities"]
+  m26["src/app/[locale]/help"]
   m0 -->|62| m1
   m0 -->|34| m2
   m1 -->|30| m3
   m3 -->|30| m4
   m3 -->|27| m1
   m0 -->|21| m3
+  m5 -->|17| m2
   m3 -->|16| m2
-  m5 -->|15| m2
   m6 -->|15| m2
   m3 -->|13| m0
   m7 -->|12| m8
   m9 -->|12| m10
   m8 -->|12| m7
+  m6 -->|11| m1
   m7 -->|11| m11
   m11 -->|11| m8
   m11 -->|11| m7
@@ -65,49 +67,48 @@ flowchart LR
   m8 -->|11| m11
   m1 -->|11| m12
   m1 -->|11| m2
-  m5 -->|9| m6
-  m5 -->|9| m13
+  m13 -->|10| m1
+  m6 -->|9| m5
+  m6 -->|9| m14
   m5 -->|9| m1
-  m14 -->|9| m1
-  m5 -->|8| m15
-  m5 -->|8| m11
-  m6 -->|8| m1
-  m16 -->|8| m1
+  m15 -->|9| m1
+  m8 -->|9| m1
+  m6 -->|8| m16
+  m6 -->|8| m11
+  m14 -->|8| m2
   m17 -->|8| m1
-  m8 -->|8| m1
+  m7 -->|8| m1
   m18 -->|8| m1
   m4 -->|8| m12
-  m5 -->|7| m19
-  m6 -->|7| m5
-  m6 -->|7| m13
-  m13 -->|7| m5
-  m13 -->|7| m6
-  m13 -->|7| m2
+  m6 -->|7| m19
+  m5 -->|7| m6
+  m5 -->|7| m14
+  m14 -->|7| m6
+  m14 -->|7| m5
   m20 -->|7| m1
   m21 -->|7| m1
   m22 -->|7| m1
   m7 -->|7| m23
   m7 -->|7| m24
   m7 -->|7| m25
-  m7 -->|7| m1
   m25 -->|7| m23
   m25 -->|7| m11
   m25 -->|7| m8
   m25 -->|7| m24
   m25 -->|7| m7
-  m15 -->|7| m2
+  m25 -->|7| m1
+  m26 -->|7| m1
+  m16 -->|7| m2
+  m23 -->|7| m25
   m23 -->|7| m11
   m23 -->|7| m8
   m23 -->|7| m24
   m23 -->|7| m7
-  m23 -->|7| m25
-  m11 -->|7| m23
-  m11 -->|7| m24
   m11 -->|7| m25
-  m8 -->|7| m23
+  m11 -->|7| m23
 ```
 
-> Grafo por módulo: 521 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 461 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
+> Grafo por módulo: 522 arestas inter-módulo no total; 60 desenhadas (as de maior peso). As 462 restantes NÃO foram omitidas do índice — estão na adjacência função a função abaixo.
 
 ## Funções
 
@@ -138,8 +139,8 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `headers` | method | ⚠ SEM DOC | test+interface → retorno | — | installApiMocks, siteUrl, ogLocale, middleware, siteUrl | — | 37 |
-| `redirects` | method | ⚠ SEM DOC | — → retorno | — | — | — | 66 |
+| `headers` | method | ⚠ SEM DOC | test+interface → retorno | — | installApiMocks, siteUrl, ogLocale, middleware, siteUrl | — | 51 |
+| `redirects` | method | ⚠ SEM DOC | — → retorno | — | — | — | 80 |
 
 ### `scripts/audit-ci.mjs` — camada `ops`
 
@@ -170,41 +171,42 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, getPlans, getPlans, getPlans, generateStaticParams, getPlans, generateStaticParams, getPlans, categorySlug +6 | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 41 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 64 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 64 |
 | `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage, getPlans +3 | http-out | 68 |
 | `getReviews` | func | Server-side reviews fetch. | interface → http-out | fetch | PlanPage | http-out | 82 |
 | `qtyFromSlug` | func | Extrai a qty do slug (`1000-seguidores` → 1000). | interface → interno | qtyFromSlug | generateMetadata, qtyFromSlug, GET, PlanPage | — | 96 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +37 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 101 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +37 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 101 |
 | `planNarrative` | func | Bloco descritivo do pacote por idioma — interpola qty, categoria, país. | interface → interno | describeSize, describeSizePt, describeSizeEs, windowFor, windowForPt | PlanPage | — | 170 |
 | `describeSize` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 196 |
 | `describeSizePt` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 203 |
 | `describeSizeEs` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 210 |
 | `windowFor` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 217 |
 | `windowForPt` | func | ⚠ SEM DOC | interface → retorno | — | planNarrative | — | 222 |
-| `PlanPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, getPlans +30 | — | evento | 228 |
-| `ReviewStars` | func | ReviewStars renderiza o badge agregado abaixo do H1: ★★★★★ 4.7 (12 reviews) Server-component puro, sem JS no cliente. | externo (borda) → retorno | — | — | — | 399 |
-| `ReviewsSection` | func | ReviewsSection — social proof na página do plano. | externo (borda) → retorno | — | — | — | 430 |
-| `ReviewCard` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 456 |
+| `PlanPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl +32 | — | evento | 228 |
+| `ReviewStars` | func | ReviewStars renderiza o badge agregado abaixo do H1: ★★★★★ 4.7 (12 reviews) Server-component puro, sem JS no cliente. | externo (borda) → retorno | — | — | — | 424 |
+| `ReviewsSection` | func | ReviewsSection — social proof na página do plano. | externo (borda) → retorno | — | — | — | 455 |
+| `ReviewCard` | func | ⚠ SEM DOC | externo (borda) → retorno | — | — | — | 481 |
 
 ### `src/app/[locale]/[country]/[category]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `generateStaticParams` | func | ⚠ SEM DOC | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, categorySlug, langOfCountry, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 47 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 60 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 64 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 60 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 64 |
 | `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage +3 | http-out | 101 |
-| `CategoryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, getPlans +26 | — | — | 112 |
+| `CategoryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl +24 | — | — | 112 |
+| `planLinks` | arrow | Links de plano em HTML SERVER-SIDE (dedup por URL). | externo (borda) → interno | categorySlug, categoryLabel, buildOfferEnhancements, withGlobalGraph, buildFaqPageNode, buildAggregateOffer | — | — | 138 |
 
 ### `src/app/[locale]/[country]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `generateStaticParams` | func | generateStaticParams BOTTOM-UP: devolve o par COMPLETO {locale, country}. | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 31 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 37 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 41 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 37 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 41 |
 | `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage +3 | http-out | 80 |
-| `CountryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, getPlans +24 | — | — | 91 |
+| `CountryPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl +25 | — | — | 91 |
 
 ### `src/app/[locale]/account/api-keys/page.tsx` — camada `interface`
 
@@ -319,18 +321,18 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `smartTrim` | func | BUG-153/165 do QA 2026-06-12: meta description cortada no meio da frase (slice(0, 150)) terminava em "Pay i". | interface → retorno | — | generateMetadata, CaseStudyDetailPage | — | 13 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, generateStaticParams, siteUrl, generateStaticParams, siteUrl, siteUrl, generateStaticParams, siteUrl, siteUrl, siteUrl +15 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 22 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, generateStaticParams, siteUrl, generateStaticParams, siteUrl, siteUrl, generateStaticParams, siteUrl, siteUrl +15 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 22 |
 | `generateStaticParams` | func | Rota GLOBAL (copy EN-only, ver sitemap). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams | — | 33 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → evento | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | evento | 37 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → evento | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | evento | 37 |
 | `CaseStudyDetailPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +11 | — | evento | 75 |
 
 ### `src/app/[locale]/case-studies/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 23 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 27 |
-| `CaseStudiesHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +9 | — | — | 57 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 23 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 27 |
+| `CaseStudiesHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +9 | — | — | 59 |
 
 ### `src/app/[locale]/cities/[city]/page.tsx` — camada `interface`
 
@@ -339,54 +341,54 @@ flowchart LR
 | `resolveLang` | func | `headers()` REMOVIDO — anulava o ISR. | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang, generateMetadata +7 | — | 24 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | schemaLang, PricingPage, schemaLang, VsCompetitorPage, CityPage | — | 54 |
 | `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | ogLocale, generateMetadata, ogLocale, generateMetadata, generateMetadata | — | 84 |
-| `siteUrl` | func | Programmatic SEO city LP. 50 rotas estáticas; cada uma fala da cidade com bairros/landmarks reais antes de redirecionar pro funnel do país. | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 1058 |
+| `siteUrl` | func | Programmatic SEO city LP. 50 rotas estáticas; cada uma fala da cidade com bairros/landmarks reais antes de redirecionar pro funnel do país. | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 1058 |
 | `generateStaticParams` | func | Rota GLOBAL (EN-only). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams | — | 1125 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1129 |
-| `neighborhoodsText` | func | "central <city>" fallback varia por idioma — quando uma cidade não tem LOCAL_FLAVOR específica, queremos uma frase idiomática em cada língua (BUG city-fallback: antes só dizia "central <city>" e fi… | interface → retorno | — | CityPage | — | 1193 |
-| `CityPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang, schemaLang +21 | — | — | 1269 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang +34 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1129 |
+| `neighborhoodsText` | func | "central <city>" fallback varia por idioma — quando uma cidade não tem LOCAL_FLAVOR específica, queremos uma frase idiomática em cada língua (BUG city-fallback: antes só dizia "central <city>" e fi… | interface → retorno | — | CityPage | — | 1171 |
+| `CityPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang +21 | — | — | 1247 |
 
 ### `src/app/[locale]/cities/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `resolveLang` | func | `headers()` REMOVIDO — lê-lo anulava o ISR (SSR por request). | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang, generateMetadata +7 | — | 26 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 33 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata, siteUrl +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 100 |
-| `CitiesHub` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl +16 | — | — | 127 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, generateMetadata +40 | — | 33 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata +30 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 100 |
+| `CitiesHub` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang +16 | — | — | 128 |
 
 ### `src/app/[locale]/help/[slug]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl, generateMetadata +39 | — | 14 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, generateMetadata +40 | — | 14 |
 | `generateStaticParams` | func | Rota GLOBAL (EN-only). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, helpAllSlugs, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 24 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl +24 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 28 |
-| `HelpTopicPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | evento | 56 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +25 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 28 |
+| `HelpTopicPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +11 | — | evento | 57 |
 
 ### `src/app/[locale]/help/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, generateMetadata, HelpHub, siteUrl, siteUrl, generateMetadata +39 | — | 16 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 20 |
-| `HelpHub` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | — | 46 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, generateMetadata, HelpHub, siteUrl, generateMetadata +40 | — | 16 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +24 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 20 |
+| `HelpHub` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +10 | — | — | 49 |
 
 ### `src/app/[locale]/layout.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `generateStaticParams` | func | Pré-renderiza um segmento por locale conhecido (htmlLang dos países ∪ os alvos de Accept-Language). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, allLocaleSegments, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 103 |
-| `LocaleLayout` | func | JSON-LD Organization/WebSite NÃO vai aqui: home e country pages emitem o bloco completo. | externo (borda) → interno | htmlLangFromSegment, dirFromSegment | — | — | 110 |
+| `generateStaticParams` | func | Pré-renderiza um segmento por locale conhecido (htmlLang dos países ∪ os alvos de Accept-Language). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, allLocaleSegments, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 109 |
+| `LocaleLayout` | func | JSON-LD Organization/WebSite NÃO vai aqui: home e country pages emitem o bloco completo. | externo (borda) → interno | htmlLangFromSegment, dirFromSegment | — | — | 116 |
 
 ### `src/app/[locale]/legal/[doc]/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, generateMetadata +39 | — | 17 |
-| `isSlug` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, LegalPage | — | 21 |
-| `otherLanguagesLabel` | func | ⚠ SEM DOC | interface → interno | otherLanguagesLabel | LegalPage, otherLanguagesLabel, CookiesLegalPage | — | 25 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, generateMetadata, generateMetadata, isSlug, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +7 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 41 |
-| `LegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | isSlug, otherLanguagesLabel, otherLanguagesLabel, tr, tr, legalDoc, renderLegalBody | — | — | 79 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, generateMetadata +40 | — | 18 |
+| `isSlug` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, LegalPage | — | 22 |
+| `otherLanguagesLabel` | func | ⚠ SEM DOC | interface → interno | otherLanguagesLabel | LegalPage, otherLanguagesLabel, CookiesLegalPage | — | 26 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, isSlug, siteUrl, generateMetadata +26 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 42 |
+| `LegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | isSlug, otherLanguagesLabel, otherLanguagesLabel, tr, tr, legalDoc, renderLegalBody | — | — | 100 |
 
 ### `src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx` — camada `ui`
 
@@ -408,14 +410,14 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, generateMetadata +39 | — | 47 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 47 |
 | `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang, generateMetadata, VsCompetitorPage +7 | — | 51 |
 | `otherLanguagesLabel` | func | Localiza "Other languages:" — espelha o helper do dynamic [doc]/page.tsx (BUG-30/118 do QA: rótulo ficava em EN mesmo em /legal/cookies?lang=fr). | interface → interno | otherLanguagesLabel, tr, tr | otherLanguagesLabel, LegalPage, CookiesLegalPage | — | 58 |
 | `backToHomeLabel` | func | "Voltar ao início" — espelha o tr().cta.backToHome do pack i18n mas evitamos importar tr() inteiro pra manter este arquivo standalone. | interface → retorno | — | CookiesLegalPage | — | 76 |
 | `updatedLabel` | func | "Updated" label — mecânico, mesmo padrão. | interface → retorno | — | CookiesLegalPage | — | 93 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, siteUrl +31 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 109 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang +31 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 109 |
 | `CategoryBadge` | func | BUG-142 do QA 2026-06-12: badges da tabela de cookies estavam fixas em EN ("NECESSARY", "PREFERENCES"…) mesmo no documento PT. | externo (borda) → retorno | — | — | — | 274 |
-| `CookiesLegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, otherLanguagesLabel, siteUrl, resolveLang, otherLanguagesLabel, backToHomeLabel, updatedLabel, siteUrl +22 | — | — | 314 |
+| `CookiesLegalPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, otherLanguagesLabel, siteUrl, resolveLang, otherLanguagesLabel, backToHomeLabel, updatedLabel +22 | — | — | 314 |
 
 ### `src/app/[locale]/login/layout.tsx` — camada `interface`
 
@@ -457,26 +459,26 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 31 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, HomePage, getPlans, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage, getPlans +3 | http-out | 62 |
-| `HomePage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, siteUrl, getPlans, getPlans +18 | — | — | 73 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 31 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, HomePage, getPlans, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage, getPlans +3 | http-out | 65 |
+| `HomePage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, getPlans, getPlans, siteUrl +18 | — | — | 76 |
 
 ### `src/app/[locale]/pricing/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 27 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 27 |
 | `resolveLang` | func | ⚠ SEM DOC | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, generateMetadata, PricingPage, resolveLang, generateMetadata, VsCompetitorPage +7 | — | 37 |
 | `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, ogLocale | generateMetadata, ogLocale, generateMetadata, ogLocale, generateMetadata | — | 747 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | PricingPage, schemaLang, VsCompetitorPage, schemaLang, CityPage | — | 778 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata +32 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 809 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage, getPlans +3 | http-out | 884 |
-| `priceUSD` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 895 |
-| `findPlan` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 899 |
-| `fmtQty` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable | — | 912 |
-| `PricingTable` | func | ⚠ SEM DOC | externo (borda) → interno | priceUSD, findPlan, fmtQty | — | — | 917 |
-| `uspsFor` | func | ⚠ SEM DOC | interface → retorno | — | PricingPage | — | 978 |
-| `PricingPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, getPlans, siteUrl, getPlans +27 | — | — | 987 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 809 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, PricingPage, generateMetadata, getPlans, GET, PlanPage, getPlans +3 | http-out | 864 |
+| `priceUSD` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 875 |
+| `findPlan` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable, PricingPage | — | 879 |
+| `fmtQty` | func | ⚠ SEM DOC | interface → retorno | — | PricingTable | — | 892 |
+| `PricingTable` | func | ⚠ SEM DOC | externo (borda) → interno | priceUSD, findPlan, fmtQty | — | — | 897 |
+| `uspsFor` | func | ⚠ SEM DOC | interface → retorno | — | PricingPage | — | 958 |
+| `PricingPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, getPlans, getPlans +27 | — | — | 967 |
 
 ### `src/app/[locale]/register/layout.tsx` — camada `interface`
 
@@ -509,10 +511,10 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 21 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl +23 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
-| `fetchStatus` | func | ⚠ SEM DOC | interface → http-out | fetch | StatusPage | http-out | 51 |
-| `StatusPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, fetchStatus, siteUrl +10 | — | — | 69 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 21 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata +24 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 25 |
+| `fetchStatus` | func | ⚠ SEM DOC | interface → http-out | fetch | StatusPage | http-out | 53 |
+| `StatusPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, fetchStatus +10 | — | — | 71 |
 
 ### `src/app/[locale]/tickets/[id]/page.tsx` — camada `interface`
 
@@ -545,23 +547,23 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 20 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +8 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 20 |
 | `resolveLang` | func | `headers()` REMOVIDO — anulava o ISR. | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, generateMetadata, VsCompetitorPage +7 | — | 27 |
 | `schemaLang` | func | ⚠ SEM DOC | interface → interno | schemaLang, schemaLang | schemaLang, PricingPage, VsCompetitorPage, schemaLang, CityPage | — | 57 |
 | `ogLocale` | func | ⚠ SEM DOC | interface → interno | ogLocale, headers, ogLocale | ogLocale, generateMetadata, generateMetadata, ogLocale, generateMetadata | — | 87 |
 | `generateStaticParams` | func | Rota GLOBAL (EN-only). | interface → interno | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams | generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, generateStaticParams, siteUrl, generateStaticParams, generateStaticParams | — | 1235 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata +33 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1239 |
-| `buildRows` | func | ⚠ SEM DOC | interface → retorno | — | VsCompetitorPage | — | 1304 |
-| `VsCompetitorPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang, schemaLang +21 | — | evento | 1383 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang +34 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 1239 |
+| `buildRows` | func | ⚠ SEM DOC | interface → retorno | — | VsCompetitorPage | — | 1281 |
+| `VsCompetitorPage` | func | ⚠ SEM DOC | externo (borda) → evento | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang +21 | — | evento | 1360 |
 
 ### `src/app/[locale]/vs/page.tsx` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `resolveLang` | func | `headers()` REMOVIDO — anulava o ISR. | interface → interno | resolveLang, resolveLang, resolveLang, resolveLang, resolveLang | generateMetadata, CitiesHub, resolveLang, generateMetadata, CookiesLegalPage, resolveLang, generateMetadata, PricingPage, resolveLang, generateMetadata +7 | — | 24 |
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 31 |
-| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang, generateMetadata +29 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 111 |
-| `VsHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl +15 | — | — | 138 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 31 |
+| `generateMetadata` | func | ⚠ SEM DOC | interface → interno | siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, generateMetadata, siteUrl, resolveLang +30 | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +4 | — | 111 |
+| `VsHubPage` | func | ⚠ SEM DOC | externo (borda) → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, resolveLang, siteUrl, siteUrl, siteUrl, resolveLang +15 | — | — | 139 |
 
 ### `src/app/api/geo/route.ts` — camada `interface`
 
@@ -602,12 +604,12 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `isOgSafeLang` | func | ⚠ SEM DOC | interface → retorno | — | GET | — | 29 |
-| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, getPlans, PricingPage, generateMetadata, GET, PlanPage, getPlans +3 | http-out | 38 |
-| `fromPriceLabel` | func | Formata o menor preço da lista em USD (a moeda de display global). | interface → retorno | — | GET | — | 50 |
-| `exactPriceLabel` | func | Para plano específico, devolve `$X.XX`. | interface → retorno | — | GET | — | 60 |
-| `qtyFromSlug` | func | ⚠ SEM DOC | interface → interno | qtyFromSlug | qtyFromSlug, generateMetadata, GET, PlanPage | — | 67 |
-| `englishCountryName` | func | Resolve um country code ISO 3166 para o nome em inglês. | interface → retorno | — | GET | — | 80 |
-| `GET` | func | ⚠ SEM DOC | interface → interno | getPlans, getPlans, getPlans, qtyFromSlug, GET, GET, GET, GET, isOgSafeLang, getPlans +11 | GET, GET, GET, GET, GET | — | 89 |
+| `getPlans` | func | ⚠ SEM DOC | interface → http-out | getPlans, getPlans, getPlans, getPlans, getPlans, fetch | generateStaticParams, getPlans, HomePage, getPlans, getPlans, PricingPage, generateMetadata, GET, PlanPage, getPlans +3 | http-out | 43 |
+| `fromPriceLabel` | func | Formata o menor preço da lista em USD (a moeda de display global). | interface → retorno | — | GET | — | 55 |
+| `exactPriceLabel` | func | Para plano específico, devolve `$X.XX`. | interface → retorno | — | GET | — | 65 |
+| `qtyFromSlug` | func | ⚠ SEM DOC | interface → interno | qtyFromSlug | qtyFromSlug, generateMetadata, GET, PlanPage | — | 72 |
+| `englishCountryName` | func | Resolve um country code ISO 3166 para o nome em inglês. | interface → retorno | — | GET | — | 85 |
+| `GET` | func | ⚠ SEM DOC | interface → interno | getPlans, getPlans, getPlans, qtyFromSlug, GET, GET, GET, GET, isOgSafeLang, getPlans +11 | GET, GET, GET, GET, GET | — | 94 |
 
 ### `src/app/robots.ts` — camada `ui`
 
@@ -623,15 +625,16 @@ flowchart LR
 | `alternatesFor` | func | Computa `alternates.languages` (mapa hreflang) pra cada URL canônica que existe em múltiplos idiomas. | ui → interno | siteBase, getCountry | sitemap | — | 21 |
 | `baseLanguages` | arrow | ⚠ SEM DOC | — → interno | categoryFromSlug, countryRootAlternates, categoryAlternates, slugAlternates | — | — | 29 |
 | `generateSitemaps` | func | ⚠ SEM DOC | — → interno | allSiteUrls, paginatedBuckets | — | — | 72 |
-| `sitemap` | func | ⚠ SEM DOC | ui → interno | alternatesFor, allSiteUrls, parseSitemapBucketID, urlsForBucket | urlsForLang | — | 77 |
+| `sitemap` | func | ⚠ SEM DOC | interface+ui → interno | alternatesFor, allSiteUrls, parseSitemapBucketID, urlsForBucket | CategoryPage, urlsForLang | — | 77 |
 
 ### `src/app/sitemap.xml/route.ts` — camada `interface`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 15 |
-| `xmlEscape` | func | ⚠ SEM DOC | interface+test → interno | xmlEscape | GET, xmlEscape, buildSitemapIndexXml | — | 19 |
-| `GET` | func | ⚠ SEM DOC | interface → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +17 | GET, GET, GET, GET, GET | — | 23 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 20 |
+| `xmlEscape` | func | ⚠ SEM DOC | interface+test → interno | xmlEscape | GET, xmlEscape, buildSitemapIndexXml | — | 24 |
+| `bucketLastmod` | func | bucketLastmod — o lastmod do shard é a data mais recente entre as URLs que ele contém (max lastModified). | interface → retorno | — | GET | — | 32 |
+| `GET` | func | ⚠ SEM DOC | interface → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +19 | GET, GET, GET, GET, GET | — | 40 |
 
 ### `src/components/ABExperiment.stories.tsx` — camada `ui`
 
@@ -907,11 +910,11 @@ flowchart LR
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
 | `categoryFromSlug` | func | Resolve um slug recebido na URL → CategoryCode + idioma esperado. | interface+ui+test → retorno | — | generateMetadata, GET, baseLanguages, PlanPage, generateMetadata, CategoryPage, sortKey, countCyrillic, search, search | — | 290 |
-| `categorySlug` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateStaticParams, generateMetadata, onSubscribeClick, CategoryGroupedGrid, PlanPage, MegaMenuServices, generateStaticParams, buildIndex, generateMetadata, CategoryPage +9 | — | 300 |
-| `categoryLabel` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateMetadata, GET, CategoryGroupedGrid, PlanPage, MegaMenuServices, buildIndex, CategoryPage, CountryPage, countCyrillic, buildIndex +1 | — | 304 |
+| `categorySlug` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateStaticParams, generateMetadata, onSubscribeClick, CategoryGroupedGrid, PlanPage, MegaMenuServices, generateStaticParams, buildIndex, generateMetadata, CategoryPage +10 | — | 300 |
+| `categoryLabel` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | generateMetadata, GET, CategoryGroupedGrid, PlanPage, MegaMenuServices, buildIndex, CategoryPage, planLinks, CountryPage, countCyrillic +2 | — | 304 |
 | `primitiveOf` | func | ⚠ SEM DOC | ui → retorno | — | categoryUnit | — | 317 |
 | `categoryUnit` | func | Unit label curto, sem plataforma — vira o sufixo na frase "1,000 <unit>" no card de plano. | ui+interface → interno | primitiveOf | CategoryGroupedGrid, CategoryPage | — | 372 |
-| `copyFor` | func | ⚠ SEM DOC | interface+test → retorno | — | PlanPage, generateMetadata, CategoryPage, countCyrillic | — | 1805 |
+| `copyFor` | func | ⚠ SEM DOC | interface+test → retorno | — | PlanPage, generateMetadata, CategoryPage, CountryPage, countCyrillic | — | 1805 |
 
 ### `src/i18n/countries.ts` — camada `ui`
 
@@ -1082,9 +1085,9 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `helpTopicBySlug` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, HelpTopicPage | — | 330 |
-| `helpTopicsByCategory` | func | ⚠ SEM DOC | interface → retorno | — | HelpHub | — | 334 |
-| `helpAllSlugs` | func | ⚠ SEM DOC | interface → retorno | — | generateStaticParams | — | 338 |
+| `helpTopicBySlug` | func | ⚠ SEM DOC | interface → retorno | — | generateMetadata, HelpTopicPage | — | 337 |
+| `helpTopicsByCategory` | func | ⚠ SEM DOC | interface → retorno | — | HelpHub | — | 341 |
+| `helpAllSlugs` | func | ⚠ SEM DOC | interface → retorno | — | generateStaticParams | — | 345 |
 
 ### `src/lib/hreflang.ts` — camada `ui`
 
@@ -1107,18 +1110,21 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `safeJsonStringify` | func | safeJsonStringify — escapa caracteres que permitem breakout do contexto <script type="application/ld+json"> quando o JSON é injetado via dangerouslySetInnerHTML. | ui+test → retorno | — | JsonLdScript, walk | — | 12 |
-| `buildAggregateRating` | func | Constrói o bloco AggregateRating do Schema.org a partir do summary do backend. | interface → retorno | — | PlanPage | — | 73 |
-| `buildOfferEnhancements` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | PlanPage, CategoryPage, buildHomeJsonLd, buildCountryJsonLd, offersOf | — | 85 |
-| `pickOfferCurrency` | func | ⚠ SEM DOC | ui → retorno | — | buildCountryJsonLd | — | 117 |
-| `toJsonLdGraph` | func | BUG-191 (QA 2026-06-14): páginas com múltiplos blocos JSON-LD emitiam N scripts separados (`<script type="application/ld+json">` por nó), o que faz Google/Bing/Ahrefs reportarem "duplicação" e a Ri… | interface+ui+test → interno | withGlobalGraph | PricingPage, VsCompetitorPage, withGlobalGraph, buildHomeJsonLd, buildCountryJsonLd, detectAcceptLanguage, CityPage | — | 137 |
-| `buildOrganizationNode` | func | BUG-191 / Track Y (QA 2026-06-14): index pages /cities, /vs, /help, /case-studies emitiam apenas CollectionPage + BreadcrumbList + ItemList no `@graph`, sem Organization nem WebSite. | ui → retorno | — | withGlobalGraph | — | 166 |
-| `buildWebSiteNode` | func | ⚠ SEM DOC | ui → evento | — | withGlobalGraph | evento | 184 |
-| `withGlobalGraph` | func | withGlobalGraph — prepende Org + WebSite aos nós da page e empacota num único `@graph`. | interface+ui → interno | toJsonLdGraph, buildOrganizationNode, buildWebSiteNode | CitiesHub, HelpTopicPage, HelpHub, CookiePreferencesPage, CookiesLegalPage, StatusPage, VsHubPage, PlanPage, CategoryPage, toJsonLdGraph +2 | — | 223 |
-| `buildAggregateOffer` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | CategoryPage, buildHomeJsonLd, buildCountryJsonLd, detectAcceptLanguage | — | 246 |
-| `buildHomeJsonLd` | func | buildHomeJsonLd — emite Organization + WebSite + Service + AggregateOffer pra home global. | interface → evento | categorySlug, buildOfferEnhancements, toJsonLdGraph, buildAggregateOffer, categorySlugEn | HomePage | evento | 276 |
-| `categorySlugEn` | func | categorySlugEn — versão "en" do slug, sem precisar importar i18n/categories e arrastar mais dependências pro lib/. | ui → retorno | — | buildHomeJsonLd | — | 363 |
-| `buildCountryJsonLd` | func | ⚠ SEM DOC | interface+test → evento | buildOfferEnhancements, pickOfferCurrency, toJsonLdGraph, buildAggregateOffer, buildCountryJsonLd, buildCountryJsonLd | CountryPage, offersOf, offersOf, buildCountryJsonLd, buildCountryJsonLd | evento | 381 |
+| `safeJsonStringify` | func | safeJsonStringify — escapa caracteres que permitem breakout do contexto <script type="application/ld+json"> quando o JSON é injetado via dangerouslySetInnerHTML. | ui+test → retorno | — | JsonLdScript, walk | — | 13 |
+| `buildAggregateRating` | func | Constrói o bloco AggregateRating do Schema.org a partir do summary do backend. | interface → retorno | — | PlanPage | — | 74 |
+| `buildOfferEnhancements` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | PlanPage, planLinks, buildHomeJsonLd, buildCountryJsonLd, offersOf | — | 86 |
+| `pickOfferCurrency` | func | ⚠ SEM DOC | ui → retorno | — | buildCountryJsonLd | — | 118 |
+| `toJsonLdGraph` | func | BUG-191 (QA 2026-06-14): páginas com múltiplos blocos JSON-LD emitiam N scripts separados (`<script type="application/ld+json">` por nó), o que faz Google/Bing/Ahrefs reportarem "duplicação" e a Ri… | interface+ui+test → interno | withGlobalGraph | PricingPage, withGlobalGraph, buildHomeJsonLd, buildCountryJsonLd, detectAcceptLanguage, CityPage | — | 138 |
+| `buildOrganizationNode` | func | BUG-191 / Track Y (QA 2026-06-14): index pages /cities, /vs, /help, /case-studies emitiam apenas CollectionPage + BreadcrumbList + ItemList no `@graph`, sem Organization nem WebSite. | ui → retorno | — | withGlobalGraph | — | 167 |
+| `buildWebSiteNode` | func | ⚠ SEM DOC | ui → evento | — | withGlobalGraph | evento | 185 |
+| `withGlobalGraph` | func | withGlobalGraph — prepende Org + WebSite aos nós da page e empacota num único `@graph`. | interface+ui → interno | toJsonLdGraph, buildOrganizationNode, buildWebSiteNode | CitiesHub, HelpTopicPage, HelpHub, CookiePreferencesPage, CookiesLegalPage, StatusPage, VsCompetitorPage, VsHubPage, PlanPage, planLinks +3 | — | 224 |
+| `buildFaqPageNode` | func | ⚠ SEM DOC | interface+ui → retorno | — | PlanPage, planLinks, buildCountryJsonLd | — | 242 |
+| `buildHowToNode` | func | ⚠ SEM DOC | interface → retorno | — | HelpTopicPage | — | 263 |
+| `buildReviewNodes` | func | ⚠ SEM DOC | interface → retorno | — | PlanPage | — | 290 |
+| `buildAggregateOffer` | func | ⚠ SEM DOC | interface+ui+test → retorno | — | planLinks, buildHomeJsonLd, buildCountryJsonLd, detectAcceptLanguage | — | 323 |
+| `buildHomeJsonLd` | func | buildHomeJsonLd — emite Organization + WebSite + Service + AggregateOffer pra home global. | interface → evento | categorySlug, buildOfferEnhancements, toJsonLdGraph, buildAggregateOffer, categorySlugEn | HomePage | evento | 353 |
+| `categorySlugEn` | func | categorySlugEn — versão "en" do slug, sem precisar importar i18n/categories e arrastar mais dependências pro lib/. | ui → retorno | — | buildHomeJsonLd | — | 440 |
+| `buildCountryJsonLd` | func | ⚠ SEM DOC | interface+test → evento | buildOfferEnhancements, pickOfferCurrency, toJsonLdGraph, buildFaqPageNode, buildAggregateOffer, buildCountryJsonLd, buildCountryJsonLd | CountryPage, offersOf, offersOf, buildCountryJsonLd, buildCountryJsonLd | evento | 458 |
 
 ### `src/lib/legal-render.ts` — camada `ui`
 
@@ -1147,23 +1153,23 @@ flowchart LR
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `buildTimeISO` | func | dateModified: por padrão usa o ISO do build. | ui → evento | — | indexableMeta, indexableDates | evento | 26 |
-| `indexableMeta` | func | Devolve o blob `other` + `robots` que Next.js metadata API consome. | interface → evento | buildTimeISO | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +3 | evento | 45 |
-| `indexableDates` | func | Datas no formato que o helper de JSON-LD espera (ISO 8601). | interface → evento | buildTimeISO | VsCompetitorPage | evento | 58 |
+| `indexableMeta` | func | Devolve o blob `other` + `robots` que Next.js metadata API consome. | interface → evento | — | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata +3 | evento | 52 |
+| `indexableDates` | func | Datas no formato que o helper de JSON-LD espera (ISO 8601). | interface → evento | — | VsCompetitorPage | evento | 65 |
+| `ogFallbackImages` | func | Array de `images` pro openGraph, com dimensão declarada (evita CLS de card). | interface → retorno | — | generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata, generateMetadata | — | 87 |
 
 ### `src/lib/site-urls.ts` — camada `ui`
 
 | Função | Tipo | O quê | de onde vem → pra onde vai | chama (out) | é chamada por (in) | Efeitos | Linha |
 |---|---|---|---|---|---|---|---|
-| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl, siteUrl +39 | — | 29 |
-| `fetchPlans` | func | ⚠ SEM DOC | ui+interface → http-out | request, fetchPlans, fetch | allSiteUrls, SubscriptionsPage | http-out | 33 |
-| `allSiteUrls` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +13 | POST, GET, generateSitemaps, sitemap, GET | — | 47 |
-| `sortKey` | func | ⚠ SEM DOC | ui → interno | categoryFromSlug, langOfCountry | sortStableForSitemap | — | 165 |
-| `sortStableForSitemap` | func | ⚠ SEM DOC | ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +9 | allSiteUrls | — | 185 |
-| `urlsForLang` | func | ⚠ SEM DOC | ui → log | sitemap | paginatedBuckets, urlsForBucket | log | 198 |
-| `parseSitemapBucketID` | func | parseSitemapBucketID decodifica "en-3" → {lang: "en", page: 3}. "en" sem sufixo é page=1. | ui → retorno | — | sitemap | — | 230 |
-| `paginatedBuckets` | func | paginatedBuckets enumera TODOS os buckets concretos a partir do snapshot de URLs. | ui+interface → interno | urlsForLang | generateSitemaps, GET | — | 243 |
-| `urlsForBucket` | func | urlsForBucket devolve o slice exato pra um bucket id paginado. | ui → interno | urlsForLang | sitemap | — | 263 |
+| `siteUrl` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +7 | siteUrl, generateMetadata, CitiesHub, siteUrl, generateMetadata, HelpTopicPage, siteUrl, generateMetadata, HelpHub, siteUrl +40 | — | 39 |
+| `fetchPlans` | func | ⚠ SEM DOC | ui+interface → http-out | request, fetchPlans, fetch | allSiteUrls, SubscriptionsPage | http-out | 43 |
+| `allSiteUrls` | func | ⚠ SEM DOC | interface+ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +13 | POST, GET, generateSitemaps, sitemap, GET | — | 57 |
+| `sortKey` | func | ⚠ SEM DOC | ui → interno | categoryFromSlug, langOfCountry | sortStableForSitemap | — | 181 |
+| `sortStableForSitemap` | func | ⚠ SEM DOC | ui → interno | siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl, siteUrl +9 | allSiteUrls | — | 201 |
+| `urlsForLang` | func | ⚠ SEM DOC | ui → log | sitemap | paginatedBuckets, urlsForBucket | log | 214 |
+| `parseSitemapBucketID` | func | parseSitemapBucketID decodifica "en-3" → {lang: "en", page: 3}. "en" sem sufixo é page=1. | ui → retorno | — | sitemap | — | 246 |
+| `paginatedBuckets` | func | paginatedBuckets enumera TODOS os buckets concretos a partir do snapshot de URLs. | ui+interface → interno | urlsForLang | generateSitemaps, GET | — | 259 |
+| `urlsForBucket` | func | urlsForBucket devolve o slice exato pra um bucket id paginado. | ui+interface → interno | urlsForLang | sitemap, GET | — | 279 |
 
 ### `src/lib/theme.ts` — camada `ui`
 
@@ -1455,7 +1461,7 @@ flowchart LR
 ```text
 installApiMocks -> request   (e2e/checkout-modal.spec.ts:88 -> src/lib/api.ts:352)
 installApiMocks -> checkout   (e2e/checkout-modal.spec.ts:88 -> src/lib/api.ts:424)
-installApiMocks -> headers   (e2e/checkout-modal.spec.ts:88 -> next.config.ts:37)
+installApiMocks -> headers   (e2e/checkout-modal.spec.ts:88 -> next.config.ts:51)
 gotoPlanPage -> seedCookieConsent   (e2e/checkout-modal.spec.ts:145 -> e2e/helpers/consent.ts:24)
 confirmReview -> confirmReview   (e2e/checkout-modal.spec.ts:164 -> src/components/CheckoutModal.tsx:274)
 fillStepOne -> installApiMocks   (e2e/checkout-modal.spec.ts:182 -> e2e/checkout-modal.spec.ts:88)
@@ -1469,12 +1475,12 @@ body -> write   (scripts/test-api-stub.mjs:50 -> src/lib/tracking.ts:144)
 body -> get   (scripts/test-api-stub.mjs:50 -> tests/emulated/accessibility.mjs:24)
 body -> get   (scripts/test-api-stub.mjs:50 -> tests/unit/round-13-17-fixes.test.mjs:213)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/layout.tsx:103)
-generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/page.tsx:62)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/layout.tsx:109)
+generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/page.tsx:65)
 generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/pricing/page.tsx:884)
+generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/pricing/page.tsx:864)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
-generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/og/[...slug]/route.tsx:38)
+generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/og/[...slug]/route.tsx:43)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/[country]/[category]/page.tsx:101)
 generateStaticParams -> categorySlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/i18n/categories.ts:300)
@@ -1484,47 +1490,48 @@ generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[cate
 generateStaticParams -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/[country]/page.tsx:80)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:41 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:64 -> src/app/[locale]/cities/page.tsx:33)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/page.tsx:62)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/pricing/page.tsx:884)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/og/[...slug]/route.tsx:38)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/page.tsx:65)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/pricing/page.tsx:864)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/og/[...slug]/route.tsx:43)
 getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/[country]/[category]/page.tsx:101)
 getPlans -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> src/app/[locale]/[country]/page.tsx:80)
 getPlans -> fetch   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:68 -> tests/smoke/run.sh:36)
 getReviews -> fetch   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:82 -> tests/smoke/run.sh:36)
-qtyFromSlug -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:96 -> src/app/og/[...slug]/route.tsx:67)
+qtyFromSlug -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:96 -> src/app/og/[...slug]/route.tsx:72)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/page.tsx:31)
-generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/page.tsx:62)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:27)
+generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/page.tsx:65)
 generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:27)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:809)
-generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:884)
+generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:864)
 generateMetadata -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/status/page.tsx:21)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/status/page.tsx:25)
@@ -1532,9 +1539,9 @@ generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:38)
-generateMetadata -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:67)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:43)
+generateMetadata -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:72)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/[category]/page.tsx:101)
@@ -1547,39 +1554,39 @@ generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/page.tsx:41)
 generateMetadata -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/[country]/page.tsx:80)
 generateMetadata -> slugAlternates   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/lib/hreflang.ts:94)
-generateMetadata -> indexableMeta   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/lib/seo-meta.ts:52)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:101 -> src/app/[locale]/cities/page.tsx:33)
 planNarrative -> describeSize   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:170 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:196)
 planNarrative -> describeSizePt   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:170 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:203)
 planNarrative -> describeSizeEs   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:170 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:210)
 planNarrative -> windowFor   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:170 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:217)
 planNarrative -> windowForPt   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:170 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:222)
+PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/cities/page.tsx:33)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/help/[slug]/page.tsx:14)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/help/page.tsx:16)
-PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/legal/cookies/page.tsx:47)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/page.tsx:31)
-PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/page.tsx:62)
-PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/pricing/page.tsx:27)
+PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/page.tsx:65)
 PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/pricing/page.tsx:884)
+PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/pricing/page.tsx:27)
+PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/pricing/page.tsx:864)
 PlanPage -> getReviews   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:82)
 PlanPage -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/status/page.tsx:21)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 PlanPage -> planNarrative   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:170)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/vs/page.tsx:31)
-PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/og/[...slug]/route.tsx:38)
-PlanPage -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/og/[...slug]/route.tsx:67)
-PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/sitemap.xml/route.ts:15)
+PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/og/[...slug]/route.tsx:43)
+PlanPage -> qtyFromSlug   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/og/[...slug]/route.tsx:72)
+PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/sitemap.xml/route.ts:20)
 PlanPage -> tr   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/components/RecoveryForm.tsx:130)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/[category]/page.tsx:101)
@@ -1592,17 +1599,18 @@ PlanPage -> langOfCountry   (src/app/[locale]/[country]/[category]/[slug]/page.t
 PlanPage -> tr   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/i18n/languages.ts:1329)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/page.tsx:37)
 PlanPage -> getPlans   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/[country]/page.tsx:80)
-PlanPage -> buildAggregateRating   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:73)
-PlanPage -> buildOfferEnhancements   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:85)
-PlanPage -> withGlobalGraph   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:223)
+PlanPage -> buildAggregateRating   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:74)
+PlanPage -> buildOfferEnhancements   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:86)
+PlanPage -> withGlobalGraph   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:224)
+PlanPage -> buildFaqPageNode   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:242)
+PlanPage -> buildReviewNodes   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/jsonld.ts:290)
 PlanPage -> localizedPlanName   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/plan-labels.ts:137)
-PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/site-urls.ts:29)
+PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/lib/site-urls.ts:39)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/case-studies/page.tsx:23)
 PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-PlanPage -> siteUrl   (src/app/[locale]/[country]/[category]/[slug]/page.tsx:228 -> src/app/[locale]/cities/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 generateStaticParams -> categorySlug   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/i18n/categories.ts:300)
@@ -1610,9 +1618,10 @@ generateStaticParams -> langOfCountry   (src/app/[locale]/[country]/[category]/p
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/[country]/page.tsx:31)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/[category]/page.tsx:47 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/page.tsx:31)
@@ -1620,20 +1629,20 @@ siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/a
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:60 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -1647,7 +1656,7 @@ generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> categoryFromSlug   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/i18n/categories.ts:290)
 generateMetadata -> categorySlug   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/i18n/categories.ts:300)
@@ -1657,36 +1666,37 @@ generateMetadata -> langOfCountry   (src/app/[locale]/[country]/[category]/page.
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/[country]/page.tsx:41)
 generateMetadata -> categoryAlternates   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/lib/hreflang.ts:74)
-generateMetadata -> indexableMeta   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/lib/seo-meta.ts:52)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:64 -> src/app/[locale]/cities/page.tsx:33)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/page.tsx:62)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/page.tsx:65)
 getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:884)
-getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:38)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/pricing/page.tsx:864)
+getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/og/[...slug]/route.tsx:43)
 getPlans -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:101 -> src/app/[locale]/[country]/page.tsx:80)
 getPlans -> fetch   (src/app/[locale]/[country]/[category]/page.tsx:101 -> tests/smoke/run.sh:36)
+CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/cities/page.tsx:33)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/help/[slug]/page.tsx:14)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/help/page.tsx:16)
-CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/legal/cookies/page.tsx:47)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/page.tsx:31)
-CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/page.tsx:62)
-CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/pricing/page.tsx:27)
+CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/page.tsx:65)
 CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/pricing/page.tsx:884)
+CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/pricing/page.tsx:27)
+CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/pricing/page.tsx:864)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/status/page.tsx:21)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/vs/page.tsx:31)
-CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/og/[...slug]/route.tsx:38)
-CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/sitemap.xml/route.ts:15)
+CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/og/[...slug]/route.tsx:43)
+CategoryPage -> sitemap   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/sitemap.ts:77)
+CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/sitemap.xml/route.ts:20)
 CategoryPage -> tr   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/components/RecoveryForm.tsx:130)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/[category]/page.tsx:101)
@@ -1700,24 +1710,27 @@ CategoryPage -> langOfCountry   (src/app/[locale]/[country]/[category]/page.tsx:
 CategoryPage -> tr   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/i18n/languages.ts:1329)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/page.tsx:37)
 CategoryPage -> getPlans   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/[country]/page.tsx:80)
-CategoryPage -> buildOfferEnhancements   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/lib/jsonld.ts:85)
-CategoryPage -> withGlobalGraph   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/lib/jsonld.ts:223)
-CategoryPage -> buildAggregateOffer   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/lib/jsonld.ts:246)
-CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/lib/site-urls.ts:29)
+CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/lib/site-urls.ts:39)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/case-studies/page.tsx:23)
 CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CategoryPage -> siteUrl   (src/app/[locale]/[country]/[category]/page.tsx:112 -> src/app/[locale]/cities/page.tsx:33)
+planLinks -> categorySlug   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/i18n/categories.ts:300)
+planLinks -> categoryLabel   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/i18n/categories.ts:304)
+planLinks -> buildOfferEnhancements   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/lib/jsonld.ts:86)
+planLinks -> withGlobalGraph   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/lib/jsonld.ts:224)
+planLinks -> buildFaqPageNode   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/lib/jsonld.ts:242)
+planLinks -> buildAggregateOffer   (src/app/[locale]/[country]/[category]/page.tsx:138 -> src/lib/jsonld.ts:323)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/[country]/page.tsx:31 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/page.tsx:31)
@@ -1725,20 +1738,20 @@ siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/[country]/page.tsx:37 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -1752,61 +1765,61 @@ generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> getCountry   (src/app/[locale]/[country]/page.tsx:41 -> src/i18n/countries.ts:1444)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> countryRootAlternates   (src/app/[locale]/[country]/page.tsx:41 -> src/lib/hreflang.ts:56)
-generateMetadata -> indexableMeta   (src/app/[locale]/[country]/page.tsx:41 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/[country]/page.tsx:41 -> src/lib/seo-meta.ts:52)
+generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/[country]/page.tsx:41 -> src/app/[locale]/cities/page.tsx:33)
-getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/page.tsx:62)
+getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/page.tsx:65)
 getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/pricing/page.tsx:884)
-getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/og/[...slug]/route.tsx:38)
+getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/pricing/page.tsx:864)
+getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/og/[...slug]/route.tsx:43)
 getPlans -> getPlans   (src/app/[locale]/[country]/page.tsx:80 -> src/app/[locale]/[country]/[category]/page.tsx:101)
 getPlans -> fetch   (src/app/[locale]/[country]/page.tsx:80 -> tests/smoke/run.sh:36)
+CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/cities/page.tsx:33)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/help/[slug]/page.tsx:14)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/help/page.tsx:16)
-CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/legal/cookies/page.tsx:47)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/page.tsx:31)
-CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/page.tsx:62)
-CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/pricing/page.tsx:27)
+CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/page.tsx:65)
 CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/pricing/page.tsx:884)
+CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/pricing/page.tsx:27)
+CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/pricing/page.tsx:864)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/status/page.tsx:21)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/vs/page.tsx:31)
-CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/og/[...slug]/route.tsx:38)
-CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/sitemap.xml/route.ts:15)
+CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/og/[...slug]/route.tsx:43)
+CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/sitemap.xml/route.ts:20)
 CountryPage -> tr   (src/app/[locale]/[country]/page.tsx:91 -> src/components/RecoveryForm.tsx:130)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/[category]/page.tsx:101)
 CountryPage -> categorySlug   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/categories.ts:300)
 CountryPage -> categoryLabel   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/categories.ts:304)
+CountryPage -> copyFor   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/categories.ts:1805)
 CountryPage -> getCountry   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/countries.ts:1444)
 CountryPage -> countriesByRegion   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/countries.ts:1511)
 CountryPage -> langOfCountry   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/languages.ts:89)
 CountryPage -> tr   (src/app/[locale]/[country]/page.tsx:91 -> src/i18n/languages.ts:1329)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/page.tsx:37)
 CountryPage -> getPlans   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/[country]/page.tsx:80)
-CountryPage -> buildCountryJsonLd   (src/app/[locale]/[country]/page.tsx:91 -> src/lib/jsonld.ts:381)
-CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/lib/site-urls.ts:29)
+CountryPage -> buildCountryJsonLd   (src/app/[locale]/[country]/page.tsx:91 -> src/lib/jsonld.ts:458)
+CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/lib/site-urls.ts:39)
 CountryPage -> buildCountryJsonLd   (src/app/[locale]/[country]/page.tsx:91 -> tests/unit/jsonld.schema.test.mjs:18)
 CountryPage -> buildCountryJsonLd   (src/app/[locale]/[country]/page.tsx:91 -> tests/unit/jsonld.test.mjs:15)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/case-studies/page.tsx:23)
 CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CountryPage -> siteUrl   (src/app/[locale]/[country]/page.tsx:91 -> src/app/[locale]/cities/page.tsx:33)
 formatDate -> formatDate   (src/app/[locale]/account/api-keys/page.tsx:18 -> src/app/[locale]/account/subscriptions/page.tsx:28)
 load -> load   (src/app/[locale]/account/api-keys/page.tsx:38 -> src/app/[locale]/tickets/[id]/page.tsx:26)
 load -> fetchMyAPIKeys   (src/app/[locale]/account/api-keys/page.tsx:38 -> src/lib/api.ts:901)
@@ -1921,7 +1934,7 @@ formatDate -> formatDate   (src/app/[locale]/account/subscriptions/page.tsx:28 -
 SubscriptionsPage -> fetchPlans   (src/app/[locale]/account/subscriptions/page.tsx:40 -> src/lib/api.ts:383)
 SubscriptionsPage -> fetchMySubscriptions   (src/app/[locale]/account/subscriptions/page.tsx:40 -> src/lib/api.ts:939)
 SubscriptionsPage -> getToken   (src/app/[locale]/account/subscriptions/page.tsx:40 -> src/lib/auth.ts:31)
-SubscriptionsPage -> fetchPlans   (src/app/[locale]/account/subscriptions/page.tsx:40 -> src/lib/site-urls.ts:33)
+SubscriptionsPage -> fetchPlans   (src/app/[locale]/account/subscriptions/page.tsx:40 -> src/lib/site-urls.ts:43)
 handleCancel -> fetchMySubscriptions   (src/app/[locale]/account/subscriptions/page.tsx:69 -> src/lib/api.ts:939)
 handleCancel -> cancelSubscription   (src/app/[locale]/account/subscriptions/page.tsx:69 -> src/lib/api.ts:949)
 handleCancel -> getToken   (src/app/[locale]/account/subscriptions/page.tsx:69 -> src/lib/auth.ts:31)
@@ -1933,11 +1946,12 @@ handleCancel -> formatDate   (src/app/[locale]/account/subscriptions/page.tsx:69
 Handoff -> get   (src/app/[locale]/auth/handoff/page.tsx:28 -> tests/emulated/accessibility.mjs:24)
 Handoff -> setItem   (src/app/[locale]/auth/handoff/page.tsx:28 -> tests/unit/gdpr.test.mjs:18)
 Handoff -> get   (src/app/[locale]/auth/handoff/page.tsx:28 -> tests/unit/round-13-17-fixes.test.mjs:213)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/help/[slug]/page.tsx:24)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/layout.tsx:103)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/layout.tsx:109)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -1947,31 +1961,31 @@ siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/ap
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/lib/site-urls.ts:39)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 siteUrl -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/cities/[city]/page.tsx:1125)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:22 -> src/app/[locale]/cities/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/[country]/page.tsx:31)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/case-studies/[slug]/page.tsx:33 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -1985,24 +1999,24 @@ generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/[country]/page.tsx:41)
 generateMetadata -> getCaseStudy   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/lib/case-studies.ts:133)
-generateMetadata -> indexableMeta   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/lib/seo-meta.ts:52)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/lib/site-urls.ts:39)
 generateMetadata -> smartTrim   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/case-studies/[slug]/page.tsx:13)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:37 -> src/app/[locale]/cities/page.tsx:33)
+CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/cities/page.tsx:33)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/help/[slug]/page.tsx:14)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/help/page.tsx:16)
-CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/legal/cookies/page.tsx:47)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/page.tsx:31)
@@ -2010,20 +2024,20 @@ CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/status/page.tsx:21)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/vs/page.tsx:31)
-CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/sitemap.xml/route.ts:15)
+CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/sitemap.xml/route.ts:20)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/[country]/page.tsx:37)
 CaseStudyDetailPage -> getCaseStudy   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/lib/case-studies.ts:133)
-CaseStudyDetailPage -> withGlobalGraph   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/lib/jsonld.ts:223)
-CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/lib/site-urls.ts:29)
+CaseStudyDetailPage -> withGlobalGraph   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/lib/jsonld.ts:224)
+CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/lib/site-urls.ts:39)
 CaseStudyDetailPage -> smartTrim   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/case-studies/[slug]/page.tsx:13)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/case-studies/page.tsx:23)
 CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CaseStudyDetailPage -> siteUrl   (src/app/[locale]/case-studies/[slug]/page.tsx:75 -> src/app/[locale]/cities/page.tsx:33)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/page.tsx:31)
@@ -2031,20 +2045,20 @@ siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[loca
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/case-studies/page.tsx:23 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -2058,38 +2072,37 @@ generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/case-studies/page.tsx:27 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/case-studies/page.tsx:27 -> src/lib/seo-meta.ts:52)
+generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/case-studies/page.tsx:27 -> src/app/[locale]/cities/page.tsx:33)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/help/[slug]/page.tsx:14)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/help/page.tsx:16)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/legal/cookies/page.tsx:47)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/page.tsx:31)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/pricing/page.tsx:27)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/status/page.tsx:21)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/vs/page.tsx:31)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/sitemap.xml/route.ts:15)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/[country]/page.tsx:37)
-CaseStudiesHubPage -> withGlobalGraph   (src/app/[locale]/case-studies/page.tsx:57 -> src/lib/jsonld.ts:223)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/lib/site-urls.ts:29)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/case-studies/page.tsx:23)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:57 -> src/app/[locale]/cities/page.tsx:33)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/cities/page.tsx:33)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/help/[slug]/page.tsx:14)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/help/page.tsx:16)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/legal/cookies/page.tsx:47)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/page.tsx:31)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/pricing/page.tsx:27)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/status/page.tsx:21)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/vs/page.tsx:31)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/sitemap.xml/route.ts:20)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/[country]/page.tsx:37)
+CaseStudiesHubPage -> withGlobalGraph   (src/app/[locale]/case-studies/page.tsx:59 -> src/lib/jsonld.ts:224)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/lib/site-urls.ts:39)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/case-studies/page.tsx:23)
+CaseStudiesHubPage -> siteUrl   (src/app/[locale]/case-studies/page.tsx:59 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 resolveLang -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:24 -> src/app/[locale]/legal/cookies/page.tsx:51)
 resolveLang -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:24 -> src/app/[locale]/pricing/page.tsx:37)
 resolveLang -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:24 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
@@ -2099,9 +2112,10 @@ schemaLang -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:54 -> src/ap
 schemaLang -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:54 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
 ogLocale -> ogLocale   (src/app/[locale]/cities/[city]/page.tsx:84 -> src/app/[locale]/pricing/page.tsx:747)
 ogLocale -> ogLocale   (src/app/[locale]/cities/[city]/page.tsx:84 -> src/app/[locale]/vs/[competitor]/page.tsx:87)
+siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/page.tsx:31)
@@ -2109,28 +2123,28 @@ siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[l
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/lib/site-urls.ts:29)
-siteUrl -> headers   (src/app/[locale]/cities/[city]/page.tsx:1058 -> next.config.ts:37)
+siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/lib/site-urls.ts:39)
+siteUrl -> headers   (src/app/[locale]/cities/[city]/page.tsx:1058 -> next.config.ts:51)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/case-studies/page.tsx:23)
-siteUrl -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1058 -> src/app/[locale]/cities/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/[country]/page.tsx:31)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/cities/[city]/page.tsx:1125 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/legal/cookies/page.tsx:109)
@@ -2150,14 +2164,15 @@ generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:
 generateMetadata -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/[country]/page.tsx:41)
 generateMetadata -> getCity   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/cities.ts:88)
-generateMetadata -> indexableMeta   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/case-studies/page.tsx:23)
@@ -2166,38 +2181,37 @@ generateMetadata -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1129 
 generateMetadata -> ogLocale   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/[city]/page.tsx:84)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1129 -> src/app/[locale]/cities/page.tsx:33)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/help/[slug]/page.tsx:14)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/help/page.tsx:16)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/legal/cookies/page.tsx:47)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/legal/cookies/page.tsx:51)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/page.tsx:31)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/pricing/page.tsx:27)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/pricing/page.tsx:37)
-CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/pricing/page.tsx:778)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/status/page.tsx:21)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
-CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/vs/page.tsx:24)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/vs/page.tsx:31)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/sitemap.xml/route.ts:15)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-CityPage -> categorySlug   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/i18n/categories.ts:300)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/[country]/page.tsx:37)
-CityPage -> getCity   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/lib/cities.ts:88)
-CityPage -> toJsonLdGraph   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/lib/jsonld.ts:137)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/lib/site-urls.ts:29)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/case-studies/page.tsx:23)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/[city]/page.tsx:24)
-CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/[city]/page.tsx:54)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CityPage -> neighborhoodsText   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/[city]/page.tsx:1193)
-CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/page.tsx:26)
-CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1269 -> src/app/[locale]/cities/page.tsx:33)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/page.tsx:33)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/help/[slug]/page.tsx:14)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/help/page.tsx:16)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/legal/cookies/page.tsx:47)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/legal/cookies/page.tsx:51)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/page.tsx:31)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/pricing/page.tsx:27)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/pricing/page.tsx:37)
+CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/pricing/page.tsx:778)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/status/page.tsx:21)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
+CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/vs/page.tsx:24)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/vs/page.tsx:31)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/sitemap.xml/route.ts:20)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+CityPage -> categorySlug   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/i18n/categories.ts:300)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/[country]/page.tsx:37)
+CityPage -> getCity   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/lib/cities.ts:88)
+CityPage -> toJsonLdGraph   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/lib/jsonld.ts:138)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/lib/site-urls.ts:39)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/case-studies/page.tsx:23)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/[city]/page.tsx:24)
+CityPage -> schemaLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/[city]/page.tsx:54)
+CityPage -> siteUrl   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+CityPage -> neighborhoodsText   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/[city]/page.tsx:1171)
+CityPage -> resolveLang   (src/app/[locale]/cities/[city]/page.tsx:1247 -> src/app/[locale]/cities/page.tsx:26)
 resolveLang -> resolveLang   (src/app/[locale]/cities/page.tsx:26 -> src/app/[locale]/legal/cookies/page.tsx:51)
 resolveLang -> resolveLang   (src/app/[locale]/cities/page.tsx:26 -> src/app/[locale]/pricing/page.tsx:37)
 resolveLang -> resolveLang   (src/app/[locale]/cities/page.tsx:26 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
@@ -2205,7 +2219,7 @@ resolveLang -> resolveLang   (src/app/[locale]/cities/page.tsx:26 -> src/app/[lo
 resolveLang -> resolveLang   (src/app/[locale]/cities/page.tsx:26 -> src/app/[locale]/cities/[city]/page.tsx:24)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/page.tsx:31)
@@ -2213,19 +2227,20 @@ siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/pr
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/cities/page.tsx:33 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/legal/cookies/page.tsx:109)
@@ -2243,13 +2258,14 @@ generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> 
 generateMetadata -> resolveLang   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/cities/page.tsx:100 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/cities/page.tsx:100 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/cities/page.tsx:100 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/case-studies/page.tsx:23)
@@ -2258,35 +2274,35 @@ generateMetadata -> resolveLang   (src/app/[locale]/cities/page.tsx:100 -> src/a
 generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/cities/[city]/page.tsx:1129)
 generateMetadata -> resolveLang   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/cities/page.tsx:100 -> src/app/[locale]/cities/page.tsx:33)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/help/[slug]/page.tsx:14)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/help/page.tsx:16)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/legal/cookies/page.tsx:47)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/legal/cookies/page.tsx:51)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/page.tsx:31)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/pricing/page.tsx:27)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/pricing/page.tsx:37)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/status/page.tsx:21)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/vs/page.tsx:24)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/vs/page.tsx:31)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/sitemap.xml/route.ts:15)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/[country]/page.tsx:37)
-CitiesHub -> citiesByRegion   (src/app/[locale]/cities/page.tsx:127 -> src/lib/cities.ts:92)
-CitiesHub -> withGlobalGraph   (src/app/[locale]/cities/page.tsx:127 -> src/lib/jsonld.ts:223)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/lib/site-urls.ts:29)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/case-studies/page.tsx:23)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/cities/[city]/page.tsx:24)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/cities/page.tsx:26)
-CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:127 -> src/app/[locale]/cities/page.tsx:33)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/cities/page.tsx:33)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/help/[slug]/page.tsx:14)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/help/page.tsx:16)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/legal/cookies/page.tsx:47)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/legal/cookies/page.tsx:51)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/page.tsx:31)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/pricing/page.tsx:27)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/pricing/page.tsx:37)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/status/page.tsx:21)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/vs/page.tsx:24)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/vs/page.tsx:31)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/sitemap.xml/route.ts:20)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/[country]/page.tsx:37)
+CitiesHub -> citiesByRegion   (src/app/[locale]/cities/page.tsx:128 -> src/lib/cities.ts:92)
+CitiesHub -> withGlobalGraph   (src/app/[locale]/cities/page.tsx:128 -> src/lib/jsonld.ts:224)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/lib/site-urls.ts:39)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/case-studies/page.tsx:23)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/cities/[city]/page.tsx:24)
+CitiesHub -> siteUrl   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+CitiesHub -> resolveLang   (src/app/[locale]/cities/page.tsx:128 -> src/app/[locale]/cities/page.tsx:26)
+siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/page.tsx:31)
@@ -2294,28 +2310,28 @@ siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[local
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:14 -> src/app/[locale]/cities/page.tsx:33)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/[country]/page.tsx:31)
-generateStaticParams -> helpAllSlugs   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/lib/help.ts:338)
+generateStaticParams -> helpAllSlugs   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/lib/help.ts:345)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/help/[slug]/page.tsx:24 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -2329,43 +2345,45 @@ generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/a
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> helpTopicBySlug   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/help.ts:330)
-generateMetadata -> indexableMeta   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/site-urls.ts:29)
+generateMetadata -> helpTopicBySlug   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/help.ts:337)
+generateMetadata -> indexableMeta   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:28 -> src/app/[locale]/cities/page.tsx:33)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/help/[slug]/page.tsx:14)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/help/page.tsx:16)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/legal/cookies/page.tsx:47)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/page.tsx:31)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/pricing/page.tsx:27)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/status/page.tsx:21)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/vs/page.tsx:31)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/sitemap.xml/route.ts:15)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/[country]/page.tsx:37)
-HelpTopicPage -> helpTopicBySlug   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/lib/help.ts:330)
-HelpTopicPage -> withGlobalGraph   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/lib/jsonld.ts:223)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/lib/site-urls.ts:29)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/case-studies/page.tsx:23)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:56 -> src/app/[locale]/cities/page.tsx:33)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/cities/page.tsx:33)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/help/[slug]/page.tsx:14)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/help/page.tsx:16)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/legal/cookies/page.tsx:47)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/page.tsx:31)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/pricing/page.tsx:27)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/status/page.tsx:21)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/vs/page.tsx:31)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/sitemap.xml/route.ts:20)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/[country]/page.tsx:37)
+HelpTopicPage -> helpTopicBySlug   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/lib/help.ts:337)
+HelpTopicPage -> withGlobalGraph   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/lib/jsonld.ts:224)
+HelpTopicPage -> buildHowToNode   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/lib/jsonld.ts:263)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/lib/site-urls.ts:39)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/case-studies/page.tsx:23)
+HelpTopicPage -> siteUrl   (src/app/[locale]/help/[slug]/page.tsx:57 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/page.tsx:31)
@@ -2373,20 +2391,20 @@ siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/pric
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/help/page.tsx:16 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/help/page.tsx:16)
-generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -2400,131 +2418,151 @@ generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[loc
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/help/page.tsx:20 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/help/page.tsx:20 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/help/page.tsx:20 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/help/page.tsx:20 -> src/app/[locale]/cities/page.tsx:33)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/help/[slug]/page.tsx:14)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/help/page.tsx:16)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/legal/cookies/page.tsx:47)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/page.tsx:31)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/pricing/page.tsx:27)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/status/page.tsx:21)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/vs/page.tsx:31)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/sitemap.xml/route.ts:15)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/[country]/page.tsx:37)
-HelpHub -> helpTopicsByCategory   (src/app/[locale]/help/page.tsx:46 -> src/lib/help.ts:334)
-HelpHub -> withGlobalGraph   (src/app/[locale]/help/page.tsx:46 -> src/lib/jsonld.ts:223)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/lib/site-urls.ts:29)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/case-studies/page.tsx:23)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:46 -> src/app/[locale]/cities/page.tsx:33)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/[country]/[category]/page.tsx:47)
-generateStaticParams -> allLocaleSegments   (src/app/[locale]/layout.tsx:103 -> src/i18n/locales.ts:43)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/[country]/page.tsx:31)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:103 -> src/app/[locale]/cities/[city]/page.tsx:1125)
-LocaleLayout -> htmlLangFromSegment   (src/app/[locale]/layout.tsx:110 -> src/i18n/locales.ts:52)
-LocaleLayout -> dirFromSegment   (src/app/[locale]/layout.tsx:110 -> src/i18n/locales.ts:58)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/legal/cookies/page.tsx:47)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/pricing/page.tsx:27)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/status/page.tsx:21)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/sitemap.xml/route.ts:15)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/lib/site-urls.ts:29)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/case-studies/page.tsx:23)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:17 -> src/app/[locale]/cities/page.tsx:33)
-otherLanguagesLabel -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:25 -> src/app/[locale]/legal/cookies/page.tsx:58)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/cities/page.tsx:100)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/help/[slug]/page.tsx:28)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> isSlug   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/legal/[doc]/page.tsx:21)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/legal/cookies/page.tsx:109)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/pricing/page.tsx:809)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/status/page.tsx:25)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:101)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/[country]/[category]/page.tsx:64)
-generateMetadata -> legalDoc   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/i18n/legal.ts:1092)
-generateMetadata -> legalMetaDescription   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/i18n/legal.ts:1101)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/case-studies/page.tsx:27)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:41 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-LegalPage -> isSlug   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/app/[locale]/legal/[doc]/page.tsx:21)
-LegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/app/[locale]/legal/[doc]/page.tsx:25)
-LegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/app/[locale]/legal/cookies/page.tsx:58)
-LegalPage -> tr   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/components/RecoveryForm.tsx:130)
-LegalPage -> tr   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/i18n/languages.ts:1329)
-LegalPage -> legalDoc   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/i18n/legal.ts:1092)
-LegalPage -> renderLegalBody   (src/app/[locale]/legal/[doc]/page.tsx:79 -> src/lib/legal-render.ts:36)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/cities/page.tsx:33)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/help/[slug]/page.tsx:14)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/help/page.tsx:16)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/legal/cookies/page.tsx:47)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/page.tsx:31)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/pricing/page.tsx:27)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/status/page.tsx:21)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/vs/page.tsx:31)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/sitemap.xml/route.ts:20)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/[country]/page.tsx:37)
+HelpHub -> helpTopicsByCategory   (src/app/[locale]/help/page.tsx:49 -> src/lib/help.ts:341)
+HelpHub -> withGlobalGraph   (src/app/[locale]/help/page.tsx:49 -> src/lib/jsonld.ts:224)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/lib/site-urls.ts:39)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/case-studies/page.tsx:23)
+HelpHub -> siteUrl   (src/app/[locale]/help/page.tsx:49 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/help/[slug]/page.tsx:24)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/vs/[competitor]/page.tsx:1235)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/[country]/[category]/page.tsx:47)
+generateStaticParams -> allLocaleSegments   (src/app/[locale]/layout.tsx:109 -> src/i18n/locales.ts:43)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/[country]/page.tsx:31)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/layout.tsx:109 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+LocaleLayout -> htmlLangFromSegment   (src/app/[locale]/layout.tsx:116 -> src/i18n/locales.ts:52)
+LocaleLayout -> dirFromSegment   (src/app/[locale]/layout.tsx:116 -> src/i18n/locales.ts:58)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/cities/page.tsx:33)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/help/[slug]/page.tsx:14)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/help/page.tsx:16)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/legal/cookies/page.tsx:47)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/page.tsx:31)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/pricing/page.tsx:27)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/status/page.tsx:21)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/vs/page.tsx:31)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/sitemap.xml/route.ts:20)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/[country]/page.tsx:37)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/lib/site-urls.ts:39)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/case-studies/page.tsx:23)
+siteUrl -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:18 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+otherLanguagesLabel -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:26 -> src/app/[locale]/legal/cookies/page.tsx:58)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/cities/page.tsx:100)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/help/[slug]/page.tsx:14)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/help/[slug]/page.tsx:28)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/help/page.tsx:16)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/help/page.tsx:20)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> isSlug   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/legal/[doc]/page.tsx:22)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/legal/cookies/page.tsx:47)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/legal/cookies/page.tsx:109)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/page.tsx:31)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/pricing/page.tsx:27)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/pricing/page.tsx:809)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/status/page.tsx:21)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/status/page.tsx:25)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:101)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/vs/page.tsx:31)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/vs/page.tsx:111)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/sitemap.xml/route.ts:20)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/[category]/page.tsx:64)
+generateMetadata -> legalDoc   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/i18n/legal.ts:1092)
+generateMetadata -> legalMetaDescription   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/i18n/legal.ts:1101)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/page.tsx:37)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/[country]/page.tsx:41)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/lib/site-urls.ts:39)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/case-studies/page.tsx:23)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/case-studies/page.tsx:27)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/[doc]/page.tsx:42 -> src/app/[locale]/cities/[city]/page.tsx:1129)
+LegalPage -> isSlug   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:22)
+LegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/app/[locale]/legal/[doc]/page.tsx:26)
+LegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/app/[locale]/legal/cookies/page.tsx:58)
+LegalPage -> tr   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/components/RecoveryForm.tsx:130)
+LegalPage -> tr   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/i18n/languages.ts:1329)
+LegalPage -> legalDoc   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/i18n/legal.ts:1092)
+LegalPage -> renderLegalBody   (src/app/[locale]/legal/[doc]/page.tsx:100 -> src/lib/legal-render.ts:36)
 CookiePreferencesClient -> detectLang   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:145 -> src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:137)
 CookiePreferencesClient -> getConsent   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:145 -> src/lib/gdpr.ts:112)
 save -> recordConsent   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:163 -> src/lib/consent-audit.ts:27)
 save -> setConsent   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:163 -> src/lib/gdpr.ts:201)
 save -> save   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:163 -> src/app/[locale]/account/notifications/page.tsx:87)
 reset -> resetConsent   (src/app/[locale]/legal/cookie-preferences/CookiePreferencesClient.tsx:178 -> src/lib/gdpr.ts:229)
-CookiePreferencesPage -> withGlobalGraph   (src/app/[locale]/legal/cookie-preferences/page.tsx:26 -> src/lib/jsonld.ts:223)
+CookiePreferencesPage -> withGlobalGraph   (src/app/[locale]/legal/cookie-preferences/page.tsx:26 -> src/lib/jsonld.ts:224)
+siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:47 -> src/app/[locale]/cities/page.tsx:33)
 resolveLang -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:51 -> src/app/[locale]/pricing/page.tsx:37)
 resolveLang -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:51 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
 resolveLang -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:51 -> src/app/[locale]/vs/page.tsx:24)
 resolveLang -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:51 -> src/app/[locale]/cities/[city]/page.tsx:24)
 resolveLang -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:51 -> src/app/[locale]/cities/page.tsx:26)
-otherLanguagesLabel -> otherLanguagesLabel   (src/app/[locale]/legal/cookies/page.tsx:58 -> src/app/[locale]/legal/[doc]/page.tsx:25)
+otherLanguagesLabel -> otherLanguagesLabel   (src/app/[locale]/legal/cookies/page.tsx:58 -> src/app/[locale]/legal/[doc]/page.tsx:26)
 otherLanguagesLabel -> tr   (src/app/[locale]/legal/cookies/page.tsx:58 -> src/components/RecoveryForm.tsx:130)
 otherLanguagesLabel -> tr   (src/app/[locale]/legal/cookies/page.tsx:58 -> src/i18n/languages.ts:1329)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -2541,14 +2579,14 @@ generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:
 generateMetadata -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> legalDoc   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/i18n/legal.ts:1092)
 generateMetadata -> legalMetaDescription   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/i18n/legal.ts:1101)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/lib/site-urls.ts:29)
+generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/lib/site-urls.ts:39)
 generateMetadata -> ts   (src/app/[locale]/legal/cookies/page.tsx:109 -> tests/ts-loader-hooks.mjs:11)
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
@@ -2558,11 +2596,11 @@ generateMetadata -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:109 -
 generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/[city]/page.tsx:1129)
 generateMetadata -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:109 -> src/app/[locale]/cities/page.tsx:33)
+CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/cities/page.tsx:33)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/help/[slug]/page.tsx:14)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/help/page.tsx:16)
-CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-CookiesLegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/[doc]/page.tsx:25)
+CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+CookiesLegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/[doc]/page.tsx:26)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/cookies/page.tsx:47)
 CookiesLegalPage -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/cookies/page.tsx:51)
 CookiesLegalPage -> otherLanguagesLabel   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/legal/cookies/page.tsx:58)
@@ -2577,20 +2615,19 @@ CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> sr
 CookiesLegalPage -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
 CookiesLegalPage -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/vs/page.tsx:24)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/vs/page.tsx:31)
-CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/sitemap.xml/route.ts:15)
+CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/sitemap.xml/route.ts:20)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 CookiesLegalPage -> legalDoc   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/i18n/legal.ts:1092)
 CookiesLegalPage -> legalMetaDescription   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/i18n/legal.ts:1101)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/[country]/page.tsx:37)
-CookiesLegalPage -> withGlobalGraph   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/lib/jsonld.ts:223)
+CookiesLegalPage -> withGlobalGraph   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/lib/jsonld.ts:224)
 CookiesLegalPage -> renderLegalBody   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/lib/legal-render.ts:36)
-CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/lib/site-urls.ts:29)
+CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/lib/site-urls.ts:39)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/case-studies/page.tsx:23)
 CookiesLegalPage -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/cities/[city]/page.tsx:24)
 CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 CookiesLegalPage -> resolveLang   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/cities/page.tsx:26)
-CookiesLegalPage -> siteUrl   (src/app/[locale]/legal/cookies/page.tsx:314 -> src/app/[locale]/cities/page.tsx:33)
 isAuthHost -> isAuthHost   (src/app/[locale]/login/page.tsx:24 -> src/app/[locale]/register/page.tsx:22)
 sanitizeReturnTo -> sanitizeReturnTo   (src/app/[locale]/login/page.tsx:30 -> src/app/[locale]/register/page.tsx:28)
 buildReturnURL -> buildReturnURL   (src/app/[locale]/login/page.tsx:44 -> src/app/[locale]/register/page.tsx:40)
@@ -2635,75 +2672,75 @@ onSubmit -> onSubmit   (src/app/[locale]/orders/[id]/review/page.tsx:71 -> src/a
 onSubmit -> onSubmit   (src/app/[locale]/orders/[id]/review/page.tsx:71 -> src/components/RecoveryForm.tsx:147)
 onSubmit -> onSubmit   (src/app/[locale]/orders/[id]/review/page.tsx:71 -> src/app/[locale]/account/security/2fa/page.tsx:132)
 StarPicker -> onChange   (src/app/[locale]/orders/[id]/review/page.tsx:192 -> src/components/ThemeToggle.tsx:32)
+siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/[country]/page.tsx:37)
 siteUrl -> homeAlternates   (src/app/[locale]/page.tsx:31 -> src/lib/hreflang.ts:42)
-siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/page.tsx:31 -> src/app/[locale]/cities/page.tsx:33)
-getPlans -> getPlans   (src/app/[locale]/page.tsx:62 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-getPlans -> getPlans   (src/app/[locale]/page.tsx:62 -> src/app/[locale]/pricing/page.tsx:884)
-getPlans -> getPlans   (src/app/[locale]/page.tsx:62 -> src/app/og/[...slug]/route.tsx:38)
-getPlans -> getPlans   (src/app/[locale]/page.tsx:62 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-getPlans -> getPlans   (src/app/[locale]/page.tsx:62 -> src/app/[locale]/[country]/page.tsx:80)
-getPlans -> fetch   (src/app/[locale]/page.tsx:62 -> tests/smoke/run.sh:36)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/help/[slug]/page.tsx:14)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/help/page.tsx:16)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/legal/cookies/page.tsx:47)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/page.tsx:31)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/page.tsx:62)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/pricing/page.tsx:27)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/pricing/page.tsx:884)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/status/page.tsx:21)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/vs/page.tsx:31)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/og/[...slug]/route.tsx:38)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/sitemap.xml/route.ts:15)
-HomePage -> tr   (src/app/[locale]/page.tsx:73 -> src/components/RecoveryForm.tsx:130)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-HomePage -> countriesByRegion   (src/app/[locale]/page.tsx:73 -> src/i18n/countries.ts:1511)
-HomePage -> tr   (src/app/[locale]/page.tsx:73 -> src/i18n/languages.ts:1329)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/page.tsx:37)
-HomePage -> getPlans   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/[country]/page.tsx:80)
-HomePage -> buildHomeJsonLd   (src/app/[locale]/page.tsx:73 -> src/lib/jsonld.ts:276)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/lib/site-urls.ts:29)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/case-studies/page.tsx:23)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-HomePage -> siteUrl   (src/app/[locale]/page.tsx:73 -> src/app/[locale]/cities/page.tsx:33)
+getPlans -> getPlans   (src/app/[locale]/page.tsx:65 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+getPlans -> getPlans   (src/app/[locale]/page.tsx:65 -> src/app/[locale]/pricing/page.tsx:864)
+getPlans -> getPlans   (src/app/[locale]/page.tsx:65 -> src/app/og/[...slug]/route.tsx:43)
+getPlans -> getPlans   (src/app/[locale]/page.tsx:65 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+getPlans -> getPlans   (src/app/[locale]/page.tsx:65 -> src/app/[locale]/[country]/page.tsx:80)
+getPlans -> fetch   (src/app/[locale]/page.tsx:65 -> tests/smoke/run.sh:36)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/cities/page.tsx:33)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/help/[slug]/page.tsx:14)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/help/page.tsx:16)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/legal/cookies/page.tsx:47)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/page.tsx:31)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/page.tsx:65)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/pricing/page.tsx:27)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/pricing/page.tsx:864)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/status/page.tsx:21)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/vs/page.tsx:31)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/og/[...slug]/route.tsx:43)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/sitemap.xml/route.ts:20)
+HomePage -> tr   (src/app/[locale]/page.tsx:76 -> src/components/RecoveryForm.tsx:130)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+HomePage -> countriesByRegion   (src/app/[locale]/page.tsx:76 -> src/i18n/countries.ts:1511)
+HomePage -> tr   (src/app/[locale]/page.tsx:76 -> src/i18n/languages.ts:1329)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/page.tsx:37)
+HomePage -> getPlans   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/[country]/page.tsx:80)
+HomePage -> buildHomeJsonLd   (src/app/[locale]/page.tsx:76 -> src/lib/jsonld.ts:353)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/lib/site-urls.ts:39)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/case-studies/page.tsx:23)
+HomePage -> siteUrl   (src/app/[locale]/page.tsx:76 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/pricing/page.tsx:27 -> src/app/[locale]/cities/page.tsx:33)
 resolveLang -> resolveLang   (src/app/[locale]/pricing/page.tsx:37 -> src/app/[locale]/legal/cookies/page.tsx:51)
 resolveLang -> resolveLang   (src/app/[locale]/pricing/page.tsx:37 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
 resolveLang -> resolveLang   (src/app/[locale]/pricing/page.tsx:37 -> src/app/[locale]/vs/page.tsx:24)
@@ -2713,13 +2750,14 @@ ogLocale -> ogLocale   (src/app/[locale]/pricing/page.tsx:747 -> src/app/[locale
 ogLocale -> ogLocale   (src/app/[locale]/pricing/page.tsx:747 -> src/app/[locale]/cities/[city]/page.tsx:84)
 schemaLang -> schemaLang   (src/app/[locale]/pricing/page.tsx:778 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
 schemaLang -> schemaLang   (src/app/[locale]/pricing/page.tsx:778 -> src/app/[locale]/cities/[city]/page.tsx:54)
+generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/legal/cookies/page.tsx:109)
@@ -2738,13 +2776,14 @@ generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 ->
 generateMetadata -> resolveLang   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/pricing/page.tsx:809 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/pricing/page.tsx:809 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/pricing/page.tsx:809 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/case-studies/page.tsx:23)
@@ -2754,53 +2793,52 @@ generateMetadata -> ogLocale   (src/app/[locale]/pricing/page.tsx:809 -> src/app
 generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/[city]/page.tsx:1129)
 generateMetadata -> resolveLang   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/pricing/page.tsx:809 -> src/app/[locale]/cities/page.tsx:33)
-getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:884 -> src/app/[locale]/page.tsx:62)
-getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:884 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:884 -> src/app/og/[...slug]/route.tsx:38)
-getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:884 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:884 -> src/app/[locale]/[country]/page.tsx:80)
-getPlans -> fetch   (src/app/[locale]/pricing/page.tsx:884 -> tests/smoke/run.sh:36)
-PricingTable -> priceUSD   (src/app/[locale]/pricing/page.tsx:917 -> src/app/[locale]/pricing/page.tsx:895)
-PricingTable -> findPlan   (src/app/[locale]/pricing/page.tsx:917 -> src/app/[locale]/pricing/page.tsx:899)
-PricingTable -> fmtQty   (src/app/[locale]/pricing/page.tsx:917 -> src/app/[locale]/pricing/page.tsx:912)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/help/[slug]/page.tsx:14)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/help/page.tsx:16)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/legal/cookies/page.tsx:47)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/legal/cookies/page.tsx:51)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/page.tsx:31)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/page.tsx:62)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:27)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:37)
-PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:778)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:884)
-PricingPage -> priceUSD   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:895)
-PricingPage -> findPlan   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:899)
-PricingPage -> uspsFor   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/pricing/page.tsx:978)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/status/page.tsx:21)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
-PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/vs/page.tsx:24)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/vs/page.tsx:31)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/og/[...slug]/route.tsx:38)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/sitemap.xml/route.ts:15)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/page.tsx:37)
-PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/[country]/page.tsx:80)
-PricingPage -> toJsonLdGraph   (src/app/[locale]/pricing/page.tsx:987 -> src/lib/jsonld.ts:137)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/lib/site-urls.ts:29)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/case-studies/page.tsx:23)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/cities/[city]/page.tsx:24)
-PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/cities/[city]/page.tsx:54)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/cities/page.tsx:26)
-PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:987 -> src/app/[locale]/cities/page.tsx:33)
+getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:864 -> src/app/[locale]/page.tsx:65)
+getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:864 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:864 -> src/app/og/[...slug]/route.tsx:43)
+getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:864 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+getPlans -> getPlans   (src/app/[locale]/pricing/page.tsx:864 -> src/app/[locale]/[country]/page.tsx:80)
+getPlans -> fetch   (src/app/[locale]/pricing/page.tsx:864 -> tests/smoke/run.sh:36)
+PricingTable -> priceUSD   (src/app/[locale]/pricing/page.tsx:897 -> src/app/[locale]/pricing/page.tsx:875)
+PricingTable -> findPlan   (src/app/[locale]/pricing/page.tsx:897 -> src/app/[locale]/pricing/page.tsx:879)
+PricingTable -> fmtQty   (src/app/[locale]/pricing/page.tsx:897 -> src/app/[locale]/pricing/page.tsx:892)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/cities/page.tsx:33)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/help/[slug]/page.tsx:14)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/help/page.tsx:16)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/legal/cookies/page.tsx:47)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/legal/cookies/page.tsx:51)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/page.tsx:31)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/page.tsx:65)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:27)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:37)
+PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:778)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:864)
+PricingPage -> priceUSD   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:875)
+PricingPage -> findPlan   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:879)
+PricingPage -> uspsFor   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/pricing/page.tsx:958)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/status/page.tsx:21)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
+PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/vs/page.tsx:24)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/vs/page.tsx:31)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/og/[...slug]/route.tsx:43)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/sitemap.xml/route.ts:20)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/page.tsx:37)
+PricingPage -> getPlans   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/[country]/page.tsx:80)
+PricingPage -> toJsonLdGraph   (src/app/[locale]/pricing/page.tsx:967 -> src/lib/jsonld.ts:138)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/lib/site-urls.ts:39)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/case-studies/page.tsx:23)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/cities/[city]/page.tsx:24)
+PricingPage -> schemaLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/cities/[city]/page.tsx:54)
+PricingPage -> siteUrl   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+PricingPage -> resolveLang   (src/app/[locale]/pricing/page.tsx:967 -> src/app/[locale]/cities/page.tsx:26)
 isAuthHost -> isAuthHost   (src/app/[locale]/register/page.tsx:22 -> src/app/[locale]/login/page.tsx:24)
 sanitizeReturnTo -> sanitizeReturnTo   (src/app/[locale]/register/page.tsx:28 -> src/app/[locale]/login/page.tsx:30)
 buildReturnURL -> buildReturnURL   (src/app/[locale]/register/page.tsx:40 -> src/app/[locale]/login/page.tsx:44)
@@ -2834,30 +2872,31 @@ SSOCallbackPage -> useApp   (src/app/[locale]/sso/callback/page.tsx:21 -> src/co
 SSOCallbackPage -> login   (src/app/[locale]/sso/callback/page.tsx:21 -> src/components/Providers.tsx:159)
 SSOCallbackPage -> get   (src/app/[locale]/sso/callback/page.tsx:21 -> tests/emulated/accessibility.mjs:24)
 SSOCallbackPage -> get   (src/app/[locale]/sso/callback/page.tsx:21 -> tests/unit/round-13-17-fixes.test.mjs:213)
+siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/status/page.tsx:21 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/legal/cookies/page.tsx:109)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
@@ -2870,41 +2909,41 @@ generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[l
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/status/page.tsx:25 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/status/page.tsx:25 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/status/page.tsx:25 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/case-studies/page.tsx:23)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/case-studies/page.tsx:27)
 generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/cities/[city]/page.tsx:1129)
-generateMetadata -> siteUrl   (src/app/[locale]/status/page.tsx:25 -> src/app/[locale]/cities/page.tsx:33)
-fetchStatus -> fetch   (src/app/[locale]/status/page.tsx:51 -> tests/smoke/run.sh:36)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/help/[slug]/page.tsx:14)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/help/page.tsx:16)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/legal/cookies/page.tsx:47)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/page.tsx:31)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/pricing/page.tsx:27)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/status/page.tsx:21)
-StatusPage -> fetchStatus   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/status/page.tsx:51)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/vs/page.tsx:31)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/sitemap.xml/route.ts:15)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/[country]/page.tsx:37)
-StatusPage -> withGlobalGraph   (src/app/[locale]/status/page.tsx:69 -> src/lib/jsonld.ts:223)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/lib/site-urls.ts:29)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/case-studies/page.tsx:23)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:69 -> src/app/[locale]/cities/page.tsx:33)
+fetchStatus -> fetch   (src/app/[locale]/status/page.tsx:53 -> tests/smoke/run.sh:36)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/cities/page.tsx:33)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/help/[slug]/page.tsx:14)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/help/page.tsx:16)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/legal/cookies/page.tsx:47)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/page.tsx:31)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/pricing/page.tsx:27)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/status/page.tsx:21)
+StatusPage -> fetchStatus   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/status/page.tsx:53)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/vs/page.tsx:31)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/sitemap.xml/route.ts:20)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/[country]/page.tsx:37)
+StatusPage -> withGlobalGraph   (src/app/[locale]/status/page.tsx:71 -> src/lib/jsonld.ts:224)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/lib/site-urls.ts:39)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/case-studies/page.tsx:23)
+StatusPage -> siteUrl   (src/app/[locale]/status/page.tsx:71 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 load -> fetchMyTicket   (src/app/[locale]/tickets/[id]/page.tsx:26 -> src/lib/api.ts:542)
 load -> getToken   (src/app/[locale]/tickets/[id]/page.tsx:26 -> src/lib/auth.ts:31)
 load -> load   (src/app/[locale]/tickets/[id]/page.tsx:26 -> src/app/[locale]/account/api-keys/page.tsx:38)
@@ -2932,24 +2971,24 @@ onSubmit -> get   (src/app/[locale]/tickets/new/page.tsx:18 -> tests/unit/round-
 onSubmit -> onSubmit   (src/app/[locale]/tickets/new/page.tsx:18 -> src/app/[locale]/account/security/2fa/page.tsx:132)
 TicketsListPage -> fetchMyTickets   (src/app/[locale]/tickets/page.tsx:17 -> src/lib/api.ts:535)
 TicketsListPage -> getToken   (src/app/[locale]/tickets/page.tsx:17 -> src/lib/auth.ts:31)
+siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/lib/site-urls.ts:29)
-siteUrl -> headers   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> next.config.ts:37)
+siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/lib/site-urls.ts:39)
+siteUrl -> headers   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> next.config.ts:51)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:20 -> src/app/[locale]/cities/page.tsx:33)
 resolveLang -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:27 -> src/app/[locale]/legal/cookies/page.tsx:51)
 resolveLang -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:27 -> src/app/[locale]/pricing/page.tsx:37)
 resolveLang -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:27 -> src/app/[locale]/vs/page.tsx:24)
@@ -2958,22 +2997,23 @@ resolveLang -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:27 -> sr
 schemaLang -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:57 -> src/app/[locale]/pricing/page.tsx:778)
 schemaLang -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:57 -> src/app/[locale]/cities/[city]/page.tsx:54)
 ogLocale -> ogLocale   (src/app/[locale]/vs/[competitor]/page.tsx:87 -> src/app/[locale]/pricing/page.tsx:747)
-ogLocale -> headers   (src/app/[locale]/vs/[competitor]/page.tsx:87 -> next.config.ts:37)
+ogLocale -> headers   (src/app/[locale]/vs/[competitor]/page.tsx:87 -> next.config.ts:51)
 ogLocale -> ogLocale   (src/app/[locale]/vs/[competitor]/page.tsx:87 -> src/app/[locale]/cities/[city]/page.tsx:84)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/help/[slug]/page.tsx:24)
-generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/layout.tsx:103)
+generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/layout.tsx:109)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:41)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/[country]/[category]/page.tsx:47)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/[country]/page.tsx:31)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/case-studies/[slug]/page.tsx:33)
 generateStaticParams -> generateStaticParams   (src/app/[locale]/vs/[competitor]/page.tsx:1235 -> src/app/[locale]/cities/[city]/page.tsx:1125)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/legal/cookies/page.tsx:109)
@@ -2992,14 +3032,15 @@ generateMetadata -> ogLocale   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -
 generateMetadata -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/vs/page.tsx:31)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/vs/page.tsx:111)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/[country]/page.tsx:41)
 generateMetadata -> getCompetitor   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/competitors.ts:118)
-generateMetadata -> indexableMeta   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/case-studies/page.tsx:23)
@@ -3009,67 +3050,67 @@ generateMetadata -> ogLocale   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -
 generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/[city]/page.tsx:1129)
 generateMetadata -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1239 -> src/app/[locale]/cities/page.tsx:33)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/help/[slug]/page.tsx:14)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/help/page.tsx:16)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/legal/cookies/page.tsx:47)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/legal/cookies/page.tsx:51)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/page.tsx:31)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/pricing/page.tsx:27)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/pricing/page.tsx:37)
-VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/pricing/page.tsx:778)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/status/page.tsx:21)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
-VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
-VsCompetitorPage -> buildRows   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/[competitor]/page.tsx:1304)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/page.tsx:24)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/vs/page.tsx:31)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/sitemap.xml/route.ts:15)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/[country]/page.tsx:37)
-VsCompetitorPage -> getCompetitor   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/lib/competitors.ts:118)
-VsCompetitorPage -> toJsonLdGraph   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/lib/jsonld.ts:137)
-VsCompetitorPage -> indexableDates   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/lib/seo-meta.ts:58)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/lib/site-urls.ts:29)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/case-studies/page.tsx:23)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/cities/[city]/page.tsx:24)
-VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/cities/[city]/page.tsx:54)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/cities/page.tsx:26)
-VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1383 -> src/app/[locale]/cities/page.tsx:33)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/cities/page.tsx:33)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/help/[slug]/page.tsx:14)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/help/page.tsx:16)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/legal/cookies/page.tsx:47)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/legal/cookies/page.tsx:51)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/page.tsx:31)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/pricing/page.tsx:27)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/pricing/page.tsx:37)
+VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/pricing/page.tsx:778)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/status/page.tsx:21)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
+VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/[competitor]/page.tsx:57)
+VsCompetitorPage -> buildRows   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/[competitor]/page.tsx:1281)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/page.tsx:24)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/vs/page.tsx:31)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/sitemap.xml/route.ts:20)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/[country]/page.tsx:37)
+VsCompetitorPage -> getCompetitor   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/lib/competitors.ts:118)
+VsCompetitorPage -> withGlobalGraph   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/lib/jsonld.ts:224)
+VsCompetitorPage -> indexableDates   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/lib/seo-meta.ts:65)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/lib/site-urls.ts:39)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/case-studies/page.tsx:23)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/cities/[city]/page.tsx:24)
+VsCompetitorPage -> schemaLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/cities/[city]/page.tsx:54)
+VsCompetitorPage -> siteUrl   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+VsCompetitorPage -> resolveLang   (src/app/[locale]/vs/[competitor]/page.tsx:1360 -> src/app/[locale]/cities/page.tsx:26)
 resolveLang -> resolveLang   (src/app/[locale]/vs/page.tsx:24 -> src/app/[locale]/legal/cookies/page.tsx:51)
 resolveLang -> resolveLang   (src/app/[locale]/vs/page.tsx:24 -> src/app/[locale]/pricing/page.tsx:37)
 resolveLang -> resolveLang   (src/app/[locale]/vs/page.tsx:24 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
 resolveLang -> resolveLang   (src/app/[locale]/vs/page.tsx:24 -> src/app/[locale]/cities/[city]/page.tsx:24)
 resolveLang -> resolveLang   (src/app/[locale]/vs/page.tsx:24 -> src/app/[locale]/cities/page.tsx:26)
+siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/cities/page.tsx:33)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/help/[slug]/page.tsx:14)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/legal/[doc]/page.tsx:17)
+siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/legal/[doc]/page.tsx:18)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/legal/cookies/page.tsx:47)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/page.tsx:31)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/pricing/page.tsx:27)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/status/page.tsx:21)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/sitemap.xml/route.ts:15)
+siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/sitemap.xml/route.ts:20)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/lib/site-urls.ts:29)
+siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/lib/site-urls.ts:39)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/case-studies/page.tsx:23)
 siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/[locale]/vs/page.tsx:31 -> src/app/[locale]/cities/page.tsx:33)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/page.tsx:33)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/page.tsx:100)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/help/[slug]/page.tsx:14)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/help/[slug]/page.tsx:28)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/help/page.tsx:16)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/help/page.tsx:20)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/[doc]/page.tsx:41)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/[doc]/page.tsx:42)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/cookies/page.tsx:47)
 generateMetadata -> resolveLang   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/cookies/page.tsx:51)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/legal/cookies/page.tsx:109)
@@ -3086,13 +3127,14 @@ generateMetadata -> resolveLang   (src/app/[locale]/vs/page.tsx:111 -> src/app/[
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/vs/[competitor]/page.tsx:1239)
 generateMetadata -> resolveLang   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/vs/page.tsx:24)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/vs/page.tsx:31)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/sitemap.xml/route.ts:15)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/sitemap.xml/route.ts:20)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/[country]/[category]/page.tsx:60)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/[country]/[category]/page.tsx:64)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/[country]/page.tsx:37)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/[country]/page.tsx:41)
-generateMetadata -> indexableMeta   (src/app/[locale]/vs/page.tsx:111 -> src/lib/seo-meta.ts:45)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/lib/site-urls.ts:29)
+generateMetadata -> indexableMeta   (src/app/[locale]/vs/page.tsx:111 -> src/lib/seo-meta.ts:52)
+generateMetadata -> ogFallbackImages   (src/app/[locale]/vs/page.tsx:111 -> src/lib/seo-meta.ts:87)
+generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/lib/site-urls.ts:39)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/case-studies/[slug]/page.tsx:37)
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/case-studies/page.tsx:23)
@@ -3101,37 +3143,36 @@ generateMetadata -> resolveLang   (src/app/[locale]/vs/page.tsx:111 -> src/app/[
 generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 generateMetadata -> generateMetadata   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/[city]/page.tsx:1129)
 generateMetadata -> resolveLang   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/page.tsx:26)
-generateMetadata -> siteUrl   (src/app/[locale]/vs/page.tsx:111 -> src/app/[locale]/cities/page.tsx:33)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/help/[slug]/page.tsx:14)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/help/page.tsx:16)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/legal/cookies/page.tsx:47)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/legal/cookies/page.tsx:51)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/page.tsx:31)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/pricing/page.tsx:27)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/pricing/page.tsx:37)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/status/page.tsx:21)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/vs/page.tsx:24)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/vs/page.tsx:31)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/sitemap.xml/route.ts:15)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/[country]/page.tsx:37)
-VsHubPage -> withGlobalGraph   (src/app/[locale]/vs/page.tsx:138 -> src/lib/jsonld.ts:223)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/lib/site-urls.ts:29)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/case-studies/page.tsx:23)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/cities/[city]/page.tsx:24)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/cities/page.tsx:26)
-VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:138 -> src/app/[locale]/cities/page.tsx:33)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/cities/page.tsx:33)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/help/[slug]/page.tsx:14)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/help/page.tsx:16)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/legal/cookies/page.tsx:47)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/legal/cookies/page.tsx:51)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/page.tsx:31)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/pricing/page.tsx:27)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/pricing/page.tsx:37)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/status/page.tsx:21)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/vs/[competitor]/page.tsx:27)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/vs/page.tsx:24)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/vs/page.tsx:31)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/sitemap.xml/route.ts:20)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/[country]/page.tsx:37)
+VsHubPage -> withGlobalGraph   (src/app/[locale]/vs/page.tsx:139 -> src/lib/jsonld.ts:224)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/lib/site-urls.ts:39)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/case-studies/page.tsx:23)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/cities/[city]/page.tsx:24)
+VsHubPage -> siteUrl   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+VsHubPage -> resolveLang   (src/app/[locale]/vs/page.tsx:139 -> src/app/[locale]/cities/page.tsx:26)
 GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/api/indexnow/route.ts:57)
 GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/api/metrics/route.ts:35)
 GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/api/orders-today/route.ts:34)
-GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/og/[...slug]/route.tsx:89)
-GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/sitemap.xml/route.ts:23)
+GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/og/[...slug]/route.tsx:94)
+GET -> GET   (src/app/api/geo/route.ts:17 -> src/app/sitemap.xml/route.ts:40)
 GET -> currencyForCountry   (src/app/api/geo/route.ts:17 -> src/lib/geo-currency.ts:53)
 GET -> countryFromAcceptLanguage   (src/app/api/geo/route.ts:17 -> src/lib/geo-currency.ts:63)
 GET -> get   (src/app/api/geo/route.ts:17 -> tests/emulated/accessibility.mjs:24)
@@ -3139,115 +3180,117 @@ GET -> get   (src/app/api/geo/route.ts:17 -> tests/unit/round-13-17-fixes.test.m
 POST -> submitToIndexNow   (src/app/api/indexnow/route.ts:19 -> src/lib/indexnow.ts:27)
 POST -> envIndexNow   (src/app/api/indexnow/route.ts:19 -> src/lib/indexnow.ts:52)
 POST -> keyLocation   (src/app/api/indexnow/route.ts:19 -> src/lib/indexnow.ts:59)
-POST -> allSiteUrls   (src/app/api/indexnow/route.ts:19 -> src/lib/site-urls.ts:47)
+POST -> allSiteUrls   (src/app/api/indexnow/route.ts:19 -> src/lib/site-urls.ts:57)
 POST -> get   (src/app/api/indexnow/route.ts:19 -> tests/emulated/accessibility.mjs:24)
 POST -> get   (src/app/api/indexnow/route.ts:19 -> tests/unit/round-13-17-fixes.test.mjs:213)
 GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/api/geo/route.ts:17)
 GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/api/metrics/route.ts:35)
 GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/api/orders-today/route.ts:34)
-GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/og/[...slug]/route.tsx:89)
-GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/sitemap.xml/route.ts:23)
+GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/og/[...slug]/route.tsx:94)
+GET -> GET   (src/app/api/indexnow/route.ts:57 -> src/app/sitemap.xml/route.ts:40)
 GET -> keyLocation   (src/app/api/indexnow/route.ts:57 -> src/lib/indexnow.ts:59)
-GET -> allSiteUrls   (src/app/api/indexnow/route.ts:57 -> src/lib/site-urls.ts:47)
+GET -> allSiteUrls   (src/app/api/indexnow/route.ts:57 -> src/lib/site-urls.ts:57)
 metricLine -> escapeLabel   (src/app/api/metrics/route.ts:28 -> src/app/api/metrics/route.ts:24)
 GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/api/geo/route.ts:17)
 GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/api/indexnow/route.ts:57)
 GET -> metricLine   (src/app/api/metrics/route.ts:35 -> src/app/api/metrics/route.ts:28)
 GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/api/orders-today/route.ts:34)
-GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/og/[...slug]/route.tsx:89)
-GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/sitemap.xml/route.ts:23)
+GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/og/[...slug]/route.tsx:94)
+GET -> GET   (src/app/api/metrics/route.ts:35 -> src/app/sitemap.xml/route.ts:40)
 GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/api/geo/route.ts:17)
 GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/api/indexnow/route.ts:57)
 GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/api/metrics/route.ts:35)
 GET -> syntheticPayload   (src/app/api/orders-today/route.ts:34 -> src/app/api/orders-today/route.ts:20)
-GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/og/[...slug]/route.tsx:89)
-GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/sitemap.xml/route.ts:23)
+GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/og/[...slug]/route.tsx:94)
+GET -> GET   (src/app/api/orders-today/route.ts:34 -> src/app/sitemap.xml/route.ts:40)
 GET -> fetch   (src/app/api/orders-today/route.ts:34 -> tests/smoke/run.sh:36)
-getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[locale]/page.tsx:62)
-getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[locale]/pricing/page.tsx:884)
-getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:38 -> src/app/[locale]/[country]/page.tsx:80)
-getPlans -> fetch   (src/app/og/[...slug]/route.tsx:38 -> tests/smoke/run.sh:36)
-qtyFromSlug -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:67 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/page.tsx:62)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/pricing/page.tsx:884)
-GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
-GET -> GET   (src/app/og/[...slug]/route.tsx:89 -> src/app/api/geo/route.ts:17)
-GET -> GET   (src/app/og/[...slug]/route.tsx:89 -> src/app/api/indexnow/route.ts:57)
-GET -> GET   (src/app/og/[...slug]/route.tsx:89 -> src/app/api/metrics/route.ts:35)
-GET -> GET   (src/app/og/[...slug]/route.tsx:89 -> src/app/api/orders-today/route.ts:34)
-GET -> isOgSafeLang   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:29)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:38)
-GET -> fromPriceLabel   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:50)
-GET -> exactPriceLabel   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:60)
-GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:67)
-GET -> englishCountryName   (src/app/og/[...slug]/route.tsx:89 -> src/app/og/[...slug]/route.tsx:80)
-GET -> GET   (src/app/og/[...slug]/route.tsx:89 -> src/app/sitemap.xml/route.ts:23)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/[country]/[category]/page.tsx:101)
-GET -> categoryFromSlug   (src/app/og/[...slug]/route.tsx:89 -> src/i18n/categories.ts:290)
-GET -> categoryLabel   (src/app/og/[...slug]/route.tsx:89 -> src/i18n/categories.ts:304)
-GET -> getCountry   (src/app/og/[...slug]/route.tsx:89 -> src/i18n/countries.ts:1444)
-GET -> langOfCountry   (src/app/og/[...slug]/route.tsx:89 -> src/i18n/languages.ts:89)
-GET -> getPlans   (src/app/og/[...slug]/route.tsx:89 -> src/app/[locale]/[country]/page.tsx:80)
+getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:43 -> src/app/[locale]/page.tsx:65)
+getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:43 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:43 -> src/app/[locale]/pricing/page.tsx:864)
+getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:43 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+getPlans -> getPlans   (src/app/og/[...slug]/route.tsx:43 -> src/app/[locale]/[country]/page.tsx:80)
+getPlans -> fetch   (src/app/og/[...slug]/route.tsx:43 -> tests/smoke/run.sh:36)
+qtyFromSlug -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:72 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/page.tsx:65)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:68)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/pricing/page.tsx:864)
+GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:96)
+GET -> GET   (src/app/og/[...slug]/route.tsx:94 -> src/app/api/geo/route.ts:17)
+GET -> GET   (src/app/og/[...slug]/route.tsx:94 -> src/app/api/indexnow/route.ts:57)
+GET -> GET   (src/app/og/[...slug]/route.tsx:94 -> src/app/api/metrics/route.ts:35)
+GET -> GET   (src/app/og/[...slug]/route.tsx:94 -> src/app/api/orders-today/route.ts:34)
+GET -> isOgSafeLang   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:29)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:43)
+GET -> fromPriceLabel   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:55)
+GET -> exactPriceLabel   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:65)
+GET -> qtyFromSlug   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:72)
+GET -> englishCountryName   (src/app/og/[...slug]/route.tsx:94 -> src/app/og/[...slug]/route.tsx:85)
+GET -> GET   (src/app/og/[...slug]/route.tsx:94 -> src/app/sitemap.xml/route.ts:40)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/[country]/[category]/page.tsx:101)
+GET -> categoryFromSlug   (src/app/og/[...slug]/route.tsx:94 -> src/i18n/categories.ts:290)
+GET -> categoryLabel   (src/app/og/[...slug]/route.tsx:94 -> src/i18n/categories.ts:304)
+GET -> getCountry   (src/app/og/[...slug]/route.tsx:94 -> src/i18n/countries.ts:1444)
+GET -> langOfCountry   (src/app/og/[...slug]/route.tsx:94 -> src/i18n/languages.ts:89)
+GET -> getPlans   (src/app/og/[...slug]/route.tsx:94 -> src/app/[locale]/[country]/page.tsx:80)
 alternatesFor -> siteBase   (src/app/sitemap.ts:21 -> src/app/sitemap.ts:13)
 alternatesFor -> getCountry   (src/app/sitemap.ts:21 -> src/i18n/countries.ts:1444)
 baseLanguages -> categoryFromSlug   (src/app/sitemap.ts:29 -> src/i18n/categories.ts:290)
 baseLanguages -> countryRootAlternates   (src/app/sitemap.ts:29 -> src/lib/hreflang.ts:56)
 baseLanguages -> categoryAlternates   (src/app/sitemap.ts:29 -> src/lib/hreflang.ts:74)
 baseLanguages -> slugAlternates   (src/app/sitemap.ts:29 -> src/lib/hreflang.ts:94)
-generateSitemaps -> allSiteUrls   (src/app/sitemap.ts:72 -> src/lib/site-urls.ts:47)
-generateSitemaps -> paginatedBuckets   (src/app/sitemap.ts:72 -> src/lib/site-urls.ts:243)
+generateSitemaps -> allSiteUrls   (src/app/sitemap.ts:72 -> src/lib/site-urls.ts:57)
+generateSitemaps -> paginatedBuckets   (src/app/sitemap.ts:72 -> src/lib/site-urls.ts:259)
 sitemap -> alternatesFor   (src/app/sitemap.ts:77 -> src/app/sitemap.ts:21)
-sitemap -> allSiteUrls   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:47)
-sitemap -> parseSitemapBucketID   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:230)
-sitemap -> urlsForBucket   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:263)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/legal/cookies/page.tsx:47)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/page.tsx:31)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/pricing/page.tsx:27)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/status/page.tsx:21)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/lib/site-urls.ts:29)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/case-studies/page.tsx:23)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:15 -> src/app/[locale]/cities/page.tsx:33)
-xmlEscape -> xmlEscape   (src/app/sitemap.xml/route.ts:19 -> tests/unit/sitemap-xml.test.mjs:16)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/help/[slug]/page.tsx:14)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/help/page.tsx:16)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/legal/cookies/page.tsx:47)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/page.tsx:31)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/pricing/page.tsx:27)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/status/page.tsx:21)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/vs/page.tsx:31)
-GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/api/geo/route.ts:17)
-GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/api/indexnow/route.ts:57)
-GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/api/metrics/route.ts:35)
-GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/api/orders-today/route.ts:34)
-GET -> GET   (src/app/sitemap.xml/route.ts:23 -> src/app/og/[...slug]/route.tsx:89)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/sitemap.xml/route.ts:15)
-GET -> xmlEscape   (src/app/sitemap.xml/route.ts:23 -> src/app/sitemap.xml/route.ts:19)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/[country]/page.tsx:37)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/lib/site-urls.ts:29)
-GET -> allSiteUrls   (src/app/sitemap.xml/route.ts:23 -> src/lib/site-urls.ts:47)
-GET -> paginatedBuckets   (src/app/sitemap.xml/route.ts:23 -> src/lib/site-urls.ts:243)
-GET -> xmlEscape   (src/app/sitemap.xml/route.ts:23 -> tests/unit/sitemap-xml.test.mjs:16)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/case-studies/page.tsx:23)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-GET -> siteUrl   (src/app/sitemap.xml/route.ts:23 -> src/app/[locale]/cities/page.tsx:33)
+sitemap -> allSiteUrls   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:57)
+sitemap -> parseSitemapBucketID   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:246)
+sitemap -> urlsForBucket   (src/app/sitemap.ts:77 -> src/lib/site-urls.ts:279)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/cities/page.tsx:33)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/help/[slug]/page.tsx:14)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/help/page.tsx:16)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/legal/cookies/page.tsx:47)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/page.tsx:31)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/pricing/page.tsx:27)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/status/page.tsx:21)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/vs/page.tsx:31)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/[country]/page.tsx:37)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/lib/site-urls.ts:39)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/case-studies/page.tsx:23)
+siteUrl -> siteUrl   (src/app/sitemap.xml/route.ts:20 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+xmlEscape -> xmlEscape   (src/app/sitemap.xml/route.ts:24 -> tests/unit/sitemap-xml.test.mjs:16)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/cities/page.tsx:33)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/help/[slug]/page.tsx:14)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/help/page.tsx:16)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/legal/cookies/page.tsx:47)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/page.tsx:31)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/pricing/page.tsx:27)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/status/page.tsx:21)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/vs/page.tsx:31)
+GET -> GET   (src/app/sitemap.xml/route.ts:40 -> src/app/api/geo/route.ts:17)
+GET -> GET   (src/app/sitemap.xml/route.ts:40 -> src/app/api/indexnow/route.ts:57)
+GET -> GET   (src/app/sitemap.xml/route.ts:40 -> src/app/api/metrics/route.ts:35)
+GET -> GET   (src/app/sitemap.xml/route.ts:40 -> src/app/api/orders-today/route.ts:34)
+GET -> GET   (src/app/sitemap.xml/route.ts:40 -> src/app/og/[...slug]/route.tsx:94)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/sitemap.xml/route.ts:20)
+GET -> xmlEscape   (src/app/sitemap.xml/route.ts:40 -> src/app/sitemap.xml/route.ts:24)
+GET -> bucketLastmod   (src/app/sitemap.xml/route.ts:40 -> src/app/sitemap.xml/route.ts:32)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/[country]/page.tsx:37)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/lib/site-urls.ts:39)
+GET -> allSiteUrls   (src/app/sitemap.xml/route.ts:40 -> src/lib/site-urls.ts:57)
+GET -> paginatedBuckets   (src/app/sitemap.xml/route.ts:40 -> src/lib/site-urls.ts:259)
+GET -> urlsForBucket   (src/app/sitemap.xml/route.ts:40 -> src/lib/site-urls.ts:279)
+GET -> xmlEscape   (src/app/sitemap.xml/route.ts:40 -> tests/unit/sitemap-xml.test.mjs:16)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/case-studies/page.tsx:23)
+GET -> siteUrl   (src/app/sitemap.xml/route.ts:40 -> src/app/[locale]/cities/[city]/page.tsx:1058)
 ABExperiment -> abAssign   (src/components/ABExperiment.tsx:45 -> src/lib/api.ts:811)
 ABExperiment -> getVisitorId   (src/components/ABExperiment.tsx:45 -> src/lib/visitor.ts:46)
 BuyPlanCta -> useApp   (src/components/BuyPlanCta.tsx:21 -> src/components/Providers.tsx:25)
@@ -3346,7 +3389,7 @@ onKey -> onKey   (src/components/Header.tsx:123 -> src/components/CheckoutModal.
 onKey -> onKey   (src/components/Header.tsx:123 -> src/components/Modal.tsx:49)
 onKey -> logout   (src/components/Header.tsx:123 -> src/components/Providers.tsx:179)
 onKey -> onKey   (src/components/Header.tsx:123 -> src/components/SearchBar.tsx:165)
-JsonLdScript -> safeJsonStringify   (src/components/JsonLdScript.tsx:26 -> src/lib/jsonld.ts:12)
+JsonLdScript -> safeJsonStringify   (src/components/JsonLdScript.tsx:26 -> src/lib/jsonld.ts:13)
 LiveCounter -> tr   (src/components/LiveCounter.tsx:16 -> src/components/RecoveryForm.tsx:130)
 LiveCounter -> tr   (src/components/LiveCounter.tsx:16 -> src/i18n/languages.ts:1329)
 tick -> fetch   (src/components/LiveCounter.tsx:23 -> tests/smoke/run.sh:36)
@@ -3516,94 +3559,93 @@ slugAlternates -> getCountry   (src/lib/hreflang.ts:94 -> src/i18n/countries.ts:
 slugAlternates -> langOfCountry   (src/lib/hreflang.ts:94 -> src/i18n/languages.ts:89)
 submitToIndexNow -> fetch   (src/lib/indexnow.ts:27 -> tests/smoke/run.sh:36)
 keyLocation -> envIndexNow   (src/lib/indexnow.ts:59 -> src/lib/indexnow.ts:52)
-toJsonLdGraph -> withGlobalGraph   (src/lib/jsonld.ts:137 -> src/lib/jsonld.ts:223)
-withGlobalGraph -> toJsonLdGraph   (src/lib/jsonld.ts:223 -> src/lib/jsonld.ts:137)
-withGlobalGraph -> buildOrganizationNode   (src/lib/jsonld.ts:223 -> src/lib/jsonld.ts:166)
-withGlobalGraph -> buildWebSiteNode   (src/lib/jsonld.ts:223 -> src/lib/jsonld.ts:184)
-buildHomeJsonLd -> categorySlug   (src/lib/jsonld.ts:276 -> src/i18n/categories.ts:300)
-buildHomeJsonLd -> buildOfferEnhancements   (src/lib/jsonld.ts:276 -> src/lib/jsonld.ts:85)
-buildHomeJsonLd -> toJsonLdGraph   (src/lib/jsonld.ts:276 -> src/lib/jsonld.ts:137)
-buildHomeJsonLd -> buildAggregateOffer   (src/lib/jsonld.ts:276 -> src/lib/jsonld.ts:246)
-buildHomeJsonLd -> categorySlugEn   (src/lib/jsonld.ts:276 -> src/lib/jsonld.ts:363)
-buildCountryJsonLd -> buildOfferEnhancements   (src/lib/jsonld.ts:381 -> src/lib/jsonld.ts:85)
-buildCountryJsonLd -> pickOfferCurrency   (src/lib/jsonld.ts:381 -> src/lib/jsonld.ts:117)
-buildCountryJsonLd -> toJsonLdGraph   (src/lib/jsonld.ts:381 -> src/lib/jsonld.ts:137)
-buildCountryJsonLd -> buildAggregateOffer   (src/lib/jsonld.ts:381 -> src/lib/jsonld.ts:246)
-buildCountryJsonLd -> buildCountryJsonLd   (src/lib/jsonld.ts:381 -> tests/unit/jsonld.schema.test.mjs:18)
-buildCountryJsonLd -> buildCountryJsonLd   (src/lib/jsonld.ts:381 -> tests/unit/jsonld.test.mjs:15)
+toJsonLdGraph -> withGlobalGraph   (src/lib/jsonld.ts:138 -> src/lib/jsonld.ts:224)
+withGlobalGraph -> toJsonLdGraph   (src/lib/jsonld.ts:224 -> src/lib/jsonld.ts:138)
+withGlobalGraph -> buildOrganizationNode   (src/lib/jsonld.ts:224 -> src/lib/jsonld.ts:167)
+withGlobalGraph -> buildWebSiteNode   (src/lib/jsonld.ts:224 -> src/lib/jsonld.ts:185)
+buildHomeJsonLd -> categorySlug   (src/lib/jsonld.ts:353 -> src/i18n/categories.ts:300)
+buildHomeJsonLd -> buildOfferEnhancements   (src/lib/jsonld.ts:353 -> src/lib/jsonld.ts:86)
+buildHomeJsonLd -> toJsonLdGraph   (src/lib/jsonld.ts:353 -> src/lib/jsonld.ts:138)
+buildHomeJsonLd -> buildAggregateOffer   (src/lib/jsonld.ts:353 -> src/lib/jsonld.ts:323)
+buildHomeJsonLd -> categorySlugEn   (src/lib/jsonld.ts:353 -> src/lib/jsonld.ts:440)
+buildCountryJsonLd -> buildOfferEnhancements   (src/lib/jsonld.ts:458 -> src/lib/jsonld.ts:86)
+buildCountryJsonLd -> pickOfferCurrency   (src/lib/jsonld.ts:458 -> src/lib/jsonld.ts:118)
+buildCountryJsonLd -> toJsonLdGraph   (src/lib/jsonld.ts:458 -> src/lib/jsonld.ts:138)
+buildCountryJsonLd -> buildFaqPageNode   (src/lib/jsonld.ts:458 -> src/lib/jsonld.ts:242)
+buildCountryJsonLd -> buildAggregateOffer   (src/lib/jsonld.ts:458 -> src/lib/jsonld.ts:323)
+buildCountryJsonLd -> buildCountryJsonLd   (src/lib/jsonld.ts:458 -> tests/unit/jsonld.schema.test.mjs:18)
+buildCountryJsonLd -> buildCountryJsonLd   (src/lib/jsonld.ts:458 -> tests/unit/jsonld.test.mjs:15)
 renderLegalBody -> autoLink   (src/lib/legal-render.ts:36 -> src/lib/legal-render.ts:15)
 localizedPlanName -> formatQty   (src/lib/plan-labels.ts:137 -> src/lib/plan-labels.ts:20)
 localizedPlanName -> unitMap   (src/lib/plan-labels.ts:137 -> src/lib/plan-labels.ts:125)
 localizedPlanDescription -> pickTier   (src/lib/plan-labels.ts:218 -> src/lib/plan-labels.ts:202)
-indexableMeta -> buildTimeISO   (src/lib/seo-meta.ts:45 -> src/lib/seo-meta.ts:26)
-indexableDates -> buildTimeISO   (src/lib/seo-meta.ts:58 -> src/lib/seo-meta.ts:26)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/help/[slug]/page.tsx:14)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/help/page.tsx:16)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/legal/cookies/page.tsx:47)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/page.tsx:31)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/pricing/page.tsx:27)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/status/page.tsx:21)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/vs/page.tsx:31)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/sitemap.xml/route.ts:15)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/[country]/page.tsx:37)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/case-studies/page.tsx:23)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-siteUrl -> siteUrl   (src/lib/site-urls.ts:29 -> src/app/[locale]/cities/page.tsx:33)
-fetchPlans -> request   (src/lib/site-urls.ts:33 -> src/lib/api.ts:352)
-fetchPlans -> fetchPlans   (src/lib/site-urls.ts:33 -> src/lib/api.ts:383)
-fetchPlans -> fetch   (src/lib/site-urls.ts:33 -> tests/smoke/run.sh:36)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/help/[slug]/page.tsx:14)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/help/page.tsx:16)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/legal/cookies/page.tsx:47)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/page.tsx:31)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/pricing/page.tsx:27)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/status/page.tsx:21)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/vs/page.tsx:31)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/sitemap.xml/route.ts:15)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-allSiteUrls -> categorySlug   (src/lib/site-urls.ts:47 -> src/i18n/categories.ts:300)
-allSiteUrls -> langOfCountry   (src/lib/site-urls.ts:47 -> src/i18n/languages.ts:89)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/[country]/page.tsx:37)
-allSiteUrls -> fetchPlans   (src/lib/site-urls.ts:47 -> src/lib/api.ts:383)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/lib/site-urls.ts:29)
-allSiteUrls -> fetchPlans   (src/lib/site-urls.ts:47 -> src/lib/site-urls.ts:33)
-allSiteUrls -> sortStableForSitemap   (src/lib/site-urls.ts:47 -> src/lib/site-urls.ts:185)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/case-studies/page.tsx:23)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-allSiteUrls -> siteUrl   (src/lib/site-urls.ts:47 -> src/app/[locale]/cities/page.tsx:33)
-sortKey -> categoryFromSlug   (src/lib/site-urls.ts:165 -> src/i18n/categories.ts:290)
-sortKey -> langOfCountry   (src/lib/site-urls.ts:165 -> src/i18n/languages.ts:89)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/help/[slug]/page.tsx:14)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/help/page.tsx:16)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/legal/[doc]/page.tsx:17)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/legal/cookies/page.tsx:47)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/page.tsx:31)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/pricing/page.tsx:27)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/status/page.tsx:21)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/vs/page.tsx:31)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/sitemap.xml/route.ts:15)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/[country]/[category]/page.tsx:60)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/[country]/page.tsx:37)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/lib/site-urls.ts:29)
-sortStableForSitemap -> sortKey   (src/lib/site-urls.ts:185 -> src/lib/site-urls.ts:165)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/case-studies/page.tsx:23)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/cities/[city]/page.tsx:1058)
-sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:185 -> src/app/[locale]/cities/page.tsx:33)
-urlsForLang -> sitemap   (src/lib/site-urls.ts:198 -> src/app/sitemap.ts:77)
-paginatedBuckets -> urlsForLang   (src/lib/site-urls.ts:243 -> src/lib/site-urls.ts:198)
-urlsForBucket -> urlsForLang   (src/lib/site-urls.ts:263 -> src/lib/site-urls.ts:198)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/cities/page.tsx:33)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/help/[slug]/page.tsx:14)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/help/page.tsx:16)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/legal/cookies/page.tsx:47)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/page.tsx:31)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/pricing/page.tsx:27)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/status/page.tsx:21)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/vs/page.tsx:31)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/sitemap.xml/route.ts:20)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/[country]/page.tsx:37)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/case-studies/page.tsx:23)
+siteUrl -> siteUrl   (src/lib/site-urls.ts:39 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+fetchPlans -> request   (src/lib/site-urls.ts:43 -> src/lib/api.ts:352)
+fetchPlans -> fetchPlans   (src/lib/site-urls.ts:43 -> src/lib/api.ts:383)
+fetchPlans -> fetch   (src/lib/site-urls.ts:43 -> tests/smoke/run.sh:36)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/cities/page.tsx:33)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/help/[slug]/page.tsx:14)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/help/page.tsx:16)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/legal/cookies/page.tsx:47)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/page.tsx:31)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/pricing/page.tsx:27)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/status/page.tsx:21)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/vs/page.tsx:31)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/sitemap.xml/route.ts:20)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+allSiteUrls -> categorySlug   (src/lib/site-urls.ts:57 -> src/i18n/categories.ts:300)
+allSiteUrls -> langOfCountry   (src/lib/site-urls.ts:57 -> src/i18n/languages.ts:89)
+allSiteUrls -> fetchPlans   (src/lib/site-urls.ts:57 -> src/lib/api.ts:383)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/[country]/page.tsx:37)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/lib/site-urls.ts:39)
+allSiteUrls -> fetchPlans   (src/lib/site-urls.ts:57 -> src/lib/site-urls.ts:43)
+allSiteUrls -> sortStableForSitemap   (src/lib/site-urls.ts:57 -> src/lib/site-urls.ts:201)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/case-studies/page.tsx:23)
+allSiteUrls -> siteUrl   (src/lib/site-urls.ts:57 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+sortKey -> categoryFromSlug   (src/lib/site-urls.ts:181 -> src/i18n/categories.ts:290)
+sortKey -> langOfCountry   (src/lib/site-urls.ts:181 -> src/i18n/languages.ts:89)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/cities/page.tsx:33)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/help/[slug]/page.tsx:14)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/help/page.tsx:16)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/legal/[doc]/page.tsx:18)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/legal/cookies/page.tsx:47)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/[country]/[category]/[slug]/page.tsx:64)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/page.tsx:31)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/pricing/page.tsx:27)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/status/page.tsx:21)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/vs/[competitor]/page.tsx:20)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/vs/page.tsx:31)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/sitemap.xml/route.ts:20)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/[country]/[category]/page.tsx:60)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/[country]/page.tsx:37)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/lib/site-urls.ts:39)
+sortStableForSitemap -> sortKey   (src/lib/site-urls.ts:201 -> src/lib/site-urls.ts:181)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/case-studies/[slug]/page.tsx:22)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/case-studies/page.tsx:23)
+sortStableForSitemap -> siteUrl   (src/lib/site-urls.ts:201 -> src/app/[locale]/cities/[city]/page.tsx:1058)
+urlsForLang -> sitemap   (src/lib/site-urls.ts:214 -> src/app/sitemap.ts:77)
+paginatedBuckets -> urlsForLang   (src/lib/site-urls.ts:259 -> src/lib/site-urls.ts:214)
+urlsForBucket -> urlsForLang   (src/lib/site-urls.ts:279 -> src/lib/site-urls.ts:214)
 ls -> cookieDomain   (src/lib/theme.ts:38 -> src/lib/currency.ts:22)
 ls -> cookieDomain   (src/lib/theme.ts:38 -> src/lib/gdpr.ts:35)
 ls -> cookieDomain   (src/lib/theme.ts:38 -> src/lib/theme.ts:50)
@@ -3700,7 +3742,7 @@ middleware -> detectCountry   (src/middleware.ts:165 -> src/middleware.ts:156)
 middleware -> get   (src/middleware.ts:165 -> tests/emulated/accessibility.mjs:24)
 middleware -> detectAcceptLanguage   (src/middleware.ts:165 -> tests/unit/round-13-17-fixes.test.mjs:35)
 middleware -> get   (src/middleware.ts:165 -> tests/unit/round-13-17-fixes.test.mjs:213)
-middleware -> headers   (src/middleware.ts:165 -> next.config.ts:37)
+middleware -> headers   (src/middleware.ts:165 -> next.config.ts:51)
 get -> fetch   (tests/emulated/accessibility.mjs:24 -> tests/smoke/run.sh:36)
 get -> get   (tests/emulated/accessibility.mjs:24 -> tests/unit/round-13-17-fixes.test.mjs:213)
 check -> ok   (tests/emulated/accessibility.mjs:83 -> tests/emulated/accessibility.mjs:20)
@@ -3793,24 +3835,24 @@ constructor -> constructor   (tests/unit/gdpr.test.mjs:30 -> tests/unit/gdpr.tes
 constructor -> getItem   (tests/unit/gdpr.test.mjs:30 -> tests/unit/gdpr.test.mjs:15)
 constructor -> setItem   (tests/unit/gdpr.test.mjs:30 -> tests/unit/gdpr.test.mjs:18)
 constructor -> clear   (tests/unit/gdpr.test.mjs:30 -> tests/unit/gdpr.test.mjs:24)
-offersOf -> buildCountryJsonLd   (tests/unit/jsonld-currency-priority.test.mjs:22 -> src/lib/jsonld.ts:381)
+offersOf -> buildCountryJsonLd   (tests/unit/jsonld-currency-priority.test.mjs:22 -> src/lib/jsonld.ts:458)
 offersOf -> offersOf   (tests/unit/jsonld-currency-priority.test.mjs:22 -> tests/unit/jsonld-merchant-listing.test.mjs:87)
 offersOf -> buildCountryJsonLd   (tests/unit/jsonld-currency-priority.test.mjs:22 -> tests/unit/jsonld.schema.test.mjs:18)
 offersOf -> buildCountryJsonLd   (tests/unit/jsonld-currency-priority.test.mjs:22 -> tests/unit/jsonld.test.mjs:15)
-offersOf -> buildOfferEnhancements   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> src/lib/jsonld.ts:85)
-offersOf -> buildCountryJsonLd   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> src/lib/jsonld.ts:381)
+offersOf -> buildOfferEnhancements   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> src/lib/jsonld.ts:86)
+offersOf -> buildCountryJsonLd   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> src/lib/jsonld.ts:458)
 offersOf -> ok   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> tests/emulated/accessibility.mjs:20)
 offersOf -> ok   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> tests/emulated/api-contracts.mjs:16)
 offersOf -> offersOf   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> tests/unit/jsonld-currency-priority.test.mjs:22)
 offersOf -> buildCountryJsonLd   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> tests/unit/jsonld.schema.test.mjs:18)
 offersOf -> buildCountryJsonLd   (tests/unit/jsonld-merchant-listing.test.mjs:87 -> tests/unit/jsonld.test.mjs:15)
 buildCountryJsonLd -> getCountry   (tests/unit/jsonld.schema.test.mjs:18 -> src/i18n/countries.ts:1444)
-buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.schema.test.mjs:18 -> src/lib/jsonld.ts:381)
+buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.schema.test.mjs:18 -> src/lib/jsonld.ts:458)
 buildCountryJsonLd -> ok   (tests/unit/jsonld.schema.test.mjs:18 -> tests/emulated/accessibility.mjs:20)
 buildCountryJsonLd -> ok   (tests/unit/jsonld.schema.test.mjs:18 -> tests/emulated/api-contracts.mjs:16)
 buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.schema.test.mjs:18 -> tests/unit/jsonld.test.mjs:15)
 buildCountryJsonLd -> getCountry   (tests/unit/jsonld.test.mjs:15 -> src/i18n/countries.ts:1444)
-buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.test.mjs:15 -> src/lib/jsonld.ts:381)
+buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.test.mjs:15 -> src/lib/jsonld.ts:458)
 buildCountryJsonLd -> ok   (tests/unit/jsonld.test.mjs:15 -> tests/emulated/accessibility.mjs:20)
 buildCountryJsonLd -> ok   (tests/unit/jsonld.test.mjs:15 -> tests/emulated/api-contracts.mjs:16)
 buildCountryJsonLd -> buildCountryJsonLd   (tests/unit/jsonld.test.mjs:15 -> tests/unit/jsonld.schema.test.mjs:18)
@@ -3820,8 +3862,8 @@ lineNumberOf -> ok   (tests/unit/no-brl-leak.test.mjs:43 -> tests/emulated/api-c
 lineNumberOf -> walk   (tests/unit/no-brl-leak.test.mjs:43 -> tests/unit/no-brl-leak.test.mjs:29)
 lineNumberOf -> isAllowed   (tests/unit/no-brl-leak.test.mjs:43 -> tests/unit/no-brl-leak.test.mjs:39)
 lineNumberOf -> walk   (tests/unit/no-brl-leak.test.mjs:43 -> tests/unit/security.test.mjs:19)
-detectAcceptLanguage -> toJsonLdGraph   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/lib/jsonld.ts:137)
-detectAcceptLanguage -> buildAggregateOffer   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/lib/jsonld.ts:246)
+detectAcceptLanguage -> toJsonLdGraph   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/lib/jsonld.ts:138)
+detectAcceptLanguage -> buildAggregateOffer   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/lib/jsonld.ts:323)
 detectAcceptLanguage -> formatQty   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/lib/plan-labels.ts:20)
 detectAcceptLanguage -> detectAcceptLanguage   (tests/unit/round-13-17-fixes.test.mjs:35 -> src/middleware.ts:105)
 detectAcceptLanguage -> ok   (tests/unit/round-13-17-fixes.test.mjs:35 -> tests/emulated/accessibility.mjs:20)
@@ -3888,14 +3930,14 @@ search -> normalize   (tests/unit/search-edge.test.mjs:81 -> tests/unit/search-c
 search -> search   (tests/unit/search-edge.test.mjs:81 -> tests/unit/search-corpus.test.mjs:85)
 search -> buildIndex   (tests/unit/search-edge.test.mjs:81 -> tests/unit/search-edge.test.mjs:44)
 search -> normalize   (tests/unit/search-edge.test.mjs:81 -> tests/unit/search-edge.test.mjs:77)
-walk -> safeJsonStringify   (tests/unit/security.test.mjs:19 -> src/lib/jsonld.ts:12)
+walk -> safeJsonStringify   (tests/unit/security.test.mjs:19 -> src/lib/jsonld.ts:13)
 walk -> ok   (tests/unit/security.test.mjs:19 -> tests/emulated/accessibility.mjs:20)
 walk -> get   (tests/unit/security.test.mjs:19 -> tests/emulated/accessibility.mjs:24)
 walk -> ok   (tests/unit/security.test.mjs:19 -> tests/emulated/api-contracts.mjs:16)
 walk -> walk   (tests/unit/security.test.mjs:19 -> tests/unit/no-brl-leak.test.mjs:29)
 walk -> get   (tests/unit/security.test.mjs:19 -> tests/unit/round-13-17-fixes.test.mjs:213)
-xmlEscape -> xmlEscape   (tests/unit/sitemap-xml.test.mjs:16 -> src/app/sitemap.xml/route.ts:19)
-buildSitemapIndexXml -> xmlEscape   (tests/unit/sitemap-xml.test.mjs:20 -> src/app/sitemap.xml/route.ts:19)
+xmlEscape -> xmlEscape   (tests/unit/sitemap-xml.test.mjs:16 -> src/app/sitemap.xml/route.ts:24)
+buildSitemapIndexXml -> xmlEscape   (tests/unit/sitemap-xml.test.mjs:20 -> src/app/sitemap.xml/route.ts:24)
 buildSitemapIndexXml -> ok   (tests/unit/sitemap-xml.test.mjs:20 -> tests/emulated/accessibility.mjs:20)
 buildSitemapIndexXml -> ok   (tests/unit/sitemap-xml.test.mjs:20 -> tests/emulated/api-contracts.mjs:16)
 buildSitemapIndexXml -> xmlEscape   (tests/unit/sitemap-xml.test.mjs:20 -> tests/unit/sitemap-xml.test.mjs:16)

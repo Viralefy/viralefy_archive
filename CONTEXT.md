@@ -261,6 +261,19 @@ sqlx `macros` removida no dispatcher (arrastava `rsa` vulnerável),
 
 ---
 
+## Sessão 2026-07-26 — sweep de SEO orgânico + AIO (viralefy_front)
+
+Continuação do ISR (ADR-0015/0016). Otimizado o orgânico sem mudar URL:
+FAQPage nas money pages (country/slug) + HowTo no help procedural + Review nodes;
+`dateModified` e sitemap `lastmod` estáveis (fim do frescor falso de `new Date()`
+sob ISR); og:image restaurada em 7 landings tier-4 + `legal`; hreflang tier-4
+honesto (EN-only → x-default+en); tier de planos des-orfanizado (links `<a>`
+server-side); `/llms.txt` no formato llmstxt.org + `/feed.xml` RSS, ambos gerados;
+OG route ISR 1h; guard de build p/ `NEXT_PUBLIC_SITE_URL`. 520 unit tests (13
+novos), build verde, render conferido, índice §39 regenerado.
+Detalhe: [ADR-0017](adr/0017-front-organic-seo-aio-sweep.md) +
+[task](task/2026-07-26-front-organico-seo-aio-sweep.md). Branch `perf/front-locale-isr` (PR #1).
+
 ## Docs índice
 
 - `INDEX.md` — mapa de todos os MDs do archive
